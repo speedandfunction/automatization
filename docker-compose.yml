@@ -13,9 +13,6 @@ services:
     networks:
       - app-network
     user: node
-    depends_on:
-      postgresql:
-        condition: service_healthy
 
   # Temporal services
   elasticsearch:
