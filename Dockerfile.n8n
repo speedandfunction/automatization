@@ -9,9 +9,9 @@ ENV N8N_PORT=5678 \
 # Create app directory
 WORKDIR /home/node/.n8n
 
-# Add custom healthcheck - using shell form to ensure || works correctly
+# Add custom healthcheck using exec form
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD /bin/sh -c "curl -s http://localhost:${N8N_PORT}/healthz || exit 1"
+  CMD ["/bin/sh", "-c", "curl -s http://localhost:${N8N_PORT}/healthz || exit 1"]
 
 # Explicitly set the user to the non-root 'node' user (which is already set up in the base image)
 USER node
