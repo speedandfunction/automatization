@@ -9,7 +9,7 @@ services:
     environment:
       - WEBHOOK_URL=http://localhost:5678/
     volumes:
-      - ./volumes/n8n_data:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
     networks:
       - app-network
 
@@ -30,7 +30,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./volumes/elasticsearch-data:/usr/share/opensearch/data
+      - elasticsearch-data:/usr/share/opensearch/data
     networks:
       - app-network
 
@@ -44,7 +44,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./volumes/postgresql-data:/var/lib/postgresql/data
+      - postgresql-data:/var/lib/postgresql/data
     networks:
       - app-network
 
