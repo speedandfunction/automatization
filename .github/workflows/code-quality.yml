@@ -40,3 +40,43 @@ jobs:
         run: docker run --rm -i hadolint/hadolint < Dockerfile.n8n
       - name: Lint Dockerfile.temporal
         run: docker run --rm -i hadolint/hadolint < Dockerfile.temporal
+        
+  docker-scout:
+    name: Docker Security Scanning
+    runs-on: ubuntu-latest
+    needs: hadolint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build n8n image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.n8n
+          push: false
+          tags: n8n-test:latest
+          load: true
+      - name: Build temporal image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.temporal
+          push: false
+          tags: temporal-test:latest
+          load: true
+      - name: Scan n8n image
+        run: docker scout cves n8n-test:latest --format sarif --output n8n-scan.sarif
+      - name: Scan temporal image
+        run: docker scout cves temporal-test:latest --format sarif --output temporal-scan.sarif
+      - name: Upload n8n scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: n8n-scan.sarif
+          category: n8n
+      - name: Upload temporal scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: temporal-scan.sarif
+          category: temporal
