@@ -59,6 +59,36 @@ You should see containers for:
 - temporal-postgresql
 - temporal-elasticsearch
 
+### Checking Service Health
+
+Use the provided script to verify that all services are accessible:
+
+```bash
+./check_services.sh
+```
+
+This will check:
+- n8n health endpoint
+- Temporal UI web interface
+- Elasticsearch API
+- Temporal server gRPC port
+- PostgreSQL database connection
+
+Example output:
+```
+Checking service availability...
+Checking n8n at http://localhost:5678/healthz... ACCESSIBLE ✅ (HTTP 200)
+Checking temporal-ui at http://localhost:8080... ACCESSIBLE ✅ (HTTP 200)
+Checking elasticsearch at http://localhost:9200... ACCESSIBLE ✅ (HTTP 200)
+Checking temporal at localhost:7233... ACCESSIBLE ✅
+Checking postgresql at localhost:5432... ACCESSIBLE ✅
+
+Service URLs:
+- n8n: http://localhost:5678
+- Temporal UI: http://localhost:8080
+- Elasticsearch: http://localhost:9200
+```
+
 ### Accessing the services
 
 - **n8n**: http://localhost:5678
