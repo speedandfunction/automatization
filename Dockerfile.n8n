@@ -1,0 +1,15 @@
+FROM n8nio/n8n:latest
+
+# Add custom environment variables
+ENV N8N_PORT=5678 \
+    NODE_ENV=production
+
+# Create app directory
+WORKDIR /home/node/.n8n
+
+# Add custom healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD wget -q --spider http://localhost:5678/healthz || exit 1
+
+# The entrypoint script is already defined in the base image
+# Don't override the CMD 

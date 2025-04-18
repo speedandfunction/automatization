@@ -1,0 +1,20 @@
+FROM temporalio/auto-setup:1.20
+
+# Set up environment variables for PostgreSQL and Elasticsearch
+ENV DB=postgresql \
+    DB_PORT=5432 \
+    POSTGRES_USER=temporal \
+    POSTGRES_PWD=temporal \
+    POSTGRES_SEEDS=postgresql \
+    ENABLE_ES=true \
+    ES_SEEDS=elasticsearch \
+    ES_VERSION=v7
+
+# Add custom healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD temporal operator cluster health | grep -q SERVING || exit 1
+
+# Expose the gRPC port
+EXPOSE 7233
+
+# The entrypoint script is already defined in the base image 

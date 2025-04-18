@@ -1,0 +1,99 @@
+services:
+  # n8n service
+  n8n:
+    build:
+      context: .
+      dockerfile: Dockerfile.n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - WEBHOOK_URL=http://localhost:5678/
+    volumes:
+      - ./volumes/n8n_data:/home/node/.n8n
+    networks:
+      - app-network
+
+  # Temporal services
+  elasticsearch:
+    container_name: temporal-elasticsearch
+    image: opensearchproject/opensearch:2.5.0
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m"
+      - "DISABLE_SECURITY_PLUGIN=true"
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+    ports:
+      - 9200:9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./volumes/elasticsearch-data:/usr/share/opensearch/data
+    networks:
+      - app-network
+
+  postgresql:
+    container_name: temporal-postgresql
+    image: postgres:14
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+    ports:
+      - 5432:5432
+    volumes:
+      - ./volumes/postgresql-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  temporal:
+    container_name: temporal
+    build:
+      context: .
+      dockerfile: Dockerfile.temporal
+    depends_on:
+      - postgresql
+      - elasticsearch
+    ports:
+      - 7233:7233
+    networks:
+      - app-network
+
+  temporal-ui:
+    container_name: temporal-ui
+    image: temporalio/ui:2.10.3
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_PERMIT_WRITE_API=true
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+
+volumes:
+  n8n_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/volumes/n8n_data
+  elasticsearch-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/volumes/elasticsearch-data
+  postgresql-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/volumes/postgresql-data
+
+networks:
+  app-network:
+    driver: bridge 
