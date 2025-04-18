@@ -72,12 +72,14 @@ jobs:
           command: cves
           image: n8n-test:latest
           sarif-file: n8n-scan.sarif
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Scan temporal image
         uses: docker/scout-action@v1
         with:
           command: cves
           image: temporal-test:latest
           sarif-file: temporal-scan.sarif
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload n8n scan results
         uses: github/codeql-action/upload-sarif@v2
         with:
