@@ -2,14 +2,19 @@ FROM n8nio/n8n:1.22.0
 
 # Add custom environment variables
 ENV N8N_PORT=5678 \
-    NODE_ENV=production
+    NODE_ENV=production \
+    N8N_METRICS=true \
+    N8N_HEALTH_CHECK_ENDPOINT=true
 
 # Create app directory
 WORKDIR /home/node/.n8n
 
-# Add custom healthcheck
+# Add custom healthcheck using exec form
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD wget -q --spider http://localhost:${N8N_PORT}/healthz || exit 1
+  CMD ["/bin/sh", "-c", "curl -s http://localhost:${N8N_PORT}/healthz || exit 1"]
+
+# Explicitly set the user to the non-root 'node' user (which is already set up in the base image)
+USER node
 
 # The entrypoint script is already defined in the base image
 # Don't override the CMD 
