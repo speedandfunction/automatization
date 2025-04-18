@@ -67,9 +67,9 @@ jobs:
           tags: temporal-test:latest
           load: true
       - name: Scan n8n image
-        run: docker scout cves n8n-test:latest --format sarif --output n8n-scan.sarif
+        run: docker scout cves n8n-test:latest --format=sarif --output n8n-scan.sarif
       - name: Scan temporal image
-        run: docker scout cves temporal-test:latest --format sarif --output temporal-scan.sarif
+        run: docker scout cves temporal-test:latest --format=sarif --output temporal-scan.sarif
       - name: Upload n8n scan results
         uses: github/codeql-action/upload-sarif@v2
         with:
