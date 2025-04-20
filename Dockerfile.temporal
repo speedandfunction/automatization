@@ -1,17 +1,17 @@
-FROM temporalio/auto-setup:1.20
+FROM temporalio/auto-setup:1.20.5
 
-# Set up environment variables for PostgreSQL and Elasticsearch
+# Set up environment variables for PostgreSQL and OpenSearch
 ENV DB=postgresql \
     DB_PORT=5432 \
-    POSTGRES_USER=temporal \
-    POSTGRES_PWD=temporal \
+    POSTGRES_USER=${POSTGRES_USER} \
+    POSTGRES_PWD=${POSTGRES_PASSWORD} \
     POSTGRES_SEEDS=postgresql \
     ENABLE_ES=true \
-    ES_SEEDS=elasticsearch \
-    ES_VERSION=v7
+    ES_SEEDS=opensearch \
+    ES_VERSION=v2
 
 # Add custom healthcheck using exec form
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD ["/bin/sh", "-c", "temporal operator cluster health --address 0.0.0.0:7233 | grep -q SERVING || exit 1"]
 
 # Explicitly set the user to the non-root 'temporal' user (already defined in the base image)

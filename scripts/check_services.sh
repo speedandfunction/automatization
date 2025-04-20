@@ -28,8 +28,8 @@ check_http_service "n8n" "http://localhost:5678/healthz"
 # Check temporal-ui
 check_http_service "temporal-ui" "http://localhost:8080"
 
-# Check elasticsearch
-check_http_service "elasticsearch" "http://localhost:9200"
+# Check opensearch
+check_http_service "opensearch" "http://localhost:9200"
 
 # Check temporal service
 echo -n "Checking temporal at localhost:7233... "
@@ -50,4 +50,4 @@ fi
 echo -e "\nService URLs:"
 echo "- n8n: http://localhost:5678"
 echo "- Temporal UI: http://localhost:8080"
-echo "- Elasticsearch: http://localhost:9200" 
+echo "- OpenSearch: http://localhost:9200" 

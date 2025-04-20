@@ -1,4 +1,4 @@
-FROM n8nio/n8n:1.22.0
+FROM n8nio/n8n:1.89.2
 
 # Add custom environment variables
 ENV N8N_PORT=5678 \
@@ -7,7 +7,7 @@ ENV N8N_PORT=5678 \
     N8N_HEALTH_CHECK_ENDPOINT=true
 
 # Create app directory
-WORKDIR /home/node/.n8n
+WORKDIR /home/node
 
 # Add custom healthcheck using exec form
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \

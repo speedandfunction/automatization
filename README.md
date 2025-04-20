@@ -11,7 +11,7 @@ The setup includes:
   - Temporal server
   - Temporal UI
   - PostgreSQL (database)
-  - Elasticsearch (for visibility features)
+  - OpenSearch (for visibility features)
 
 ## Custom Docker Images
 
@@ -21,6 +21,17 @@ This project uses custom Docker images built from the following Dockerfiles:
 - **Dockerfile.temporal**: Extends the official Temporal auto-setup image
 
 ## Usage
+
+### Prepare volume directories
+
+Before starting the services, run the setup script to create the necessary volume directories:
+
+```bash
+chmod +x scripts/setup_volumes.sh
+./scripts/setup_volumes.sh
+```
+
+This prevents volume mount errors that may occur if the directories don't exist.
 
 ### Starting the services
 
@@ -57,7 +68,7 @@ You should see containers for:
 - temporal
 - temporal-ui
 - temporal-postgresql
-- temporal-elasticsearch
+- opensearch
 
 ### Checking Service Health
 
@@ -70,7 +81,7 @@ Use the provided script to verify that all services are accessible:
 This will check:
 - n8n health endpoint
 - Temporal UI web interface
-- Elasticsearch API
+- OpenSearch API
 - Temporal server gRPC port
 - PostgreSQL database connection
 
@@ -79,14 +90,14 @@ Example output:
 Checking service availability...
 Checking n8n at http://localhost:5678/healthz... ACCESSIBLE ✅ (HTTP 200)
 Checking temporal-ui at http://localhost:8080... ACCESSIBLE ✅ (HTTP 200)
-Checking elasticsearch at http://localhost:9200... ACCESSIBLE ✅ (HTTP 200)
+Checking opensearch at http://localhost:9200... ACCESSIBLE ✅ (HTTP 200)
 Checking temporal at localhost:7233... ACCESSIBLE ✅
 Checking postgresql at localhost:5432... ACCESSIBLE ✅
 
 Service URLs:
 - n8n: http://localhost:5678
 - Temporal UI: http://localhost:8080
-- Elasticsearch: http://localhost:9200
+- OpenSearch: http://localhost:9200
 ```
 
 ### Accessing the services
@@ -121,7 +132,7 @@ docker compose down -v
 All data is stored in local volumes under the `./volumes/` directory:
 
 - `./volumes/n8n_data` - n8n data and workflows
-- `./volumes/elasticsearch-data` - Elasticsearch data for Temporal
+- `./volumes/opensearch-data` - OpenSearch data for Temporal
 - `./volumes/postgresql-data` - PostgreSQL database for Temporal
 
 ## Service Ports
@@ -130,7 +141,7 @@ All data is stored in local volumes under the `./volumes/` directory:
 - Temporal server: 7233 (gRPC API, not HTTP)
 - Temporal UI: 8080
 - PostgreSQL: 5432
-- Elasticsearch: 9200
+- OpenSearch: 9200
 
 ## Troubleshooting
 
@@ -143,4 +154,11 @@ If you encounter any issues:
    ```
 
 2. Ensure all required ports are available on your system
+
 3. Make sure Docker has sufficient resources allocated
+
+4. If you encounter volume mount errors (e.g., "failed to mount local volume ... no such file or directory"), run the setup script:
+   ```bash
+   ./scripts/setup_volumes.sh
+   ```
+   This creates the necessary volume directories in the `./volumes/` folder.
