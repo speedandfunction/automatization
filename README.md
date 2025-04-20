@@ -75,7 +75,7 @@ You should see containers for:
 Use the provided script to verify that all services are accessible:
 
 ```bash
-./check_services.sh
+scripts/check_services.sh
 ```
 
 This will check:

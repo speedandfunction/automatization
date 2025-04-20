@@ -1,15 +1,18 @@
 services:
   # n8n service
   n8n:
+    container_name: n8n
     build:
       context: .
       dockerfile: Dockerfile.n8n
+      args:
+        - N8N_PORT=5678
     restart: unless-stopped
     ports:
       - "5678:5678"
     environment:
-      - WEBHOOK_URL=$N8N_WEBHOOK_URL
-      - N8N_ENCRYPTION_KEY=$N8N_ENCRYPTION_KEY
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
@@ -28,7 +31,7 @@ services:
       - "DISABLE_SECURITY_PLUGIN=${DISABLE_SECURITY_PLUGIN}"
       - "DISABLE_INSTALL_DEMO_CONFIG=true"
     ports:
-      - 9201:9200
+      - 9200:9200
     cap_add:
       - IPC_LOCK
     ulimits:
@@ -44,6 +47,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 30s
 
   postgresql:
     container_name: temporal-postgresql
@@ -65,13 +69,19 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 30s
 
   temporal:
     container_name: temporal
     build:
       context: .
       dockerfile: Dockerfile.temporal
+      args:
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_DB=${POSTGRES_DB}
+        - ES_SEEDS=opensearch
+        - ES_VERSION=v7
     restart: unless-stopped
     depends_on:
       postgresql:
@@ -80,6 +90,7 @@ services:
         condition: service_healthy
     environment:
       - ES_SEEDS=opensearch
+      - ES_VERSION=v7
     ports:
       - 7233:7233
     networks:
@@ -100,6 +111,12 @@ services:
       - 8080:8080
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   n8n_data:

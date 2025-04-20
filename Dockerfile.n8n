@@ -1,8 +1,12 @@
 FROM n8nio/n8n:1.89.2
 
+# Define build arguments
+ARG N8N_PORT=5678
+ARG NODE_ENV=production
+
 # Add custom environment variables
-ENV N8N_PORT=5678 \
-    NODE_ENV=production \
+ENV N8N_PORT=${N8N_PORT} \
+    NODE_ENV=${NODE_ENV} \
     N8N_METRICS=true \
     N8N_HEALTH_CHECK_ENDPOINT=true
 
@@ -10,8 +14,8 @@ ENV N8N_PORT=5678 \
 WORKDIR /home/node
 
 # Add custom healthcheck using exec form
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD ["/bin/sh", "-c", "curl -s http://localhost:${N8N_PORT}/healthz || exit 1"]
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=30s \
+  CMD ["/bin/sh", "-c", "wget -q --spider http://n8n:${N8N_PORT}/healthz || exit 1"]
 
 # Explicitly set the user to the non-root 'node' user (which is already set up in the base image)
 USER node
