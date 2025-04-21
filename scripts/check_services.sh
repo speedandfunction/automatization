@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Source environment variables from .env file
+if [ -f .env ]; then
+  source .env
+else
+  echo "Error: .env file not found. Please make sure it exists in the root directory."
+  exit 1
+fi
+
 echo "Checking service availability..."
 
 # Check if docker-compose is running
@@ -23,31 +31,31 @@ check_http_service() {
 }
 
 # Check n8n
-check_http_service "n8n" "http://localhost:5678/healthz"
+check_http_service "n8n" "http://localhost:${N8N_PORT}/healthz"
 
 # Check temporal-ui
-check_http_service "temporal-ui" "http://localhost:8080"
+check_http_service "temporal-ui" "http://localhost:${TEMPORAL_UI_PORT}"
 
-# Check elasticsearch
-check_http_service "elasticsearch" "http://localhost:9200"
+# Check opensearch
+check_http_service "opensearch" "http://localhost:${OPENSEARCH_PORT}"
 
 # Check temporal service
-echo -n "Checking temporal at localhost:7233... "
-if nc -z localhost 7233 >/dev/null 2>&1; then
+echo -n "Checking temporal at localhost:${TEMPORAL_PORT}... "
+if nc -z localhost ${TEMPORAL_PORT} >/dev/null 2>&1; then
   echo "ACCESSIBLE ✅"
 else
   echo "NOT ACCESSIBLE ❌"
 fi
 
 # Check PostgreSQL
-echo -n "Checking postgresql at localhost:5432... "
-if docker compose exec postgresql pg_isready -h localhost -p 5432 -U temporal >/dev/null 2>&1; then
+echo -n "Checking postgresql at localhost:${POSTGRES_PORT}... "
+if docker compose exec postgresql pg_isready -h localhost -p ${POSTGRES_PORT} -U ${POSTGRES_USER} >/dev/null 2>&1; then
   echo "ACCESSIBLE ✅"
 else
   echo "NOT ACCESSIBLE ❌"
 fi
 
 echo -e "\nService URLs:"
-echo "- n8n: http://localhost:5678"
-echo "- Temporal UI: http://localhost:8080"
-echo "- Elasticsearch: http://localhost:9200" 
+echo "- n8n: http://localhost:${N8N_PORT}"
+echo "- Temporal UI: http://localhost:${TEMPORAL_UI_PORT}"
+echo "- OpenSearch: http://localhost:${OPENSEARCH_PORT}" 
