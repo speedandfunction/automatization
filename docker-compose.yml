@@ -5,14 +5,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.n8n
-      args:
-        - N8N_PORT=5678
     restart: unless-stopped
     ports:
-      - "5678:5678"
+      - "${N8N_PORT}:5678"
     environment:
       - WEBHOOK_URL=${N8N_WEBHOOK_URL}
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - "N8N_RUNNERS_ENABLED=true"
+      - "N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true"
+      - "N8N_PORT=5678"
+      - "NODE_ENV=production"
+      - "N8N_METRICS=true"
+      - "N8N_HEALTH_CHECK_ENDPOINT=true"
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
@@ -31,7 +35,7 @@ services:
       - "DISABLE_SECURITY_PLUGIN=${DISABLE_SECURITY_PLUGIN}"
       - "DISABLE_INSTALL_DEMO_CONFIG=true"
     ports:
-      - 9200:9200
+      - ${OPENSEARCH_PORT}:9200
     cap_add:
       - IPC_LOCK
     ulimits:
@@ -43,7 +47,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -sSf http://localhost:9200/ || exit 1"]
+      test: ["CMD-SHELL", "curl -sSf http://localhost:${OPENSEARCH_PORT}/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -58,7 +62,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT}:5432
     volumes:
       - postgresql-data:/var/lib/postgresql/data
     networks:
@@ -77,11 +81,8 @@ services:
       context: .
       dockerfile: Dockerfile.temporal
       args:
-        - POSTGRES_USER=${POSTGRES_USER}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        - POSTGRES_DB=${POSTGRES_DB}
-        - ES_SEEDS=opensearch
-        - ES_VERSION=v7
+        - HOST=temporal
+        - TEMPORAL_PORT=${TEMPORAL_PORT}
     restart: unless-stopped
     depends_on:
       postgresql:
@@ -91,8 +92,16 @@ services:
     environment:
       - ES_SEEDS=opensearch
       - ES_VERSION=v7
+      - DB=postgresql
+      - DB_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD}
+      - POSTGRES_SEEDS=postgresql
+      - ENABLE_ES=true
+      - HOST=temporal
+      - TEMPORAL_PORT=7233
     ports:
-      - 7233:7233
+      - ${TEMPORAL_PORT}:7233
     networks:
       - app-network
     user: temporal
@@ -105,14 +114,14 @@ services:
       temporal:
         condition: service_healthy
     environment:
-      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_ADDRESS=temporal:${TEMPORAL_PORT}
       - TEMPORAL_PERMIT_WRITE_API=true
     ports:
-      - 8080:8080
+      - ${TEMPORAL_UI_PORT}:8080
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://localhost:8080"]
+      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://temporal-ui:${TEMPORAL_UI_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5

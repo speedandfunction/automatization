@@ -27,11 +27,20 @@ This project uses custom Docker images built from the following Dockerfiles:
 Before starting the services, run the setup script to create the necessary volume directories:
 
 ```bash
-chmod +x scripts/setup_volumes.sh
 ./scripts/setup_volumes.sh
 ```
 
 This prevents volume mount errors that may occur if the directories don't exist.
+
+### Create environment file
+
+Create a `.env` file in the root directory of the project with your environment variables:
+
+```bash
+cp .env.example .env
+```
+
+Then edit the `.env` file to set your specific configuration values.
 
 ### Starting the services
 

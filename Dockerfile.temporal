@@ -1,32 +1,20 @@
 FROM temporalio/auto-setup:1.20.5
 
-# Define build arguments with defaults matching the .env file
-ARG POSTGRES_USER=temporal
-ARG POSTGRES_PASSWORD=temporal
-ARG POSTGRES_DB=temporal
-ARG DB_PORT=5432
-ARG POSTGRES_SEEDS=postgresql
-ARG ES_SEEDS=opensearch
-ARG ES_VERSION=v7
+# Build arguments are still needed for the temporal container setup
+# Keeping only those used in the HEALTHCHECK or other commands
+ARG HOST=temporal
+ARG TEMPORAL_PORT=7233
 
-# Set up environment variables for PostgreSQL and OpenSearch
-ENV DB=postgresql \
-    DB_PORT=${DB_PORT} \
-    POSTGRES_USER=${POSTGRES_USER} \
-    POSTGRES_PWD=${POSTGRES_PASSWORD} \
-    POSTGRES_SEEDS=${POSTGRES_SEEDS} \
-    ENABLE_ES=true \
-    ES_SEEDS=${ES_SEEDS} \
-    ES_VERSION=${ES_VERSION}
+# Environment variables are now defined in docker-compose.yml
 
 # Add custom healthcheck using exec form
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD ["/bin/sh", "-c", "temporal operator cluster health --address temporal:7233 | grep -q SERVING || exit 1"]
+  CMD ["/bin/sh", "-c", "temporal operator cluster health --address ${HOST}:${TEMPORAL_PORT} | grep -q SERVING || exit 1"]
 
 # Explicitly set the user to the non-root 'temporal' user (already defined in the base image)
 USER temporal
 
 # Expose the gRPC port
-EXPOSE 7233
+EXPOSE ${TEMPORAL_PORT}
 
 # The entrypoint script is already defined in the base image 
