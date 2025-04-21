@@ -2,6 +2,7 @@ FROM n8nio/n8n:1.89.2
 
 # Define build arguments
 ARG NODE_ENV=production
+ARG N8N_PORT=5678
 # Environment variables are now defined in docker-compose.yml
 
 # Create app directory
