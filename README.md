@@ -52,7 +52,7 @@ This will start all services in detached mode.
 
 ### Building custom images
 
-If you've made changes to the Dockerfiles, you'll need to rebuild the images:
+Rebuild images after modifying the Dockerfiles:
 
 ```bash
 docker compose build
@@ -95,7 +95,7 @@ This will check:
 - PostgreSQL database connection
 
 Example output:
-```
+```text
 Checking service availability...
 Checking n8n at http://localhost:5678/healthz... ACCESSIBLE ✅ (HTTP 200)
 Checking temporal-ui at http://localhost:8080... ACCESSIBLE ✅ (HTTP 200)
@@ -111,8 +111,8 @@ Service URLs:
 
 ### Accessing the services
 
-- **n8n**: http://localhost:5678
-- **Temporal UI**: http://localhost:8080
+- **n8n**: <http://localhost:5678>
+- **Temporal UI**: <http://localhost:8080>
 
 You can verify the services are responding with:
 
