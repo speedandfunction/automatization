@@ -1,0 +1,48 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Commit Message Generator
+
+When asked to generate a commit message:
+
+1. Run `git --no-pager status` to see what files were changed
+2. Run `git --no-pager diff` to examine the actual changes
+3. Generate a commit message with this format:
+
+```
+<Title: One sentence up to 120 characters describing the main change>
+
+- <Change 1>
+- <Change 2>
+- <Change 3>
+...
+```
+
+## Rules
+
+- Title should be clear, concise, and descriptive
+- Use imperative mood for the title (e.g., "Add feature" not "Added feature") 
+- Each bullet point should describe a specific change
+- Be specific about what was changed
+- No explanations or additional context needed
+- No sign-off, no issue references unless explicitly requested
+
+## Examples
+
+```
+Add user authentication to login page
+
+- Create LoginForm component with email/password fields
+- Implement form validation for login inputs
+- Add authentication service with API integration
+```
+
+```
+Fix pagination bug in product list
+
+- Update page calculation logic in ProductList component
+- Add error handling for API pagination responses
+- Fix CSS for pagination controls on mobile view
+```
