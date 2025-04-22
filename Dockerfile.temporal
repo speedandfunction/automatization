@@ -1,0 +1,20 @@
+FROM temporalio/auto-setup:1.20.5
+
+# Build arguments are still needed for the temporal container setup
+# Keeping only those used in the HEALTHCHECK or other commands
+ARG HOST=temporal
+ARG TEMPORAL_PORT=7233
+
+# Environment variables are now defined in docker-compose.yml
+
+# Add custom healthcheck using exec form
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD ["/bin/sh", "-c", "temporal operator cluster health --address ${HOST}:${TEMPORAL_PORT} | grep -q SERVING || exit 1"]
+
+# Explicitly set the user to the non-root 'temporal' user (already defined in the base image)
+USER temporal
+
+# Expose the gRPC port
+EXPOSE ${TEMPORAL_PORT}
+
+# The entrypoint script is already defined in the base image 
