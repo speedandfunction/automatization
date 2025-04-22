@@ -171,3 +171,31 @@ If you encounter any issues:
    ./scripts/setup_volumes.sh
    ```
    This creates the necessary volume directories in the `./volumes/` folder.
+
+## GitHub MCP Configuration
+
+To use GitHub-related functions with Cursor's Machine Coding Protocol (MCP), you need to configure a GitHub Personal Access Token:
+
+1. Create the secrets directory if it doesn't exist:
+   ```bash
+   mkdir -p ~/.cursor/mcp
+   ```
+
+2. Copy or edit the `.env` file in this directory:
+   ```bash
+   cp mcp.env.example ~/.cursor/mcp/.env
+   ```
+
+3. Update your GitHub Personal Access Token to the `~/.cursor/mcp/.env`:
+   ```
+   GITHUB_PERSONAL_ACCESS_TOKEN=your_token_here
+   ```
+
+4. Save the file and restart Cursor for the changes to take effect.
+
+To get access to a GitHub Personal Access Token:
+Ask @killev
+or
+1. Go to GitHub Settings > Developer settings > Personal access tokens
+2. Generate a new token with appropriate permissions (repo, workflow, etc.)
+3. Copy the token and add it to the `.env` file as shown above
