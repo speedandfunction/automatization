@@ -40,7 +40,7 @@ jobs:
         run: docker run --rm -i hadolint/hadolint < Dockerfile.n8n
       - name: Lint Dockerfile.temporal
         run: docker run --rm -i hadolint/hadolint < Dockerfile.temporal
-        
+
   docker-scout:
     name: Docker Security Scanning
     runs-on: ubuntu-latest
