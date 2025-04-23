@@ -19,7 +19,7 @@ lerna-debug.log*
 mcp
 mcp-config.json
 .cursor/*
-!.cursor/rules/
+!.cursor/rules/**
 
 
 # JetBrains IDE
