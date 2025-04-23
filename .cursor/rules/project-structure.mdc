@@ -1,0 +1,28 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Project Structure Guide
+
+This repository contains a Docker Compose setup for running n8n (workflow automation tool) and Temporal (workflow orchestration platform) services together.
+
+## Key Files
+- [docker-compose.yml](mdc:docker-compose.yml) - Main service orchestration configuration
+- [Dockerfile.n8n](mdc:Dockerfile.n8n) - Custom n8n image configuration
+- [Dockerfile.temporal](mdc:Dockerfile.temporal) - Custom Temporal image configuration
+
+## Important Directories
+- `volumes/` - Contains persistent data for all services:
+  - `n8n_data/` - n8n workflows and data
+  - `opensearch-data/` - OpenSearch data for Temporal
+  - `postgresql-data/` - PostgreSQL database for Temporal
+- `scripts/` - Contains utility scripts for setup and maintenance
+
+## Service Architecture
+The project consists of several interconnected services:
+1. n8n (Port 5678) - Workflow automation tool
+2. Temporal Server (Port 7233) - Workflow orchestration engine
+3. Temporal UI (Port 8080) - Web interface for Temporal
+4. PostgreSQL (Port 5432) - Database for Temporal
+5. OpenSearch (Port 9200) - Search engine for Temporal visibility features

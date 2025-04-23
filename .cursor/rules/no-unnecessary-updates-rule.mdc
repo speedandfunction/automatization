@@ -1,0 +1,6 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+- Don't suggest updates or changes to files when there are no actual modifications needed

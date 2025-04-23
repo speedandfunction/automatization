@@ -1,0 +1,6 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+- Don't remove unrelated code or functionalities. Pay attention to preserving existing structures.

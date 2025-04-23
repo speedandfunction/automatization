@@ -1,0 +1,6 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+- Don't summarize changes made
