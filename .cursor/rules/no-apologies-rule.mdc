@@ -1,6 +1,6 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: "Prohibits the use of apologies in communication"
+globs: ["**/*"]
 ---
-- Never use apologies
+
+- Never use apologies 

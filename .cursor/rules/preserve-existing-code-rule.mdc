@@ -1,6 +1,6 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: "Ensures preservation of existing code and functionality during modifications"
+globs: ["**/*"]
 ---
-- Don't remove unrelated code or functionalities. Pay attention to preserving existing structures.
+
+- Don't remove unrelated code or functionalities. Pay attention to preserving existing structures. 

@@ -1,8 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: false
+description: "Provides service setup, health verification, and troubleshooting guidelines"
+globs: ["scripts/*.sh", "docker-compose.yml", ".env*"]
 ---
+
 # Service Configuration Guide
 
 ## Setup Instructions
@@ -28,4 +28,4 @@ The [scripts/check_services.sh](mdc:scripts/check_services.sh) script verifies a
 2. Verify port availability
 3. Ensure sufficient Docker resources
 4. Run setup script for volume mount issues
-5. Check service health endpoints
+5. Check service health endpoints 

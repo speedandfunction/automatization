@@ -1,6 +1,6 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: "Prohibits asking for confirmation of information already provided in context"
+globs: ["**/*"]
 ---
-- Don't ask for confirmation of information already provided in the context
+
+- Don't ask for confirmation of information already provided in the context 

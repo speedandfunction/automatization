@@ -1,8 +1,8 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: "Documents the project structure and service architecture"
+globs: ["**/*"]
 ---
+
 # Project Structure Guide
 
 This repository contains a Docker Compose setup for running n8n (workflow automation tool) and Temporal (workflow orchestration platform) services together.
@@ -25,4 +25,4 @@ The project consists of several interconnected services:
 2. Temporal Server (Port 7233) - Workflow orchestration engine
 3. Temporal UI (Port 8080) - Web interface for Temporal
 4. PostgreSQL (Port 5432) - Database for Temporal
-5. OpenSearch (Port 9200) - Search engine for Temporal visibility features
+5. OpenSearch (Port 9200) - Search engine for Temporal visibility features 

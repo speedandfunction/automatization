@@ -1,8 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: false
+description: "Enforces conventional commit message format for better version control and changelog generation"
+globs: ["**/*"]
 ---
+
 # Conventional Commit Messages
 
 Use the Conventional Commit Messages specification to generate commit messages.
@@ -64,4 +64,4 @@ chore: update dependencies
 - Update React to v18.2.0
 - Update TypeScript to v4.9.5
 - Update Jest to v29.5.0
-```
+``` 

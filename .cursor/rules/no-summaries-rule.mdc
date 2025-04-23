@@ -1,6 +1,6 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: "Prohibits summarizing changes made in communication"
+globs: ["**/*"]
 ---
-- Don't summarize changes made
+
+- Don't summarize changes made 

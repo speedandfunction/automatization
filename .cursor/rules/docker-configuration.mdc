@@ -1,8 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: false
+description: "Provides guidelines for Docker service configuration and setup"
+globs: ["docker-compose.yml", "Dockerfile*", "volumes/**/*"]
 ---
+
 # Docker Configuration Guide
 
 ## Service Configuration
@@ -30,4 +30,4 @@ Services communicate over an internal Docker network with the following exposed 
 - Temporal: 7233 (gRPC)
 - Temporal UI: 8080 (HTTP)
 - PostgreSQL: 5432
-- OpenSearch: 9200 (HTTP)
+- OpenSearch: 9200 (HTTP) 
