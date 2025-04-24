@@ -7,6 +7,14 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# IDE files and directories
+.idea/
+.vscode/
+
+*.swp
+*.swo
+.DS_Store
+
 # mcp executable
 mcp
 mcp-config.json
@@ -109,7 +117,6 @@ dist
 
 # vuepress v2.x temp and cache directory
 .temp
-.cache
 
 # vitepress build output
 **/.vitepress/dist
