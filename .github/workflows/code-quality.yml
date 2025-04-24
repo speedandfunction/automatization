@@ -83,7 +83,7 @@ jobs:
           format: json
           write-comment: true
       - name: Upload ${{ matrix.service.name }} scan results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ matrix.service.name }}-scan.sarif
           category: ${{ matrix.service.name }}
