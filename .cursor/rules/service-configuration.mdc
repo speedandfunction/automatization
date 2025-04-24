@@ -1,0 +1,31 @@
+---
+description: "Provides service setup, health verification, and troubleshooting guidelines"
+globs: ["scripts/*.sh", "docker-compose.yml", ".env*"]
+---
+
+# Service Configuration Guide
+
+## Setup Instructions
+1. Run [scripts/setup_volumes.sh](mdc:scripts/setup_volumes.sh) to create required volume directories
+2. Create `.env` file from `.env.example` for environment configuration
+3. Use `docker compose up -d` to start all services
+
+## Service Health Verification
+The [scripts/check_services.sh](mdc:scripts/check_services.sh) script verifies accessibility of:
+- n8n health endpoint (http://localhost:5678/healthz)
+- Temporal UI (http://localhost:8080)
+- OpenSearch API (http://localhost:9200)
+- Temporal server gRPC (localhost:7233)
+- PostgreSQL database (localhost:5432)
+
+## Service Access
+- n8n UI: http://localhost:5678
+- Temporal UI: http://localhost:8080
+- OpenSearch API: http://localhost:9200
+
+## Troubleshooting
+1. Check container logs using `docker logs`
+2. Verify port availability
+3. Ensure sufficient Docker resources
+4. Run setup script for volume mount issues
+5. Check service health endpoints 

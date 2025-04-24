@@ -1,0 +1,6 @@
+---
+description: "Prohibits summarizing changes made in communication"
+globs: ["**/*"]
+---
+
+- Don't summarize changes made 
