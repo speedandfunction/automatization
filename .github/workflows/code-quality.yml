@@ -74,6 +74,9 @@ jobs:
           load: true
       - name: Scan ${{ matrix.service.name }} image
         uses: docker/scout-action@v1
+        env:
+          DOCKER_SCOUT_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_SCOUT_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
         with:
           command: cves
           image: ${{ matrix.service.tag }}
