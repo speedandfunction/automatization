@@ -74,9 +74,6 @@ jobs:
           load: true
       - name: Scan ${{ matrix.service.name }} image
         uses: docker/scout-action@v1
-        env:
-          DOCKER_SCOUT_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_SCOUT_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
         with:
           command: cves
           image: ${{ matrix.service.tag }}
@@ -86,7 +83,7 @@ jobs:
           format: json
           write-comment: true
       - name: Upload ${{ matrix.service.name }} scan results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ matrix.service.name }}-scan.sarif
           category: ${{ matrix.service.name }}
