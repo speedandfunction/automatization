@@ -75,6 +75,7 @@ jobs:
           load: true
       - name: Scan ${{ matrix.service.name }} image
         uses: docker/scout-action@v1
+        id: docker_scout
         with:
           command: cves
           image: ${{ matrix.service.tag }}
@@ -83,6 +84,8 @@ jobs:
           summary: true
           format: json
           write-comment: true
+          only-severities: critical,high
+          exit-code: 1
       - name: Upload ${{ matrix.service.name }} scan results
         uses: github/codeql-action/upload-sarif@v3
         with:
