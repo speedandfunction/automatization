@@ -1,0 +1,33 @@
+---
+description: "Provides guidelines for Docker service configuration and setup"
+globs: ["docker-compose.yml", "Dockerfile*", "volumes/**/*"]
+---
+
+# Docker Configuration Guide
+
+## Service Configuration
+The [docker-compose.yml](mdc:docker-compose.yml) file defines all service configurations and their relationships. Key aspects include:
+- Service dependencies
+- Volume mounts
+- Network configuration
+- Environment variables
+- Port mappings
+
+## Custom Images
+Two custom Docker images are used:
+1. [Dockerfile.n8n](mdc:Dockerfile.n8n) - Extends official n8n image with custom configurations
+2. [Dockerfile.temporal](mdc:Dockerfile.temporal) - Extends official Temporal auto-setup image
+
+## Data Persistence
+All service data is persisted in Docker volumes mapped to the local `volumes/` directory:
+- n8n data: `./volumes/n8n_data`
+- OpenSearch: `./volumes/opensearch-data`
+- PostgreSQL: `./volumes/postgresql-data`
+
+## Network Configuration
+Services communicate over an internal Docker network with the following exposed ports:
+- n8n: 5678 (HTTP)
+- Temporal: 7233 (gRPC)
+- Temporal UI: 8080 (HTTP)
+- PostgreSQL: 5432
+- OpenSearch: 9200 (HTTP) 
