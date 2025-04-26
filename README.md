@@ -44,11 +44,38 @@ Then edit the `.env` file to set your specific configuration values.
 
 ### Starting the services
 
+You can start the services in two ways, depending on your environment:
+
+#### 1. Development (default)
+
+By default, Docker Compose uses `docker-compose.yml` (and `docker-compose.override.yml` if present):
+
 ```bash
 docker compose up -d
 ```
 
-This will start all services in detached mode.
+#### 2. Production (with production overrides)
+
+For production, you can use a separate override file (e.g., `docker-compose.prod.yml`). There are two ways to do this:
+
+**Option A: Using the COMPOSE_FILE environment variable**
+
+```bash
+export COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml
+docker compose up -d
+```
+You can unset the variable after use:
+```bash
+unset COMPOSE_FILE
+```
+
+**Option B: Using the -f flag**
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+Both options ensure that both the base and production configuration are applied.
 
 ### Building custom images
 

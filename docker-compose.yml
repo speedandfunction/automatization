@@ -133,62 +133,6 @@ services:
       retries: 5
       start_period: 30s
 
-  oauth2-proxy:
-    container_name: temporal-oauth-proxy
-    image: quay.io/oauth2-proxy/oauth2-proxy:v7.8.0
-    restart: unless-stopped
-    depends_on:
-      - temporal-ui
-    env_file:
-      - .env
-    ports:
-      - "80:80"
-    environment:
-      # Google provider settings
-      - OAUTH2_PROXY_PROVIDER=google
-      - OAUTH2_PROXY_CLIENT_ID=${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID is required}
-      - OAUTH2_PROXY_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET is required}
-      
-      # Email validation settings
-      - OAUTH2_PROXY_EMAIL_DOMAINS=${OAUTH2_PROXY_EMAIL_DOMAINS:?OAUTH2_PROXY_EMAIL_DOMAINS is required}
-      
-      # Required settings
-      - OAUTH2_PROXY_COOKIE_DOMAINS=.lvh.me
-      - OAUTH2_PROXY_WHITELIST_DOMAINS=.lvh.me
-      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:80
-      - OAUTH2_PROXY_UPSTREAMS=http://temporal-ui:80
-      - OAUTH2_PROXY_REDIRECT_URL=${OAUTH2_PROXY_REDIRECT_URL:-http://temporal.lvh.me/oauth2/callback}
-      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET:-cookie-secret-1234567890}
-      
-      # Cookie settings
-      - OAUTH2_PROXY_COOKIE_NAME=_oauth2_proxy
-      - OAUTH2_PROXY_COOKIE_SECURE=false
-      - OAUTH2_PROXY_COOKIE_HTTPONLY=true
-      - OAUTH2_PROXY_COOKIE_SAMESITE=lax
-      - OAUTH2_PROXY_COOKIE_REFRESH=1h
-      - OAUTH2_PROXY_COOKIE_EXPIRE=168h
-      
-      # CSRF protection settings
-      - OAUTH2_PROXY_CSRF_COOKIE_NAME=_oauth2_proxy_csrf
-      - OAUTH2_PROXY_CSRF_COOKIE_SECURE=false
-      - OAUTH2_PROXY_CSRF_COOKIE_DOMAIN=.lvh.me
-      - OAUTH2_PROXY_CSRF_COOKIE_HTTPONLY=true
-      - OAUTH2_PROXY_CSRF_COOKIE_SAMESITE=lax
-      
-      # Debug settings
-      - OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR=true
-      
-      # Logout settings
-      - OAUTH2_PROXY_SIGN_OUT_URL=http://temporal.lvh.me/oauth2/sign_out
-    healthcheck:
-      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://localhost:80/oauth2/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    networks:
-      - app-network
-
 volumes:
   n8n_data:
   opensearch-data:
