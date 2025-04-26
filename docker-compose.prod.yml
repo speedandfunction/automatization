@@ -36,7 +36,7 @@ services:
         - OAUTH2_PROXY_COOKIE_DOMAINS=.temporal.speedandfunction.com
         - OAUTH2_PROXY_WHITELIST_DOMAINS=.temporal.speedandfunction.com
         - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:80
-        - OAUTH2_PROXY_UPSTREAMS=http://temporal-ui:80
+        - OAUTH2_PROXY_UPSTREAMS=http://temporal-ui:8080
         - OAUTH2_PROXY_REDIRECT_URL=${OAUTH2_PROXY_REDIRECT_URL:-http://temporal.speedandfunction.com/oauth2/callback}
         - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET:?OAUTH2_PROXY_COOKIE_SECRET is required}
         
