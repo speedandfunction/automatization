@@ -38,7 +38,7 @@ services:
       - OAUTH2_PROXY_WHITELIST_DOMAINS=.temporal.speedandfunction.com
       - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:8080
       - OAUTH2_PROXY_UPSTREAMS=http://temporal-ui:8080
-      - OAUTH2_PROXY_REDIRECT_URL=${OAUTH2_PROXY_REDIRECT_URL:-https://temporal.speedandfunction.com/oauth2/callback}
+      - OAUTH2_PROXY_REDIRECT_URL=${OAUTH2_PROXY_REDIRECT_URL:-http://temporal.speedandfunction.com/oauth2/callback}
       - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET:?OAUTH2_PROXY_COOKIE_SECRET is required}
       
       # Cookie settings
@@ -57,19 +57,19 @@ services:
       - OAUTH2_PROXY_CSRF_COOKIE_SAMESITE=lax
       
       # SSL certificate settings
-      - OAUTH2_PROXY_SSL_CERT=/home/node/certs/temporal.fullchain.pem
-      - OAUTH2_PROXY_SSL_KEY=/home/node/certs/temporal.privkey.pem
+      # - OAUTH2_PROXY_SSL_CERT=/home/node/certs/temporal.fullchain.pem
+      # - OAUTH2_PROXY_SSL_KEY=/home/node/certs/temporal.privkey.pem
       
       # Debug settings
       - OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR=true
       
       # Logout settings
-      - OAUTH2_PROXY_SIGN_OUT_URL=https://temporal.speedandfunction.com/oauth2/sign_out
+      - OAUTH2_PROXY_SIGN_OUT_URL=http://temporal.speedandfunction.com:8080/oauth2/sign_out
     volumes:
       - /etc/letsencrypt/live/temporal.speedandfunction.com/fullchain.pem:/home/node/certs/temporal.fullchain.pem:ro
       - /etc/letsencrypt/live/temporal.speedandfunction.com/privkey.pem:/home/node/certs/temporal.privkey.pem:ro
     healthcheck:
-      test: ["CMD", "wget", "-O", "/dev/null", "-q", "https://localhost:443/oauth2/health", "--no-check-certificate"]
+      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://localhost:8080/oauth2/health"]
       interval: 10s
       timeout: 5s
       retries: 5
