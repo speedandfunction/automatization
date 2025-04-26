@@ -3,15 +3,16 @@ services:
     environment:
       - N8N_HOST=n8n.speedandfunction.com
       - N8N_PROTOCOL=https
-      - N8N_SSL_KEY=/home/node/certs/privkey.pem
-      - N8N_SSL_CERT=/home/node/certs/fullchain.pem
+      - N8N_SSL_KEY=/home/node/certs/n8n.privkey.pem
+      - N8N_SSL_CERT=/home/node/certs/n8n.fullchain.pem
       - N8N_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID is required}
       - N8N_GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET is required}
       - N8N_GOOGLE_CALLBACK_URL=${N8N_GOOGLE_CALLBACK_URL:?N8N_GOOGLE_CALLBACK_URL is required}
       - N8N_GOOGLE_SCOPES=email profile
       - N8N_AUTH_TYPE=google
     volumes:
-        - /home/ubuntu/volumes/certs:/home/node/certs:ro
+      - /etc/letsencrypt/live/n8n.speedandfunction.com/fullchain.pem:/home/node/certs/n8n.fullchain.pem:ro
+      - /etc/letsencrypt/live/n8n.speedandfunction.com/privkey.pem:/home/node/certs/n8n.privkey.pem:ro
 
   oauth2-proxy:
     container_name: temporal-oauth-proxy
@@ -56,8 +57,8 @@ services:
       - OAUTH2_PROXY_CSRF_COOKIE_SAMESITE=lax
       
       # SSL certificate settings
-      - OAUTH2_PROXY_SSL_CERT=/home/node/certs/fullchain.pem
-      - OAUTH2_PROXY_SSL_KEY=/home/node/certs/privkey.pem
+      - OAUTH2_PROXY_SSL_CERT=/home/node/certs/temporal.fullchain.pem
+      - OAUTH2_PROXY_SSL_KEY=/home/node/certs/temporal.privkey.pem
       
       # Debug settings
       - OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR=true
@@ -65,7 +66,8 @@ services:
       # Logout settings
       - OAUTH2_PROXY_SIGN_OUT_URL=https://temporal.speedandfunction.com/oauth2/sign_out
     volumes:
-        - /home/ubuntu/volumes/certs:/home/node/certs:ro
+      - /etc/letsencrypt/live/temporal.speedandfunction.com/fullchain.pem:/home/node/certs/temporal.fullchain.pem:ro
+      - /etc/letsencrypt/live/temporal.speedandfunction.com/privkey.pem:/home/node/certs/temporal.privkey.pem:ro
     healthcheck:
       test: ["CMD", "wget", "-O", "/dev/null", "-q", "https://localhost:443/oauth2/health", "--no-check-certificate"]
       interval: 10s
