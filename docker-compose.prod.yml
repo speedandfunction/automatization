@@ -43,7 +43,7 @@ services:
       
       # Cookie settings
       - OAUTH2_PROXY_COOKIE_NAME=_oauth2_proxy
-      - OAUTH2_PROXY_COOKIE_SECURE=true
+      - OAUTH2_PROXY_COOKIE_SECURE=false
       - OAUTH2_PROXY_COOKIE_HTTPONLY=true
       - OAUTH2_PROXY_COOKIE_SAMESITE=lax
       - OAUTH2_PROXY_COOKIE_REFRESH=1h
@@ -51,7 +51,7 @@ services:
       
       # CSRF protection settings
       - OAUTH2_PROXY_CSRF_COOKIE_NAME=_oauth2_proxy_csrf
-      - OAUTH2_PROXY_CSRF_COOKIE_SECURE=true
+      - OAUTH2_PROXY_CSRF_COOKIE_SECURE=false
       - OAUTH2_PROXY_CSRF_COOKIE_DOMAIN=.temporal.speedandfunction.com
       - OAUTH2_PROXY_CSRF_COOKIE_HTTPONLY=true
       - OAUTH2_PROXY_CSRF_COOKIE_SAMESITE=lax
