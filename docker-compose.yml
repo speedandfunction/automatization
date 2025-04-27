@@ -11,12 +11,13 @@ services:
     environment:
       - WEBHOOK_URL=${N8N_WEBHOOK_URL}
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
-      - "N8N_RUNNERS_ENABLED=true"
-      - "N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true"
-      - "N8N_PORT=5678"
-      - "NODE_ENV=production"
-      - "N8N_METRICS=true"
-      - "N8N_HEALTH_CHECK_ENDPOINT=true"
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_PORT=5678
+      - NODE_ENV=production
+      - N8N_METRICS=true
+      - N8N_HEALTH_CHECK_ENDPOINT=true
+      - N8N_EXPRESS_TRUST_PROXY=true
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
