@@ -128,7 +128,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://temporal-ui:80"]
+      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://temporal-ui:${TEMPORAL_UI_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5
