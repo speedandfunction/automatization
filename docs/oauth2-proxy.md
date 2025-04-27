@@ -1,63 +1,31 @@
 # OAuth2 Proxy Setup Guide
 
 ## Overview
-This document provides instructions for setting up and configuring OAuth2 Proxy for authentication.
+This guide explains how to configure OAuth2 Proxy for authentication using Google OAuth in production. Development setup does not include OAuth2 Proxy by default.
 
-## Prerequisites
-- Docker and Docker Compose installed
-- Google Cloud Platform account
-- Domain name for your application
+---
 
 ## Google OAuth Setup
-1. Go to Google Cloud Console
-2. Create a new project or select existing one
-3. Enable OAuth2 API
-4. Create OAuth2 credentials
-5. Configure authorized redirect URIs
-6. Save Client ID and Client Secret
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Navigate to **APIs & Services > Credentials**
+4. Click **Create Credentials > OAuth client ID**
+5. Set application type to **Web application**
+6. Add the following to **Authorized redirect URIs**:
+   - `https://<your-domain>/oauth2/callback`
+7. Save and copy your **Client ID** and **Client Secret**
+
+---
 
 ## Environment Configuration
-Create or update `.env` file with the following variables:
-```bash
-# OAuth2 Proxy Configuration
-OAUTH2_PROXY_CLIENT_ID=your_client_id
-OAUTH2_PROXY_CLIENT_SECRET=your_client_secret
-OAUTH2_PROXY_COOKIE_SECRET=your_cookie_secret
-OAUTH2_PROXY_EMAIL_DOMAIN=your_domain.com
-
-# Docker Configuration
-DOCKER_NETWORK=your_network_name
+Create a `.env` file in your project root with the following variables:
+```env
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+OAUTH2_PROXY_COOKIE_SECRET=your_random_cookie_secret
+OAUTH2_PROXY_EMAIL_DOMAINS=yourdomain.com
+# Optional: override default redirect URL
+OAUTH2_PROXY_REDIRECT_URL=https://<your-domain>/oauth2/callback
 ```
 
-## Docker Compose Setup
-```yaml
-version: '3'
-services:
-  oauth2-proxy:
-    image: bitnami/oauth2-proxy:latest
-    environment:
-      - OAUTH2_PROXY_CLIENT_ID=${OAUTH2_PROXY_CLIENT_ID}
-      - OAUTH2_PROXY_CLIENT_SECRET=${OAUTH2_PROXY_CLIENT_SECRET}
-      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET}
-      - OAUTH2_PROXY_EMAIL_DOMAIN=${OAUTH2_PROXY_EMAIL_DOMAIN}
-    networks:
-      - ${DOCKER_NETWORK}
-    ports:
-      - "4180:4180"
-```
-
-## Configuration Steps
-1. Set up environment variables
-2. Configure Docker Compose
-3. Start the services
-4. Test the authentication flow
-
-## Troubleshooting
-Common issues and their solutions:
-- Invalid redirect URI
-- Cookie domain mismatch
-- Network connectivity issues
-
-## Additional Resources
-- [OAuth2 Proxy Documentation](https://oauth2-proxy.github.io/oauth2-proxy/)
-- [Google OAuth2 Setup Guide](https://developers.google.com/identity/protocols/oauth2)
+- See [Generating a Cookie Secret (official docs)](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview?_highlight=cookie&_highlight=secret#generating-a-cookie-secret) for more options.
