@@ -7,7 +7,6 @@ services:
   opensearch:
     environment:
       - OPENSEARCH_PORT=${OPENSEARCH_PORT:?OPENSEARCH_PORT is required}
-      - DISABLE_SECURITY_PLUGIN=false
   
   postgresql:
     environment:
