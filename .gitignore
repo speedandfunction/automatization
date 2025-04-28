@@ -15,12 +15,6 @@ lerna-debug.log*
 *.swo
 .DS_Store
 
-# mcp executable
-mcp
-mcp-config.json
-
-
-
 # JetBrains IDE
 .idea/
 

@@ -22,16 +22,6 @@ This project uses custom Docker images built from the following Dockerfiles:
 
 ## Usage
 
-### Prepare volume directories
-
-Before starting the services, run the setup script to create the necessary volume directories:
-
-```bash
-./scripts/setup_volumes.sh
-```
-
-This prevents volume mount errors that may occur if the directories don't exist.
-
 ### Create environment file
 
 Create a `.env` file in the root directory of the project with your environment variables:
@@ -44,11 +34,19 @@ Then edit the `.env` file to set your specific configuration values.
 
 ### Starting the services
 
+You can start the services in two ways, depending on your environment:
+
+#### 1. Development
+
 ```bash
 docker compose up -d
 ```
 
-This will start all services in detached mode.
+#### 2. Production
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
 
 ### Building custom images
 
@@ -138,11 +136,14 @@ docker compose down -v
 
 ## Data Persistence
 
-All data is stored in local volumes under the `./volumes/` directory:
+Data for all services is persisted using Docker volumes. The storage location depends on the environment:
 
-- `./volumes/n8n_data` - n8n data and workflows
-- `./volumes/opensearch-data` - OpenSearch data for Temporal
-- `./volumes/postgresql-data` - PostgreSQL database for Temporal
+- **Development (default, using `docker-compose.yml`)**: Docker uses anonymous volumes for each service. These are managed by Docker and are not bound to any directory in your project. Data persists as long as the volume exists, but is not directly accessible from the project folder.
+
+- **Production (using `docker-compose.prod.yml`)**: Volumes are explicitly bound to host directories under `/data/` for persistent storage and easier backup/restore.
+
+> **Note:**
+> - Removing volumes with `docker compose down -v` will delete all persisted data.
 
 ## Service Ports
 
@@ -166,8 +167,30 @@ If you encounter any issues:
 
 3. Make sure Docker has sufficient resources allocated
 
-4. If you encounter volume mount errors (e.g., "failed to mount local volume ... no such file or directory"), run the setup script:
+## GitHub MCP Configuration
+
+To use GitHub-related functions with Cursor's Machine Coding Protocol (MCP), you need to configure a GitHub Personal Access Token:
+
+1. Create the secrets directory if it doesn't exist:
    ```bash
-   ./scripts/setup_volumes.sh
+   mkdir -p ~/.cursor/mcp
    ```
-   This creates the necessary volume directories in the `./volumes/` folder.
+
+2. Copy or edit the `.env` file in this directory:
+   ```bash
+   cp mcp.env.example ~/.cursor/mcp/.env
+   ```
+
+3. Update your GitHub Personal Access Token to the `~/.cursor/mcp/.env`:
+   ```
+   GITHUB_PERSONAL_ACCESS_TOKEN=your_token_here
+   ```
+
+4. Save the file and restart Cursor for the changes to take effect.
+
+To get access to a GitHub Personal Access Token:
+Ask @killev
+or
+1. Go to GitHub Settings > Developer settings > Personal access tokens
+2. Generate a new token with appropriate permissions (repo, workflow, etc.)
+3. Copy the token and add it to the `.env` file as shown above

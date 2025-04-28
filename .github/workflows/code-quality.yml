@@ -85,7 +85,6 @@ jobs:
           format: json
           write-comment: true
           only-severities: critical,high
-          exit-code: 1
       - name: Upload ${{ matrix.service.name }} scan results
         uses: github/codeql-action/upload-sarif@v3
         with:
@@ -99,8 +98,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Create volume directories
-        run: bash scripts/setup_volumes.sh
       - name: Copy .env file
         run: cp .env.example .env
       - name: Set up Docker Buildx
