@@ -98,8 +98,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Create volume directories
-        run: bash scripts/setup_volumes.sh
       - name: Copy .env file
         run: cp .env.example .env
       - name: Set up Docker Buildx

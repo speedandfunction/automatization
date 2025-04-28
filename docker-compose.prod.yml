@@ -7,7 +7,7 @@ services:
   opensearch:
     environment:
       - OPENSEARCH_PORT=${OPENSEARCH_PORT:?OPENSEARCH_PORT is required}
-  
+
   postgresql:
     environment:
       - POSTGRES_USER=${POSTGRES_USER:?POSTGRES_USER is required}

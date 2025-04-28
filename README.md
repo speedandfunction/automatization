@@ -22,7 +22,6 @@ This project uses custom Docker images built from the following Dockerfiles:
 
 ## Usage
 
-
 ### Create environment file
 
 Create a `.env` file in the root directory of the project with your environment variables:
@@ -135,6 +134,17 @@ To completely remove all data volumes:
 docker compose down -v
 ```
 
+## Data Persistence
+
+Data for all services is persisted using Docker volumes. The storage location depends on the environment:
+
+- **Development (default, using `docker-compose.yml`)**: Docker uses anonymous volumes for each service. These are managed by Docker and are not bound to any directory in your project. Data persists as long as the volume exists, but is not directly accessible from the project folder.
+
+- **Production (using `docker-compose.prod.yml`)**: Volumes are explicitly bound to host directories under `/data/` for persistent storage and easier backup/restore.
+
+> **Note:**
+> - Removing volumes with `docker compose down -v` will delete all persisted data.
+
 ## Service Ports
 
 - n8n: 5678
@@ -156,7 +166,6 @@ If you encounter any issues:
 2. Ensure all required ports are available on your system
 
 3. Make sure Docker has sufficient resources allocated
-
 
 ## GitHub MCP Configuration
 

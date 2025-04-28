@@ -41,7 +41,7 @@ services:
       - OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m
       - DISABLE_INSTALL_DEMO_CONFIG=true
     ports:
-      - ${OPENSEARCH_PORTT:-9200}:9200
+      - ${OPENSEARCH_PORT:-9200}:9200
     cap_add:
       - IPC_LOCK
     ulimits:
