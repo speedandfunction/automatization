@@ -22,16 +22,6 @@ This project uses custom Docker images built from the following Dockerfiles:
 
 ## Usage
 
-### Prepare volume directories
-
-Before starting the services, run the setup script to create the necessary volume directories:
-
-```bash
-./scripts/setup_volumes.sh
-```
-
-This prevents volume mount errors that may occur if the directories don't exist.
-
 ### Create environment file
 
 Create a `.env` file in the root directory of the project with your environment variables:
@@ -44,11 +34,19 @@ Then edit the `.env` file to set your specific configuration values.
 
 ### Starting the services
 
+You can start the services in two ways, depending on your environment:
+
+#### 1. Development
+
 ```bash
 docker compose up -d
 ```
 
-This will start all services in detached mode.
+#### 2. Production
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
 
 ### Building custom images
 
@@ -138,11 +136,14 @@ docker compose down -v
 
 ## Data Persistence
 
-All data is stored in local volumes under the `./volumes/` directory:
+Data for all services is persisted using Docker volumes. The storage location depends on the environment:
 
-- `./volumes/n8n_data` - n8n data and workflows
-- `./volumes/opensearch-data` - OpenSearch data for Temporal
-- `./volumes/postgresql-data` - PostgreSQL database for Temporal
+- **Development (default, using `docker-compose.yml`)**: Docker uses anonymous volumes for each service. These are managed by Docker and are not bound to any directory in your project. Data persists as long as the volume exists, but is not directly accessible from the project folder.
+
+- **Production (using `docker-compose.prod.yml`)**: Volumes are explicitly bound to host directories under `/data/` for persistent storage and easier backup/restore.
+
+> **Note:**
+> - Removing volumes with `docker compose down -v` will delete all persisted data.
 
 ## Service Ports
 
@@ -165,12 +166,6 @@ If you encounter any issues:
 2. Ensure all required ports are available on your system
 
 3. Make sure Docker has sufficient resources allocated
-
-4. If you encounter volume mount errors (e.g., "failed to mount local volume ... no such file or directory"), run the setup script:
-   ```bash
-   ./scripts/setup_volumes.sh
-   ```
-   This creates the necessary volume directories in the `./volumes/` folder.
 
 ## GitHub MCP Configuration
 

@@ -129,23 +129,8 @@ services:
 
 volumes:
   n8n_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/volumes/n8n_data
   opensearch-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/volumes/opensearch-data
   postgresql-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/volumes/postgresql-data
 
 networks:
   app-network:
