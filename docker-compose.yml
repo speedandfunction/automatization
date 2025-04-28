@@ -7,16 +7,17 @@ services:
       dockerfile: Dockerfile.n8n
     restart: unless-stopped
     ports:
-      - "${N8N_PORT}:5678"
+      - "${N8N_PORT:-5678}:5678"
     environment:
-      - WEBHOOK_URL=${N8N_WEBHOOK_URL}
-      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
-      - "N8N_RUNNERS_ENABLED=true"
-      - "N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true"
-      - "N8N_PORT=5678"
-      - "NODE_ENV=production"
-      - "N8N_METRICS=true"
-      - "N8N_HEALTH_CHECK_ENDPOINT=true"
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-a_random_string_for_encryption}
+      - N8N_PORT=${N8N_PORT:-5678}
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - NODE_ENV=production
+      - N8N_METRICS=true
+      - N8N_HEALTH_CHECK_ENDPOINT=true
+      - N8N_EXPRESS_TRUST_PROXY=true
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
@@ -29,13 +30,14 @@ services:
     image: opensearchproject/opensearch:2.5.0
     restart: unless-stopped
     environment:
+      - OPENSEARCH_PORT=${OPENSEARCH_PORT:-9200}
+      - DISABLE_SECURITY_PLUGIN=${DISABLE_SECURITY_PLUGIN:-true}
       - discovery.type=single-node
       - bootstrap.memory_lock=true
-      - "OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m"
-      - "DISABLE_SECURITY_PLUGIN=${DISABLE_SECURITY_PLUGIN}"
-      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+      - OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m
+      - DISABLE_INSTALL_DEMO_CONFIG=true
     ports:
-      - ${OPENSEARCH_PORT}:9200
+      - ${OPENSEARCH_PORT:-9200}:9200
     cap_add:
       - IPC_LOCK
     ulimits:
@@ -47,7 +49,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -sSf http://localhost:${OPENSEARCH_PORT}/ || exit 1"]
+      test: ["CMD-SHELL", "curl -sSf http://localhost:${OPENSEARCH_PORT:-9200}/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -58,18 +60,18 @@ services:
     image: postgres:14
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-temporal}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-temporal}
+      POSTGRES_DB: ${POSTGRES_DB:-temporal}
     ports:
-      - ${POSTGRES_PORT}:5432
+      - ${POSTGRES_PORT:-5432}:5432
     volumes:
       - postgresql-data:/var/lib/postgresql/data
     networks:
       - app-network
     user: postgres
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-temporal}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -82,7 +84,7 @@ services:
       dockerfile: Dockerfile.temporal
       args:
         - HOST=temporal
-        - TEMPORAL_PORT=${TEMPORAL_PORT}
+        - TEMPORAL_PORT=${TEMPORAL_PORT:-7233}
     restart: unless-stopped
     depends_on:
       postgresql:
@@ -90,6 +92,10 @@ services:
       opensearch:
         condition: service_healthy
     environment:
+      - TEMPORAL_PORT=${TEMPORAL_PORT:-7233}
+      - DB_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_USER=${POSTGRES_USER:-temporal}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD:-temporal}
       - ES_SEEDS=opensearch
       - ES_VERSION=v7
       - DB=postgresql
@@ -99,9 +105,8 @@ services:
       - POSTGRES_SEEDS=postgresql
       - ENABLE_ES=true
       - HOST=temporal
-      - TEMPORAL_PORT=7233
     ports:
-      - ${TEMPORAL_PORT}:7233
+      - "${TEMPORAL_PORT:-7233}:7233"
     networks:
       - app-network
     user: temporal
@@ -114,14 +119,15 @@ services:
       temporal:
         condition: service_healthy
     environment:
-      - TEMPORAL_ADDRESS=temporal:${TEMPORAL_PORT}
+      - TEMPORAL_UI_PORT=${TEMPORAL_UI_PORT:-8080}
+      - TEMPORAL_ADDRESS=temporal:${TEMPORAL_PORT:-7233}
       - TEMPORAL_PERMIT_WRITE_API=true
     ports:
-      - ${TEMPORAL_UI_PORT}:8080
+      - ${TEMPORAL_UI_PORT:-8080}:8080
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://temporal-ui:${TEMPORAL_UI_PORT}"]
+      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://temporal-ui:${TEMPORAL_UI_PORT:-8080}"]
       interval: 10s
       timeout: 5s
       retries: 5
