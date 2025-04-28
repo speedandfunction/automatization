@@ -22,15 +22,6 @@ This project uses custom Docker images built from the following Dockerfiles:
 
 ## Usage
 
-### Prepare volume directories
-
-Before starting the services, run the setup script to create the necessary volume directories:
-
-```bash
-./scripts/setup_volumes.sh
-```
-
-This prevents volume mount errors that may occur if the directories don't exist.
 
 ### Create environment file
 
@@ -69,7 +60,7 @@ docker compose build
 Or to rebuild and start in one command:
 
 ```bash
-docker compose down && docker compose build && docker compose up -d
+docker compose up --build --force-recreate -d
 ```
 
 ### Verifying services are running
@@ -144,14 +135,6 @@ To completely remove all data volumes:
 docker compose down -v
 ```
 
-## Data Persistence
-
-All data is stored in local volumes under the `./volumes/` directory:
-
-- `./volumes/n8n_data` - n8n data and workflows
-- `./volumes/opensearch-data` - OpenSearch data for Temporal
-- `./volumes/postgresql-data` - PostgreSQL database for Temporal
-
 ## Service Ports
 
 - n8n: 5678
@@ -174,11 +157,6 @@ If you encounter any issues:
 
 3. Make sure Docker has sufficient resources allocated
 
-4. If you encounter volume mount errors (e.g., "failed to mount local volume ... no such file or directory"), run the setup script:
-   ```bash
-   ./scripts/setup_volumes.sh
-   ```
-   This creates the necessary volume directories in the `./volumes/` folder.
 
 ## GitHub MCP Configuration
 

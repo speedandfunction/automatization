@@ -1,7 +1,28 @@
 services:
   n8n:
     environment:
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:?N8N_WEBHOOK_URL is required}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:?N8N_ENCRYPTION_KEY is required}
       - N8N_HOST=n8n.speedandfunction.com
+  opensearch:
+    environment:
+      - OPENSEARCH_PORT=${OPENSEARCH_PORT:?OPENSEARCH_PORT is required}
+      - DISABLE_SECURITY_PLUGIN=false
+  
+  postgresql:
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:?POSTGRES_USER is required}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      - POSTGRES_DB=${POSTGRES_DB:?POSTGRES_DB is required}
+
+  temporal:
+    environment:
+      - TEMPORAL_PORT=${TEMPORAL_PORT:?TEMPORAL_PORT is required}
+
+  temporal-ui:
+    environment:
+      - TEMPORAL_UI_PORT=${TEMPORAL_UI_PORT:?TEMPORAL_UI_PORT is required}
+    ports: []
 
   oauth2-proxy:
     container_name: temporal-oauth-proxy
