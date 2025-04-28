@@ -21,7 +21,8 @@ services:
   temporal-ui:
     environment:
       - TEMPORAL_UI_PORT=${TEMPORAL_UI_PORT:?TEMPORAL_UI_PORT is required}
-    ports: []
+    ports:
+      - "8081:8080"
 
   oauth2-proxy:
     container_name: temporal-oauth-proxy
