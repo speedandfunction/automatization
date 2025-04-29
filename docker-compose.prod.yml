@@ -83,15 +83,6 @@ services:
     networks:
       - app-network
 
-  redis:
-    image: redis:7.2-alpine
-    container_name: redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    networks:
-      - app-network
-
 volumes:
   n8n_data:
     driver: local
