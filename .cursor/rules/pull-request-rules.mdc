@@ -37,7 +37,7 @@ When creating or updating a pull request, follow these guidelines:
 
 ## Example:
 ```
-Title: Add user authentication to login page
+feat: Add user authentication to login page
 
 Body:
 - Add password validation function
