@@ -16,7 +16,7 @@
 - [Service Ports](#service-ports)
 - [Troubleshooting](#troubleshooting)
 - [GitHub MCP Configuration](#github-mcp-configuration)
-- [Documentation](#documentation)
+- Documentation
   - [AWS Application Load Balancer (ALB)](docs/alb.md)
   - [OAuth2 Proxy Setup Guide](docs/oauth2-proxy.md)
 
