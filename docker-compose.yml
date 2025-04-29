@@ -34,6 +34,10 @@ services:
     networks:
       - app-network
     user: node
+    develop:
+      watch:
+        - path: .
+          action: rebuild
 
   # Temporal services
   opensearch:
@@ -124,6 +128,10 @@ services:
     networks:
       - app-network
     user: temporal
+    develop:
+      watch:
+        - path: .
+          action: rebuild
 
   temporal-ui:
     container_name: temporal-ui
