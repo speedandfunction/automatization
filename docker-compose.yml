@@ -23,6 +23,10 @@ services:
     networks:
       - app-network
     user: node
+    develop:
+      watch:
+        - path: .
+          action: rebuild
 
   # Temporal services
   opensearch:
@@ -99,9 +103,6 @@ services:
       - ES_SEEDS=opensearch
       - ES_VERSION=v7
       - DB=postgresql
-      - DB_PORT=${POSTGRES_PORT}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PWD=${POSTGRES_PASSWORD}
       - POSTGRES_SEEDS=postgresql
       - ENABLE_ES=true
       - HOST=temporal
@@ -110,6 +111,10 @@ services:
     networks:
       - app-network
     user: temporal
+    develop:
+      watch:
+        - path: .
+          action: rebuild
 
   temporal-ui:
     container_name: temporal-ui
