@@ -1,29 +1,19 @@
-x-environment:
-  &db-env
-    POSTGRES_DB_TEMPORAL: ${POSTGRES_DB_TEMPORAL:?POSTGRES_DB_TEMPORAL is required}
-    POSTGRES_USER_TEMPORAL: ${POSTGRES_USER_TEMPORAL:?POSTGRES_USER_TEMPORAL is required}
-    POSTGRES_PASSWORD_TEMPORAL: ${POSTGRES_PASSWORD_TEMPORAL:?POSTGRES_PASSWORD_TEMPORAL is required}
-    POSTGRES_DB_N8N: ${POSTGRES_DB_N8N:?POSTGRES_DB_N8N is required}
-    POSTGRES_USER_N8N: ${POSTGRES_USER_N8N:?POSTGRES_USER_N8N is required}
-    POSTGRES_PASSWORD_N8N: ${POSTGRES_PASSWORD_N8N:?POSTGRES_PASSWORD_N8N is required}
-    POSTGRES_PORT: ${POSTGRES_PORT:?POSTGRES_PORT is required}
-
 services:
   n8n:
     environment:
       - WEBHOOK_URL=${N8N_WEBHOOK_URL:?N8N_WEBHOOK_URL is required}
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:?N8N_ENCRYPTION_KEY is required}
       - N8N_HOST=n8n.speedandfunction.com
+      - DB_POSTGRESDB_HOST=${POSTGRES_HOST:?POSTGRES_HOST is required}
+      - DB_POSTGRESDB_PORT=${POSTGRES_PORT:-5432}
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB_N8N:?POSTGRES_DB_N8N is required}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER_N8N:?POSTGRES_USER_N8N is required}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD_N8N:?POSTGRES_PASSWORD_N8N is required}
   opensearch:
     environment:
       - OPENSEARCH_PORT=${OPENSEARCH_PORT:?OPENSEARCH_PORT is required}
 
-  postgresql:
-    environment:
-      <<: *db-env
-    volumes:
-      - postgresql-data:/var/lib/postgresql/data
-      - ./postgres-init:/docker-entrypoint-initdb.d
+  postgresql: !reset null
 
   temporal:
     environment:
@@ -32,6 +22,11 @@ services:
   temporal-ui:
     environment:
       - TEMPORAL_UI_PORT=${TEMPORAL_UI_PORT:?TEMPORAL_UI_PORT is required}
+      - POSTGRES_SEEDS=${POSTGRES_HOST:?POSTGRES_HOST is required}
+      - DB_PORT=${POSTGRES_PORT:-5432}
+      - DBNAME=${POSTGRES_DB_TEMPORAL:?POSTGRES_DB_TEMPORAL is required}
+      - POSTGRES_USER=${POSTGRES_USER_TEMPORAL:?POSTGRES_USER_TEMPORAL is required}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD_TEMPORAL:?POSTGRES_PASSWORD_TEMPORAL is required}
 
 volumes:
   n8n_data:
@@ -46,9 +41,3 @@ volumes:
       type: none
       o: bind
       device: /data/opensearch
-  postgresql-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /data/postgresql
