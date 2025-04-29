@@ -59,7 +59,7 @@ docker compose build
 Or to rebuild and start in one command:
 
 ```bash
-docker compose up --build --force-recreate -d
+docker compose down && docker compose build && docker compose up -d
 ```
 
 ### Verifying services are running
@@ -149,7 +149,7 @@ Data for all services is persisted using Docker volumes. The storage location de
 
 - n8n: 5678
 - Temporal server: 7233 (gRPC API, not HTTP)
-- Temporal UI: 8080
+- Temporal UI / Oauth2 proxy: 8080
 - PostgreSQL: 5432
 - OpenSearch: 9200
 
