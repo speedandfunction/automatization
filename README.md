@@ -1,5 +1,25 @@
 # n8n and Temporal Docker Compose Setup
 
+## Table of Contents
+
+- [Services](#services)
+- [Custom Docker Images](#custom-docker-images)
+- [Usage](#usage)
+  - [Create environment file](#create-environment-file)
+  - [Starting the services](#starting-the-services)
+  - [Building custom images](#building-custom-images)
+  - [Verifying services are running](#verifying-services-are-running)
+  - [Checking Service Health](#checking-service-health)
+  - [Accessing the services](#accessing-the-services)
+  - [Stopping the services](#stopping-the-services)
+- [Data Persistence](#data-persistence)
+- [Service Ports](#service-ports)
+- [Troubleshooting](#troubleshooting)
+- [GitHub MCP Configuration](#github-mcp-configuration)
+- [Documentation](#documentation)
+  - [AWS Application Load Balancer (ALB)](docs/alb.md)
+  - [OAuth2 Proxy Setup Guide](docs/oauth2-proxy.md)
+
 This repository contains a Docker Compose configuration to run n8n and Temporal services together.
 
 ## Services
@@ -149,7 +169,7 @@ Data for all services is persisted using Docker volumes. The storage location de
 
 - n8n: 5678
 - Temporal server: 7233 (gRPC API, not HTTP)
-- Temporal UI / Oauth2 proxy: 8080
+- Temporal UI / OAuth2 Proxy: 8080
 - PostgreSQL: 5432
 - OpenSearch: 9200
 
