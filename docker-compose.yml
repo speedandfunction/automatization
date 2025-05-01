@@ -5,13 +5,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.n8n
-    restart: unless-stopped
-    depends_on:
-      redis:
-        condition: service_healthy
     ports:
       - "${N8N_PORT:-5678}:5678"
     depends_on:
+      redis:
+        condition: service_healthy
       postgresql:
         condition: service_healthy
     environment:
