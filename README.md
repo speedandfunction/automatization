@@ -189,7 +189,7 @@ If you encounter any issues:
 
 ## GitHub MCP Configuration
 
-To use GitHub-related functions with Cursor's Machine Coding Protocol (MCP), you need to configure a GitHub Personal Access Token:
+To use GitHub-related functions with Cursor's Model Context Protocol (MCP), you need to configure a GitHub Personal Access Token:
 
 1. Create the secrets directory if it doesn't exist:
    ```bash
