@@ -1,26 +1,43 @@
 services:
   n8n:
+    depends_on: !reset null
     environment:
       - WEBHOOK_URL=${N8N_WEBHOOK_URL:?N8N_WEBHOOK_URL is required}
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:?N8N_ENCRYPTION_KEY is required}
-      - N8N_HOST=n8n.speedandfunction.com
+      - N8N_HOST=${N8N_HOST:?N8N_HOST is required}
+      - DB_POSTGRESDB_HOST=${POSTGRES_HOST:?POSTGRES_HOST is required}
+      - DB_POSTGRESDB_PORT=${POSTGRES_PORT:-5432}
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB_N8N:?POSTGRES_DB_N8N is required}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER_N8N:?POSTGRES_USER_N8N is required}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD_N8N:?POSTGRES_PASSWORD_N8N is required}
   opensearch:
     environment:
       - OPENSEARCH_PORT=${OPENSEARCH_PORT:?OPENSEARCH_PORT is required}
 
-  postgresql:
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:?POSTGRES_USER is required}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      - POSTGRES_DB=${POSTGRES_DB:?POSTGRES_DB is required}
+  postgresql: !reset null
 
   temporal:
+    depends_on: !reset null
     environment:
       - TEMPORAL_PORT=${TEMPORAL_PORT:?TEMPORAL_PORT is required}
+      - POSTGRES_SEEDS=${POSTGRES_HOST:?POSTGRES_HOST is required}
+      - DB_PORT=${POSTGRES_PORT:-5432}
+      - DBNAME=${POSTGRES_DB_TEMPORAL:?POSTGRES_DB_TEMPORAL is required}
+      - POSTGRES_USER=${POSTGRES_USER_TEMPORAL:?POSTGRES_USER_TEMPORAL is required}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD_TEMPORAL:?POSTGRES_PASSWORD_TEMPORAL is required}
+      - ES_SEEDS=opensearch
+      - ES_VERSION=v7
+      - DB=postgresql
+      - ENABLE_ES=true
 
   temporal-ui:
     environment:
       - TEMPORAL_UI_PORT=${TEMPORAL_UI_PORT:?TEMPORAL_UI_PORT is required}
+      - POSTGRES_SEEDS=${POSTGRES_HOST:?POSTGRES_HOST is required}
+      - DB_PORT=${POSTGRES_PORT:-5432}
+      - DBNAME=${POSTGRES_DB_TEMPORAL:?POSTGRES_DB_TEMPORAL is required}
+      - POSTGRES_USER=${POSTGRES_USER_TEMPORAL:?POSTGRES_USER_TEMPORAL is required}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD_TEMPORAL:?POSTGRES_PASSWORD_TEMPORAL is required}
     ports: !reset []
 
   redis:
@@ -96,9 +113,3 @@ volumes:
       type: none
       o: bind
       device: /data/opensearch
-  postgresql-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /data/postgresql
