@@ -6,16 +6,16 @@ ARG HOST=temporal
 ARG TEMPORAL_PORT=7233
 
 RUN temporal-sql-tool --plugin postgres \
-      --ep "$POSTGRES_SEEDS" \
-      -u "$POSTGRES_USER" \
-      -p "$DB_PORT" \
-      --db "$POSTGRES_DB_TEMPORAL_VISIBILITY" \
-      setup-schema -v 0.0 \
-    && temporal-sql-tool --plugin postgres \
-      --ep "$POSTGRES_SEEDS" \
-      -u "$POSTGRES_USER" \
-      -p "$DB_PORT" \
-      --db "$POSTGRES_DB_TEMPORAL_VISIBILITY" \
+      --endpoint "$POSTGRES_SEEDS" \
+      --user "$POSTGRES_USER" \
+      --port "$DB_PORT" \
+      --database "$POSTGRES_DB_TEMPORAL_VISIBILITY" \
+      setup-schema -v 0.0 && \
+    temporal-sql-tool --plugin postgres \
+      --endpoint "$POSTGRES_SEEDS" \
+      --user "$POSTGRES_USER" \
+      --port "$DB_PORT" \
+      --database "$POSTGRES_DB_TEMPORAL_VISIBILITY" \
       update-schema -d /etc/temporal/schema/postgresql/v96/visibility/versioned
 
 # Add custom healthcheck using exec form
