@@ -40,37 +40,6 @@ services:
         - path: .
           action: rebuild
 
-  # Temporal services
-  opensearch:
-    container_name: opensearch
-    image: opensearchproject/opensearch:2.5.0
-    restart: unless-stopped
-    environment:
-      - OPENSEARCH_PORT=${OPENSEARCH_PORT:-9200}
-      - DISABLE_SECURITY_PLUGIN=${DISABLE_SECURITY_PLUGIN:-true}
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m
-      - DISABLE_INSTALL_DEMO_CONFIG=true
-    ports:
-      - ${OPENSEARCH_PORT:-9200}:9200
-    cap_add:
-      - IPC_LOCK
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - opensearch-data:/usr/share/opensearch/data
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sSf http://localhost:${OPENSEARCH_PORT:-9200}/ || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
   postgresql:
     container_name: temporal-postgresql
     image: postgres:14
@@ -82,7 +51,8 @@ services:
       POSTGRES_PASSWORD_N8N: ${POSTGRES_PASSWORD_N8N:-n8n_password}
       POSTGRES_DB_TEMPORAL: ${POSTGRES_DB_TEMPORAL:-temporal}
       POSTGRES_USER_TEMPORAL: ${POSTGRES_USER_TEMPORAL:-temporal}
-      POSTGRES_PASSWORD_TEMPORAL: ${POSTGRES_PASSWORD_TEMPORAL:-temporal} 
+      POSTGRES_PASSWORD_TEMPORAL: ${POSTGRES_PASSWORD_TEMPORAL:-temporal}
+      POSTGRES_DB_TEMPORAL_VISIBILITY: ${POSTGRES_DB_TEMPORAL_VISIBILITY:-temporal_visibility}
     ports:
       - ${POSTGRES_PORT:-5432}:5432
     volumes:
@@ -110,8 +80,6 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
-      opensearch:
-        condition: service_healthy
     environment:
       TEMPORAL_PORT: ${TEMPORAL_PORT:-7233}
       POSTGRES_SEEDS: postgresql
@@ -119,11 +87,10 @@ services:
       DBNAME: ${POSTGRES_DB_TEMPORAL:-temporal}
       POSTGRES_USER: ${POSTGRES_USER_TEMPORAL:-temporal}
       POSTGRES_PWD: ${POSTGRES_PASSWORD_TEMPORAL:-temporal}
-      ES_SEEDS: opensearch
-      ES_VERSION: v7
       DB: postgresql
-      ENABLE_ES: "true"
-      HOST: temporal
+      VISIBILITY_DB_USER: ${POSTGRES_USER_TEMPORAL:-temporal}
+      VISIBILITY_DB_PWD: ${POSTGRES_PASSWORD_TEMPORAL:-temporal}
+      VISIBILITY_DB_PORT: ${POSTGRES_PORT:-5432}
     ports:
       - "${TEMPORAL_PORT:-7233}:7233"
     networks:
@@ -133,6 +100,12 @@ services:
       watch:
         - path: .
           action: rebuild
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:${TEMPORAL_PORT:-7233}", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   temporal-ui:
     container_name: temporal-ui
@@ -175,7 +148,6 @@ services:
 
 volumes:
   n8n_data:
-  opensearch-data:
   postgresql-data:
   redis-data:
 
