@@ -5,7 +5,18 @@ FROM temporalio/auto-setup:1.20.5
 ARG HOST=temporal
 ARG TEMPORAL_PORT=7233
 
-# Environment variables are now defined in docker-compose.yml
+RUN temporal-sql-tool --plugin postgres \
+      --endpoint "$POSTGRES_SEEDS" \
+      --user "$POSTGRES_USER" \
+      --port "$DB_PORT" \
+      --database "$POSTGRES_DB_TEMPORAL_VISIBILITY" \
+      setup-schema -v 0.0 && \
+    temporal-sql-tool --plugin postgres \
+      --endpoint "$POSTGRES_SEEDS" \
+      --user "$POSTGRES_USER" \
+      --port "$DB_PORT" \
+      --database "$POSTGRES_DB_TEMPORAL_VISIBILITY" \
+      update-schema -d /etc/temporal/schema/postgresql/v96/visibility/versioned
 
 # Add custom healthcheck using exec form
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
@@ -17,4 +28,4 @@ USER temporal
 # Expose the gRPC port
 EXPOSE ${TEMPORAL_PORT}
 
-# The entrypoint script is already defined in the base image 
+# The entrypoint script is already defined in the base image
