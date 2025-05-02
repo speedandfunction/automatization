@@ -40,6 +40,10 @@ services:
       - POSTGRES_PWD=${POSTGRES_PASSWORD_TEMPORAL:?POSTGRES_PASSWORD_TEMPORAL is required}
     ports: !reset []
 
+  redis:
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+
   oauth2-proxy:
     container_name: temporal-oauth-proxy
     image: quay.io/oauth2-proxy/oauth2-proxy:v7.8.0
