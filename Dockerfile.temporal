@@ -5,8 +5,8 @@ FROM temporalio/auto-setup:1.20.5
 ARG HOST=temporal
 ARG TEMPORAL_PORT=7233
 
-RUN temporal-sql-tool --plugin postgres --ep "$POSTGRES_SEEDS" -u "$POSTGRES_USER" -p "$DB_PORT" --db "$POSTGRES_DB_TEMPORAL_VISIBILITY" setup-schema -v 0.0 \
-    && temporal-sql-tool --plugin postgres --ep "$POSTGRES_SEEDS" -u "$POSTGRES_USER" -p "$DB_PORT" --db "$POSTGRES_DB_TEMPORAL_VISIBILITY" update-schema -d /etc/temporal/schema/postgresql/v96/visibility/versioned
+RUN temporal-sql-tool --plugin postgres --ep "$POSTGRES_SEEDS" -u "$POSTGRES_USER" -p "$DB_PORT" --db "$POSTGRES_DB_TEMPORAL_VISIBILITY" setup-schema -v 0.0 && \
+    temporal-sql-tool --plugin postgres --ep "$POSTGRES_SEEDS" -u "$POSTGRES_USER" -p "$DB_PORT" --db "$POSTGRES_DB_TEMPORAL_VISIBILITY" update-schema -d /etc/temporal/schema/postgresql/v96/visibility/versioned
 
 # Add custom healthcheck using exec form
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
