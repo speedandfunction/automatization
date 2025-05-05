@@ -11,6 +11,13 @@ services:
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB_N8N:?POSTGRES_DB_N8N is required}
       - DB_POSTGRESDB_USER=${POSTGRES_USER_N8N:?POSTGRES_USER_N8N is required}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD_N8N:?POSTGRES_PASSWORD_N8N is required}
+      - N8N_SMTP_HOST=${N8N_SMTP_HOST:-email-smtp.us-east-1.amazonaws.com}
+      - N8N_SMTP_PORT=${N8N_SMTP_PORT:-587}
+      - N8N_SMTP_USER=${N8N_SMTP_USER:?N8N_SMTP_USER is required}
+      - N8N_SMTP_PASS=${N8N_SMTP_PASS:?N8N_SMTP_PASS is required}
+      - N8N_SMTP_SENDER=${N8N_SMTP_SENDER:?N8N_SMTP_SENDER is required}
+      - N8N_SMTP_SSL=${N8N_SMTP_SSL:-false}
+      - N8N_SMTP_TLS=${N8N_SMTP_TLS:-true}
 
   postgresql: !reset null
 
