@@ -1,0 +1,228 @@
+{
+  "name": "Redmine",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "project",
+        "projectId": "329"
+      },
+      "type": "n8n-nodes-redmine.redmine",
+      "typeVersion": 1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "06df438c-366d-446f-a706-1c38bfc8d8ae",
+      "name": "Get Project"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "fixed_version_id": "={{ $json.project.default_version.id }}"
+        }
+      },
+      "type": "n8n-nodes-redmine.redmine",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "84b6f738-c2eb-416a-ad1a-c1844824c0a7",
+      "name": "Get Issues"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate a summary of Redmine tasks.\nGroup tasks by user story.\nThe response should be in a format suitable for sending to Slack.\n\n# sprint summaries template\n- add direct links to all tasks and user stories\n- add Assignee for each task\n- group tasks by  User story (parent task) in the lusts\n- do not use emojis (except for task statuses)\n- use sprint template\n\n# Template\n```\n*Sprint {NUMBER} Summary*\nDue date: {DATE}\nTotal estimated hours: {TOTAL_HOURS}h\nSpent hours: {SPENT_HOURS}h\n\n*User Stories and Tasks:*\n\n1. [{USER_STORY_TITLE}]({USER_STORY_URL})\nProgress: {PROGRESS}% | Due: {DUE_DATE}\nTasks:\n• {STATUS} [{TASK_TITLE}]({TASK_URL}) [{{Spent}}h/{{Estimated}}h] - {{Assignee}}\n• {STATUS} [{TASK_TITLE}]({TASK_URL}) [{{Spent}}h/{{Estimated}}h] - {{Assignee}}\n• {STATUS} [{TASK_TITLE}]({TASK_URL}) [{{Spent}}h/{{Estimated}}h] - {{Assignee}}\n\n2. {GROUP_NAME} Tasks\n• {STATUS} [{TASK_TITLE}]({TASK_URL})\n• {STATUS} [{TASK_TITLE}]({TASK_URL}) - {PROGRESS}% complete\n• {STATUS} [{TASK_TITLE}]({TASK_URL}) - {STATUS_TEXT}\n\nLegend:\n✅ - Closed\n📋 - To Do\n🏗️ - In Progress\n🔄 - QA\n❗ - High Priority\n```\n\n### Project:\n```\n{{ $('Get Project').item.json.toJsonString() }}\n```\n\nTasks:\n```\n{{ $json.toJsonString() }}\n```",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        880,
+        0
+      ],
+      "id": "36041270-ec5c-4cb0-bc13-11f83c121a6e",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        968,
+        220
+      ],
+      "id": "f6034dc3-fc80-4fb6-aaed-5eff40b173d1",
+      "name": "Groq Chat Model"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Only keep essential fields for each issue\nconst tasks = $input.first().json.issues.map(i => {  \n  return {\n    json: {\n      id: i.id,\n      subject: i.subject,\n      status: i.status,\n      parent: i.parent,\n      assigned_to: i.assigned_to,\n      estimated_hours: i.estimated_hours,\n      spent_hours: i.spent_hours,\n      due_date: i.due_date,\n      // add more fields if needed\n    }\n  }\n});\nreturn {tasks};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "77031d2f-3281-4426-a95e-76783d583355",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C02URP5L3U5",
+          "mode": "list",
+          "cachedResultName": "snf_automatization_software_dev_logs"
+        },
+        "message": "=send summary of tasks for `{{ $('Get Project').item.json.project.default_version.name }}`?",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1256,
+        0
+      ],
+      "id": "01f38fd0-be44-4487-a80f-661019c70ff2",
+      "name": "Slack",
+      "webhookId": "51fddfe4-5ff3-44a6-bf22-816992e90d1b"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C02URP5L3U5",
+          "mode": "list",
+          "cachedResultName": "snf_automatization_software_dev_logs"
+        },
+        "text": "={{ $('Basic LLM Chain').item.json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1476,
+        0
+      ],
+      "id": "c58bf88c-2738-432e-a732-1dc1e0d25d39",
+      "name": "Slack1",
+      "webhookId": "754f0ed9-ceda-48dd-844e-630b475c8ba0"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 11 * * 1-5"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8a317e1e-830b-4520-b6ae-300b017c74a0",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Project": {
+      "main": [
+        [
+          {
+            "node": "Get Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Issues": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "main": [
+        [
+          {
+            "node": "Slack1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "redmine_sprint_summary-example",
+  "tags": []
+}
