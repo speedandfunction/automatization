@@ -13,7 +13,7 @@ Temporal is a platform for reliable and scalable execution of business processes
 ## Core Platform Components
 - **Temporal Service** — the server-side component that manages event history storage and workflow execution coordination.
 - **Worker Processes** — processes that execute user workflow and activity code. Operate using SDKs in various languages (Go, Java, TypeScript, Python, etc.).
-- **Temporal UI** — web interface for monitoring and managing workflows (https://temporal.speedandfunction.com/namespaces/default/workflows).
+- **Temporal UI** — web interface for monitoring and managing workflows.
 
 ## Key Features of Temporal
 - **Durable Execution**: process execution with state persistence and automatic recovery after failures.

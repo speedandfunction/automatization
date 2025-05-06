@@ -11,20 +11,20 @@ _Instructions for obtaining access, setting up an account, and password recovery
 ## Access to n8n
 
 **Description:**  
-Access to the corporate n8n is provided to Speed & Function employees upon request via the support Slack channel.
+Access to the corporate n8n is provided to employees upon request via the support Slack channel.
 
 **Trigger:**  
 - Requesting access to n8n for creating or editing workflows.
 
 **How to get access:**
-1. Go to the corporate Slack support channel: [#automatization-support](https://spdfn.slack.com/archives/C6H7UG830)
-2. Leave a message requesting access, specifying your corporate email (@speedandfunction.com).
+1. Go to the corporate Slack support channel: `#automatization-support`
+2. Leave a message requesting access, specifying your corporate email.
 3. Wait for an invitation from the administrator in your email.
 4. After receiving the invitation, follow the link provided.
 
 **Password recovery:**
 - Use the standard password recovery form on the n8n login page.
-- If you encounter issues, contact [#automatization-support](https://spdfn.slack.com/archives/C6H7UG830).
+- If you encounter issues, contact `#automatization-support`.
 
 ---
 
