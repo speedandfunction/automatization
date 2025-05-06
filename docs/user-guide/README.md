@@ -7,7 +7,7 @@
 4. n8n
     - [n8n Interface Overview](n8n/overview.md)
     - [Workflow Creation and Execution (n8n)](n8n/workflow_creation.md)
-    - [Example Workflows (n8n)](n8n/examples.md)
+    - [Example Workflows (n8n)](n8n/examples/README.md)
     - [n8n Integrations and Services](n8n/integrations.md)
 5. Temporal
     - [Temporal Overview](temporal/overview.md)
