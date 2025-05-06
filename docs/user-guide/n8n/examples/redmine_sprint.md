@@ -1,4 +1,4 @@
-## Redmine Sprint Summary Workflow
+# Redmine Sprint Summary Workflow
 
 ![Workflow Example](./redmine_sprint/workflow.png)
 
@@ -22,7 +22,7 @@ Automation of collecting and sending sprint task summaries from Redmine to Slack
 3. Code — Transform tasks: filter and prepare required fields
 4. Basic LLM Chain — Generate summary text for Slack using the template
 5. Slack — Request confirmation to send the report
-![Request confirmation to send the repor](./redmine_sprint/confirmation.png)
+![Request confirmation to send the report](./redmine_sprint/confirmation.png)
 6. Slack1 — Send the final summary to the Slack channel
 
 **Used Services/Integrations:**  

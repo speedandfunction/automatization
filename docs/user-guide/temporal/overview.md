@@ -5,7 +5,6 @@
 - Core Platform Components
 - Key Features of Temporal
 - Temporal UI Interface
-- Usage Examples
 
 ## Introduction
 Temporal is a platform for reliable and scalable execution of business processes (workflows) with a guarantee of completion even in the event of infrastructure failures. Temporal allows you to develop applications as if failures do not exist: the platform automatically restores state and continues process execution after failures, network errors, or server restarts.
