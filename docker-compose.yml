@@ -30,6 +30,7 @@ services:
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD_N8N:-n8n_password}
       - N8N_LOG_LEVEL=debug
       - N8N_LOG_OUTPUT=console
+      - TZ=${TZ:-America/New_York}
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
