@@ -1,0 +1,52 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Temporal Project Structure Rule
+
+## Purpose
+Defines the required directory and documentation structure for Temporal-based workflows and workers in this repository.
+
+## Dynamic Loading
+
+- All Temporal workers **must** use dynamic loading to register workflows and activities.
+- The worker entry point (`index.ts`) **must** automatically import all modules from the `workflows/` and `activities/` directories at runtime.
+- This ensures any new workflow or activity is available to the worker without manual registration.
+- Dynamic loading is **mandatory** for all new workers.
+
+## Directory Structure
+
+All Temporal workers must be placed under `src/workers/<worker-name>/` and include:
+
+- `workflows/` — workflow definitions for this worker
+- `activities/` — activity implementations for this worker
+- `index.ts` — worker entry point (registers workflows/activities, sets task queue)
+- `types.ts` — (optional) worker-specific types
+- `README.md` — brief usage and development instructions
+
+Shared utilities, types, and configuration should be placed in `src/shared/`.
+
+## Documentation
+
+Each worker must have a dedicated documentation file at:
+`docs/user-guide/temporal/workers/<worker-name>.md`
+
+Documentation must include:
+
+- Purpose and responsibilities of the worker
+- List and description of workflows and activities
+- Required environment variables
+- Integration points (e.g., databases, APIs)
+- Best practices and troubleshooting
+
+## Best Practices
+
+- Keep workflow and activity logic modular and well-tested.
+- Use clear, descriptive names for workflows, activities, and task queues.
+- Update documentation with every significant change to workflows or activities.
+- New workers must not duplicate logic already present in shared modules.
+
+## Enforcement
+
+- PRs introducing new Temporal workers or workflows **must** follow this structure and update documentation accordingly.
