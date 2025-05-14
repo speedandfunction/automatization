@@ -7,6 +7,15 @@
     "build": "tsc",
     "dev": "DEBUG=* nodemon --watch ./ --ext ts --exec npx ts-node index.ts"
   },
+  "nodemonConfig": {
+    "execMap": {
+      "ts": "ts-node"
+    },
+    "ext": "ts",
+    "watch": [
+      "src"
+    ]
+  },
   "dependencies": {
     "@opentelemetry/api": "1.9.0",
     "@temporalio/worker": "1.11.6",
