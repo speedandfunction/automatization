@@ -1,12 +1,19 @@
 import { describe, it, expect } from 'vitest';
-
-// Example function to test (replace with real import if available)
-function exampleActivity() {
-  return 'Hello from activity!';
-}
+import { exampleActivity } from '../activities/exampleActivity';
 
 describe('exampleActivity', () => {
-  it('should return the correct string', () => {
-    expect(exampleActivity()).toBe('Hello from activity!');
+  it('should process the provided name', async () => {
+    const result = await exampleActivity('Alice');
+    expect(result).toBe('Processed: Alice');
+  });
+
+  it('should handle empty string as name', async () => {
+    const result = await exampleActivity('');
+    expect(result).toBe('Processed: ');
+  });
+
+  it('should handle special characters in name', async () => {
+    const result = await exampleActivity('Bob!@#');
+    expect(result).toBe('Processed: Bob!@#');
   });
 }); 
