@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: ["workers/**/*", "docs/user-guide/temporal/**/*"]
 alwaysApply: false
 ---
 # Temporal Project Structure Rule
@@ -25,13 +25,14 @@ The project follows a modular structure with workers as independent packages:
 │   │   ├── tsconfig.json     # TypeScript configuration
 │   │   └── README.md         # Worker documentation
 │   └── [other-workers]/      # Additional worker packages
+├── workers-shared/           # Shared utilities, types, and configuration for all workers
 ├── docs/                      # Project documentation
 │   └── user-guide/           # User guides and documentation
 ├── docker-compose.yml        # Docker compose configuration
 └── Dockerfile.temporal       # Base Temporal worker Dockerfile
 ```
 
-All Temporal workers must be placed under `src/workers/<worker-name>/` and include:
+All Temporal workers must be placed under `workers/<worker-name>/` and include:
 
 - `workflows/` — workflow definitions for this worker
 - `activities/` — activity implementations for this worker
@@ -39,7 +40,14 @@ All Temporal workers must be placed under `src/workers/<worker-name>/` and inclu
 - `types.ts` — (optional) worker-specific types
 - `README.md` — brief usage and development instructions
 
-Shared utilities, types, and configuration should be placed in `src/shared/`.
+### Shared Utilities
+
+Shared utilities, types, and configuration that are used by multiple workers should be placed in the `workers-shared/` directory at the project root. This directory is intended for code that is not specific to a single worker but is reused across multiple workers to avoid duplication and promote consistency.
+
+- `workers-shared/` — shared modules, types, and configuration for all workers
+    - Utilities and helpers
+    - Common type definitions
+    - Shared configuration files
 
 ## Documentation
 
@@ -60,6 +68,7 @@ Documentation must include:
 - Use clear, descriptive names for workflows, activities, and task queues.
 - Update documentation with every significant change to workflows or activities.
 - New workers must not duplicate logic already present in shared modules.
+- Place all shared code in `workers-shared/` to maximize reuse and maintainability.
 
 ## Enforcement
 

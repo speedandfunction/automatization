@@ -3,6 +3,7 @@
 ## Table of Contents
 - Introduction
 - Core Platform Components
+- Shared Utilities and Configuration
 - Key Features of Temporal
 - Temporal UI Interface
 
@@ -13,6 +14,9 @@ Temporal is a platform for reliable and scalable execution of business processes
 - **Temporal Service** — the server-side component that manages event history storage and workflow execution coordination.
 - **Worker Processes** — processes that execute user workflow and activity code. Operate using SDKs in various languages (Go, Java, TypeScript, Python, etc.).
 - **Temporal UI** — web interface for monitoring and managing workflows.
+
+## Shared Utilities and Configuration
+- **workers-shared/** — This directory contains shared utilities, type definitions, and configuration used by multiple Temporal workers. It is intended for code that is not specific to a single worker but is reused across the project to avoid duplication and promote consistency. Examples include common helper functions, shared type definitions, and configuration files that are imported by different worker packages.
 
 ## Key Features of Temporal
 - **Durable Execution**: process execution with state persistence and automatic recovery after failures.
