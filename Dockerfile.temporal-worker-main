@@ -6,6 +6,7 @@ RUN npm ci
 FROM node:20-bullseye AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+# sonarcloud-disable-next-line docker:S4507
 ENV NODE_ENV=development
 COPY workers/main ./
 CMD ["npx", "nodemon", "--watch", "./", "--ext", "ts", "--exec", "npx", "ts-node", "src/index.ts"]
@@ -14,7 +15,7 @@ FROM node:20-bullseye AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY workers/main/ ./
-RUN npm run build && ls -al
+RUN npm run build
 
 FROM gcr.io/distroless/nodejs20-debian11 AS production
 WORKDIR /app
