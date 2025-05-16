@@ -1,0 +1,26 @@
+FROM node:20-bullseye AS deps
+WORKDIR /app
+COPY workers/main/package*.json ./
+RUN npm ci
+
+FROM node:20-bullseye AS dev
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+ENV NODE_ENV=development
+CMD ["npx", "nodemon", "--watch", "./", "--ext", "ts", "--exec", "npx", "ts-node", "src/index.ts"]
+
+FROM node:20-bullseye AS build
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY workers/main/ ./
+RUN npm run build
+
+FROM gcr.io/distroless/nodejs20-debian11 AS prod
+WORKDIR /app
+COPY --from=build /app/build ./build
+COPY --from=build /app/node_modules ./node_modules
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+CMD ["node", "build/worker.js"]
