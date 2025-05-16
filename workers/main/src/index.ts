@@ -2,40 +2,10 @@ import { Worker, NativeConnection } from '@temporalio/worker';
 import * as path from 'path';
 import { readdirSync } from 'fs';
 import { Connection, ScheduleClient } from '@temporalio/client';
+import * as activities from './activities';
 
 const workflowsPath = path.join(__dirname, 'workflows');
-const activitiesPath = path.join(__dirname, 'activities');
-
-const activityModules = readdirSync(activitiesPath)
-  .filter((f: string) => (f.endsWith('.ts') || f.endsWith('.js')) && !f.endsWith('.test.ts') && !f.endsWith('.test.js'))
-  .map((f: string) => {
-    const mod = require(path.join(activitiesPath, f));
-    const validExports: Record<string, Function> = {};
-    let hasValid = false;
-    for (const [key, value] of Object.entries(mod)) {
-      if (typeof value === 'function') {
-        validExports[key] = value;
-        hasValid = true;
-      } else {
-        console.warn(`Warning: Export '${key}' in module '${f}' is not a function and will be ignored.`);
-      }
-    }
-    if (!hasValid) {
-      console.warn(`Warning: No valid activity functions found in module '${f}'.`);
-    }
-    return validExports;
-  });
-
-const activities = Object.assign({}, ...activityModules);
-
 const address = process.env.TEMPORAL_ADDRESS || 'temporal:7233';
-
-/**
- * Entry point for the Temporal worker service.
- *
- * Loads workflow and activity modules, connects to the Temporal server, ensures a schedule exists,
- * and starts the worker to process workflows and activities from the task queue.
- */
 
 /**
  * Ensures that a schedule with the given ID exists in Temporal. If it does not exist, creates it.
