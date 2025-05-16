@@ -6,12 +6,10 @@ import { Connection, ScheduleClient } from '@temporalio/client';
 const workflowsPath = path.join(__dirname, 'workflows');
 const activitiesPath = path.join(__dirname, 'activities');
 
-// Dynamically import all workflows
 const workflowModules = readdirSync(workflowsPath)
   .filter((f: string) => f.endsWith('.ts') || f.endsWith('.js'))
   .map((f: string) => require(path.join(workflowsPath, f)));
 
-// Dynamically import all activities
 const activityModules = readdirSync(activitiesPath)
   .filter((f: string) => f.endsWith('.ts') || f.endsWith('.js'))
   .map((f: string) => require(path.join(activitiesPath, f)));
@@ -24,10 +22,8 @@ async function createScheduleIfNotExists(connection: Connection) {
   const scheduleClient = new ScheduleClient({ connection });
   try {
     await scheduleClient.getHandle('example-workflow-hourly').describe();
-    console.log('Schedule already exists');
   } catch (err: any) {
     if (err?.message?.includes('workflow not found')) {
-      console.log('Create Schedule example-workflow-hourly');
       await scheduleClient.create({
         scheduleId: 'example-workflow-hourly',
         spec: { cronExpressions: ['0 * * * *'] },
@@ -39,7 +35,6 @@ async function createScheduleIfNotExists(connection: Connection) {
           args: [],
         },
       });
-      console.log('Schedule created');
     } else {
       throw err;
     }
