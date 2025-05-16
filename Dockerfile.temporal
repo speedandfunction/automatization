@@ -16,7 +16,7 @@ ENV POSTGRES_SEEDS=$POSTGRES_SEEDS \
 
 # Install netcat as root, then switch to non-root user
 USER root
-RUN apk add --no-cache netcat-openbsd
+RUN apk add --no-cache netcat-openbsd=1.226.1.1-r0
 USER temporal
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
