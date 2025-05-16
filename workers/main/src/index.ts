@@ -7,8 +7,24 @@ const workflowsPath = path.join(__dirname, 'workflows');
 const activitiesPath = path.join(__dirname, 'activities');
 
 const activityModules = readdirSync(activitiesPath)
-  .filter((f: string) => f.endsWith('.ts') || f.endsWith('.js') && !f.endsWith('.test.ts') && !f.endsWith('.test.js'))
-  .map((f: string) => require(path.join(activitiesPath, f)));
+  .filter((f: string) => (f.endsWith('.ts') || f.endsWith('.js')) && !f.endsWith('.test.ts') && !f.endsWith('.test.js'))
+  .map((f: string) => {
+    const mod = require(path.join(activitiesPath, f));
+    const validExports: Record<string, Function> = {};
+    let hasValid = false;
+    for (const [key, value] of Object.entries(mod)) {
+      if (typeof value === 'function') {
+        validExports[key] = value;
+        hasValid = true;
+      } else {
+        console.warn(`Warning: Export '${key}' in module '${f}' is not a function and will be ignored.`);
+      }
+    }
+    if (!hasValid) {
+      console.warn(`Warning: No valid activity functions found in module '${f}'.`);
+    }
+    return validExports;
+  });
 
 const activities = Object.assign({}, ...activityModules);
 
