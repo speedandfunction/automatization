@@ -7,7 +7,7 @@
     "build": "tsc",
     "dev": "DEBUG=* nodemon --watch ./ --ext ts --exec npx ts-node src/index.ts",
     "test": "vitest run",
-    "coverage": "c8 vitest run"
+    "coverage": "c8 --reporter=lcov --reporter=text vitest run"
   },
   "nodemonConfig": {
     "execMap": {
