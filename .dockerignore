@@ -139,4 +139,7 @@ volumes/
 *.vdi
 *.qcow2
 *.raw
-*.vhdx 
+*.vhdx
+
+# Workers
+workers/main/node_modules 

@@ -107,8 +107,6 @@ services:
       context: .
       dockerfile: Dockerfile.temporal-worker-main
       target: production
-    environment:
-      - NODE_ENV=production
 
 volumes:
   n8n_data:
