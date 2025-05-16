@@ -74,21 +74,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.temporal
-      args:
-        - HOST=temporal
-        - TEMPORAL_PORT=${TEMPORAL_PORT:-7233}
     restart: unless-stopped
     depends_on:
       postgresql:
         condition: service_healthy
     environment:
+      TEMPORAL_FRONTEND_GRPC_BIND_ON_IP: 0.0.0.0
       TEMPORAL_PORT: ${TEMPORAL_PORT:-7233}
       POSTGRES_SEEDS: postgresql
       DB_PORT: ${POSTGRES_PORT:-5432}
       DBNAME: ${POSTGRES_DB_TEMPORAL:-temporal}
       POSTGRES_USER: ${POSTGRES_USER_TEMPORAL:-temporal}
       POSTGRES_PWD: ${POSTGRES_PASSWORD_TEMPORAL:-temporal}
-      DB: postgresql
+      DB: postgres12
+      VISIBILITY_DB_NAME: ${POSTGRES_DB_TEMPORAL_VISIBILITY:-temporal_visibility}
       VISIBILITY_DB_USER: ${POSTGRES_USER_TEMPORAL:-temporal}
       VISIBILITY_DB_PWD: ${POSTGRES_PASSWORD_TEMPORAL:-temporal}
       VISIBILITY_DB_PORT: ${POSTGRES_PORT:-5432}
@@ -102,7 +101,7 @@ services:
         - path: .
           action: rebuild
     healthcheck:
-      test: ["CMD", "tctl", "--address", "temporal:${TEMPORAL_PORT:-7233}", "cluster", "health"]
+      test: ["CMD", "sh", "-c", "tctl --address temporal:7233 cluster health && nc -z temporal 7233"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -147,6 +146,29 @@ services:
       timeout: 5s
       retries: 5
 
+  temporal-worker-main:
+    container_name: temporal-worker-main
+    build:
+      context: .
+      dockerfile: Dockerfile.temporal-worker-main
+      target: dev
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_TASK_QUEUE=default
+      - NODE_ENV=production
+    volumes:
+      - ./workers/main:/app
+      - /app/node_modules
+    networks:
+      - app-network
+    develop:
+      watch:
+        - path: .
+          action: rebuild
+
 volumes:
   n8n_data:
   postgresql-data:
@@ -154,4 +176,3 @@ volumes:
 
 networks:
   app-network:
-    driver: bridge

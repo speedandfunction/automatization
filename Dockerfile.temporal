@@ -1,31 +1,26 @@
-FROM temporalio/auto-setup:1.20.5
+FROM temporalio/auto-setup:1.27.2
 
-# Build arguments are still needed for the temporal container setup
-# Keeping only those used in the HEALTHCHECK or other commands
+# Set build arguments and environment variables
 ARG HOST=temporal
+ARG POSTGRES_SEEDS=postgresql
+ARG POSTGRES_USER=temporal
+ARG POSTGRES_DB_TEMPORAL_VISIBILITY=temporal_visibility
+ARG DB_PORT=5432
 ARG TEMPORAL_PORT=7233
 
-RUN temporal-sql-tool --plugin postgres \
-      --endpoint "$POSTGRES_SEEDS" \
-      --user "$POSTGRES_USER" \
-      --port "$DB_PORT" \
-      --database "$POSTGRES_DB_TEMPORAL_VISIBILITY" \
-      setup-schema -v 0.0 && \
-    temporal-sql-tool --plugin postgres \
-      --endpoint "$POSTGRES_SEEDS" \
-      --user "$POSTGRES_USER" \
-      --port "$DB_PORT" \
-      --database "$POSTGRES_DB_TEMPORAL_VISIBILITY" \
-      update-schema -d /etc/temporal/schema/postgresql/v96/visibility/versioned
+ENV POSTGRES_SEEDS=$POSTGRES_SEEDS \
+    POSTGRES_USER=$POSTGRES_USER \
+    POSTGRES_DB_TEMPORAL_VISIBILITY=$POSTGRES_DB_TEMPORAL_VISIBILITY \
+    DB_PORT=$DB_PORT \
+    TEMPORAL_PORT=$TEMPORAL_PORT
 
-# Add custom healthcheck using exec form
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD ["/bin/sh", "-c", "temporal operator cluster health --address ${HOST}:${TEMPORAL_PORT} | grep -q SERVING || exit 1"]
-
-# Explicitly set the user to the non-root 'temporal' user (already defined in the base image)
+# Install netcat as root, then switch to non-root user
+USER root
+RUN apk add --no-cache netcat-openbsd
 USER temporal
 
-# Expose the gRPC port
-EXPOSE ${TEMPORAL_PORT}
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+  CMD sh -c "tctl --address temporal:7233 cluster health && nc -z temporal 7233"
 
-# The entrypoint script is already defined in the base image
+# Expose the gRPC port
+EXPOSE 7233
