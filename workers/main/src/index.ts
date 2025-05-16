@@ -6,12 +6,8 @@ import { Connection, ScheduleClient } from '@temporalio/client';
 const workflowsPath = path.join(__dirname, 'workflows');
 const activitiesPath = path.join(__dirname, 'activities');
 
-const workflowModules = readdirSync(workflowsPath)
-  .filter((f: string) => f.endsWith('.ts') || f.endsWith('.js'))
-  .map((f: string) => require(path.join(workflowsPath, f)));
-
 const activityModules = readdirSync(activitiesPath)
-  .filter((f: string) => f.endsWith('.ts') || f.endsWith('.js'))
+  .filter((f: string) => f.endsWith('.ts') || f.endsWith('.js') && !f.endsWith('.test.ts') && !f.endsWith('.test.js'))
   .map((f: string) => require(path.join(activitiesPath, f)));
 
 const activities = Object.assign({}, ...activityModules);
