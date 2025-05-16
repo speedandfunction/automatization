@@ -7,20 +7,23 @@ FROM node:20-bullseye AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 ENV NODE_ENV=development
+COPY workers/main ./
 CMD ["npx", "nodemon", "--watch", "./", "--ext", "ts", "--exec", "npx", "ts-node", "src/index.ts"]
 
 FROM node:20-bullseye AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY workers/main/ ./
-RUN npm run build
+RUN npm run build && ls -al
 
-FROM gcr.io/distroless/nodejs20-debian11 AS prod
+FROM gcr.io/distroless/nodejs20-debian11 AS production
 WORKDIR /app
-COPY --from=build /app/build ./build
+COPY --from=build /app/dist ./build
 COPY --from=build /app/node_modules ./node_modules
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
+
+USER node
 
 CMD ["node", "build/worker.js"]

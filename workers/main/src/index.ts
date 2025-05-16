@@ -18,6 +18,19 @@ const activities = Object.assign({}, ...activityModules);
 
 const address = process.env.TEMPORAL_ADDRESS || 'temporal:7233';
 
+/**
+ * Entry point for the Temporal worker service.
+ *
+ * Loads workflow and activity modules, connects to the Temporal server, ensures a schedule exists,
+ * and starts the worker to process workflows and activities from the task queue.
+ */
+
+/**
+ * Ensures that a schedule with the given ID exists in Temporal. If it does not exist, creates it.
+ *
+ * @param {Connection} connection - The Temporal connection instance.
+ * @returns {Promise<void>} Resolves when the schedule is verified or created.
+ */
 async function createScheduleIfNotExists(connection: Connection) {
   const scheduleClient = new ScheduleClient({ connection });
   try {
@@ -41,13 +54,21 @@ async function createScheduleIfNotExists(connection: Connection) {
   }
 }
 
+/**
+ * Main function to initialize Temporal connection, ensure schedule, and start the worker.
+ *
+ * Loads workflow and activity modules, connects to Temporal, ensures the schedule exists,
+ * and starts the worker to process jobs from the task queue.
+ *
+ * @returns {Promise<void>} Resolves when the worker is running.
+ */
 async function run() {
   const connection = await Connection.connect({ address });
 
   await createScheduleIfNotExists(connection);
 
   await Worker.create({
-    workflowsPath: require.resolve('./workflows'),
+    workflowsPath,
     activities,
     taskQueue: 'main-queue',
   }).then(worker => worker.run());

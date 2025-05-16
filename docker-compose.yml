@@ -158,7 +158,7 @@ services:
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - TEMPORAL_TASK_QUEUE=default
-      - NODE_ENV=production
+      - NODE_ENV=development
     volumes:
       - ./workers/main:/app
       - /app/node_modules
