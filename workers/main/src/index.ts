@@ -32,7 +32,7 @@ async function createScheduleIfNotExists(connection: Connection) {
   try {
     await scheduleClient.getHandle('example-workflow-hourly').describe();
   } catch (err: any) {
-    if (err?.message?.includes('workflow not found')) {
+    if (err?.name === 'NotFoundError' || err?.message?.includes('workflow not found')) {
       await scheduleClient.create({
         scheduleId: 'example-workflow-hourly',
         spec: { cronExpressions: ['0 * * * *'] },
