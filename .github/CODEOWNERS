@@ -1,0 +1,8 @@
+# CODEOWNERS file
+#
+# This file is used to define the owners of code in this repository.
+# The owners will be automatically requested for review when someone opens a PR.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# These owners will be the default owners for everything in the repo
+* @killev
