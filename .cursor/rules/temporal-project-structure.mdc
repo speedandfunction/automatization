@@ -1,0 +1,75 @@
+---
+description: 
+globs: ["workers/**/*", "docs/user-guide/temporal/**/*"]
+alwaysApply: false
+---
+# Temporal Project Structure Rule
+
+## Purpose
+Defines the required directory and documentation structure for Temporal-based workflows and workers in this repository.
+
+## Project Structure
+
+The project follows a modular structure with workers as independent packages:
+
+```
+.
+├── workers/                  # Root directory for all Temporal workers
+│   ├── main/                 # Main worker package
+│   │   ├── src/              # Source code
+│   │   │   ├── activities/   # Activity implementations
+│   │   │   ├── workflows/    # Workflow definitions
+│   │   │   ├── index.ts      # Worker entry point
+│   │   │   └── types.ts      # Worker-specific types
+│   │   ├── package.json      # Worker dependencies
+│   │   ├── tsconfig.json     # TypeScript configuration
+│   │   └── README.md         # Worker documentation
+│   └── [other-workers]/      # Additional worker packages
+├── workers-shared/           # Shared utilities, types, and configuration for all workers
+├── docs/                      # Project documentation
+│   └── user-guide/           # User guides and documentation
+├── docker-compose.yml        # Docker compose configuration
+└── Dockerfile.temporal       # Base Temporal worker Dockerfile
+```
+
+All Temporal workers must be placed under `workers/<worker-name>/` and include:
+
+- `workflows/` — workflow definitions for this worker
+- `activities/` — activity implementations for this worker
+- `index.ts` — worker entry point (registers workflows/activities, sets task queue)
+- `types.ts` — (optional) worker-specific types
+- `README.md` — brief usage and development instructions
+
+### Shared Utilities
+
+Shared utilities, types, and configuration that are used by multiple workers should be placed in the `workers-shared/` directory at the project root. This directory is intended for code that is not specific to a single worker but is reused across multiple workers to avoid duplication and promote consistency.
+
+- `workers-shared/` — shared modules, types, and configuration for all workers
+    - Utilities and helpers
+    - Common type definitions
+    - Shared configuration files
+
+## Documentation
+
+Each worker must have a dedicated documentation file at:
+`docs/user-guide/temporal/workers/<worker-name>.md`
+
+Documentation must include:
+
+- Purpose and responsibilities of the worker
+- List and description of workflows and activities
+- Required environment variables
+- Integration points (e.g., databases, APIs)
+- Best practices and troubleshooting
+
+## Best Practices
+
+- Keep workflow and activity logic modular and well-tested.
+- Use clear, descriptive names for workflows, activities, and task queues.
+- Update documentation with every significant change to workflows or activities.
+- New workers must not duplicate logic already present in shared modules.
+- Place all shared code in `workers-shared/` to maximize reuse and maintainability.
+
+## Enforcement
+
+- PRs introducing new Temporal workers or workflows **must** follow this structure and update documentation accordingly.

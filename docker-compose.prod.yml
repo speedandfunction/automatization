@@ -102,6 +102,12 @@ services:
     networks:
       - app-network
 
+  temporal-worker-main:
+    build:
+      context: .
+      dockerfile: Dockerfile.temporal-worker-main
+      target: production
+
 volumes:
   n8n_data:
     driver: local
