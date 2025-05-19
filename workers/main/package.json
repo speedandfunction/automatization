@@ -5,7 +5,7 @@
   "scripts": {
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "eslint": "eslint . --ext .ts,.tsx"
+    "eslint": "eslint . --ext .ts"
   },
   "devDependencies": {
     "@eslint/js": "9.27.0",

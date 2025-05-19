@@ -57,7 +57,6 @@ export default [
           },
         },
       ],
-      'import/no-default-export': 'error',
       'import/no-unresolved': 'error',
       'padding-line-between-statements': [
         'error',
