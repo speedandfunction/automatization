@@ -3,5 +3,5 @@
  * @returns {Promise<boolean>} Returns true when the worker completes successfully.
  */
 export async function run() {
-  return true;
+  return await Promise.resolve(true);
 }

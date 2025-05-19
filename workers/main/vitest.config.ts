@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config';
 
-export default defineConfig({
+export const vitestConfig = defineConfig({
   test: {
     globals: true,
     environment: 'node',
@@ -10,10 +10,7 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       all: true,
       include: ['src/**/*.ts'],
-      exclude: [
-        'src/__tests__/**',
-        'src/dist/**',
-      ],
+      exclude: ['src/__tests__/**', 'src/dist/**'],
       thresholds: {
         statements: 80,
         branches: 80,
