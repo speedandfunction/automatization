@@ -10,7 +10,7 @@ export default [
       'import/resolver': {
         typescript: {
           "node": {
-            "extensions": [".ts",]
+            "extensions": [".ts"]
           }
         },
       },
