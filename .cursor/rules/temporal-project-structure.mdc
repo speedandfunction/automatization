@@ -1,5 +1,5 @@
 ---
-description: 
+description: "Defines and enforces standardized directory structure and documentation requirements for Temporal-based workflows and workers"
 globs: ["workers/**/*", "docs/user-guide/temporal/**/*"]
 alwaysApply: false
 ---
