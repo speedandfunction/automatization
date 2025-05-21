@@ -9,9 +9,7 @@ export default [
     settings: {
       'import/resolver': {
         typescript: {
-          "node": {
-            "extensions": [".ts"]
-          }
+          extensions: [".ts"]
         },
       },
     },
@@ -46,17 +44,6 @@ export default [
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'no-console': 'warn',
       'no-debugger': 'warn',
-      'import/order': [
-        'error',
-        {
-          groups: ['builtin', 'external', 'internal'],
-          'newlines-between': 'always',
-          alphabetize: {
-            order: 'asc',
-            caseInsensitive: true,
-          },
-        },
-      ],
       'import/no-unresolved': 'error',
       'padding-line-between-statements': [
         'error',
