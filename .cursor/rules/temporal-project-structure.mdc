@@ -25,8 +25,8 @@ The project follows a modular structure with workers as independent packages:
 │   │   ├── tsconfig.json     # TypeScript configuration
 │   │   └── README.md         # Worker documentation
 │   └── [other-workers]/      # Additional worker packages
-├── workers-shared/           # Shared utilities, types, and configuration for all workers
-├── docs/                      # Project documentation
+├── common/                   # Shared utilities, types, and configuration for all workers
+├── docs/                     # Project documentation
 │   └── user-guide/           # User guides and documentation
 ├── docker-compose.yml        # Docker compose configuration
 └── Dockerfile.temporal       # Base Temporal worker Dockerfile
