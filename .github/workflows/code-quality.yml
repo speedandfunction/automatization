@@ -14,8 +14,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Run linting
-        run: echo "Linting..."
+      - name: Install dependencies
+        run: cd workers/main && npm ci
+      - name: Run ESLint
+        run: cd workers/main && npm run eslint
 
   sonarqube:
     name: SonarQube
