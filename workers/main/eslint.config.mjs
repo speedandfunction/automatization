@@ -42,7 +42,8 @@ export default [
 
       'prettier/prettier': 'error',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'no-console': 'warn',
+      '@typescript-eslint/require-await': 'off',
+      'no-console': ['warn', { allow: ['error'] }],
       'no-debugger': 'warn',
       'import/no-unresolved': 'error',
       'padding-line-between-statements': [
