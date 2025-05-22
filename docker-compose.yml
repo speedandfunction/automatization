@@ -88,12 +88,11 @@ services:
       DBNAME: ${POSTGRES_DB_TEMPORAL:-temporal}
       POSTGRES_USER: ${POSTGRES_USER_TEMPORAL:-temporal}
       POSTGRES_PWD: ${POSTGRES_PASSWORD_TEMPORAL:-temporal}
-      DB: postgresql
+      DB: postgres12
+      VISIBILITY_DB_NAME: ${POSTGRES_DB_TEMPORAL_VISIBILITY:-temporal_visibility}
       VISIBILITY_DB_USER: ${POSTGRES_USER_TEMPORAL:-temporal}
       VISIBILITY_DB_PWD: ${POSTGRES_PASSWORD_TEMPORAL:-temporal}
       VISIBILITY_DB_PORT: ${POSTGRES_PORT:-5432}
-    ports:
-      - "${TEMPORAL_PORT:-7233}:7233"
     networks:
       - app-network
     user: temporal
@@ -146,6 +145,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  temporal-worker-main:
+    container_name: temporal-worker-main
+    build:
+      context: .
+      dockerfile: Dockerfile.temporal-worker-main
+      target: dev
+    depends_on:
+      temporal:
+        condition: service_healthy
+    volumes:
+      - ./workers/main:/app/main
+      - ./workers/common:/app/common
+      - /app/main/node_modules
+    networks:
+      - app-network
+    develop:
+      watch:
+        - path: .
+          action: rebuild
 
 volumes:
   n8n_data:
