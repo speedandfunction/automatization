@@ -6,7 +6,9 @@ export async function run() {
   return await Promise.resolve(true);
 }
 
-run().catch((err) => {
+export function handleRunError(err: unknown) {
   console.error('Unhandled error in main:', err);
   process.exit(1);
-});
+}
+
+run().catch(handleRunError);
