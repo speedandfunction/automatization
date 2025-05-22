@@ -1,37 +1,35 @@
 import { describe, expect, it } from 'vitest';
 import { vi } from 'vitest';
 
-import { handleRunError, logger, run } from '../index';
+import { run, handleRunError, mainEntry } from '../index';
+import * as utils from '../../../common/utils';
+
+vi.mock('@temporalio/worker', () => ({
+  DefaultLogger: class {
+    error() {}
+  },
+  NativeConnection: {
+    connect: vi.fn().mockResolvedValue({ close: vi.fn() }),
+  },
+  Worker: {
+    create: vi
+      .fn()
+      .mockResolvedValue({ run: vi.fn().mockResolvedValue(undefined) }),
+  },
+}));
 
 describe('run', () => {
   it('should return true', async () => {
-    await expect(run()).resolves.toBe(true);
+    await expect(run()).resolves.toBeUndefined();
   });
 });
 
 describe('handleRunError', () => {
-  it('should log error and exit process', () => {
-    vi.useFakeTimers();
+  it('should log the error and throw the error', () => {
+    const logSpy = vi.spyOn(utils, 'logWorkerError').mockImplementation(() => {});
     const error = new Error('test error');
-    const loggerErrorSpy = vi
-      .spyOn(logger, 'error')
-      .mockImplementation(() => {});
-    const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error('exit');
-    });
-
     expect(() => handleRunError(error)).toThrow(error);
-    expect(loggerErrorSpy).toHaveBeenCalledWith(
-      `Unhandled error in main: ${error.message}`,
-    );
-    expect(processExitSpy).not.toHaveBeenCalled();
-    expect(() => {
-      vi.runAllTimers();
-    }).toThrow('exit');
-    expect(processExitSpy).toHaveBeenCalledWith(1);
-
-    loggerErrorSpy.mockRestore();
-    processExitSpy.mockRestore();
-    vi.useRealTimers();
+    expect(logSpy).toHaveBeenCalledWith('main', error);
+    logSpy.mockRestore();
   });
 });

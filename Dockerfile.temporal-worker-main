@@ -8,7 +8,6 @@ RUN npm ci --ignore-scripts
 FROM node:20-bullseye AS dev
 # sonarcloud-disable-next-line docker:S4507
 ENV NODE_ENV=development
-ENV DEBUG=*
 WORKDIR /app/main
 COPY --from=deps /app/main/node_modules ./node_modules
 CMD ["npx", "nodemon", "--watch", "./", "--watch", "/app/common", "--ext", "ts", "--exec", "npx", "ts-node", "src/index.ts"]
