@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Install dependencies
-        run: cd workers/main && npm ci
+        run: cd workers/main && npm install
       - name: Run ESLint
         run: cd workers/main && npm run eslint
 
@@ -28,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install dependencies
-        run: cd workers/main && npm ci
+        run: cd workers/main && npm install
       - name: Run tests with coverage
         run: cd workers/main && npm run coverage
       - name: Run SonarQube scan
