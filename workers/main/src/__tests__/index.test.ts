@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { vi } from 'vitest';
 
-import { run, handleRunError, mainEntry } from '../index';
 import * as utils from '../../../common/utils';
+import { handleRunError, run } from '../index';
 
 vi.mock('@temporalio/worker', () => ({
   DefaultLogger: class {
@@ -26,8 +26,11 @@ describe('run', () => {
 
 describe('handleRunError', () => {
   it('should log the error and throw the error', () => {
-    const logSpy = vi.spyOn(utils, 'logWorkerError').mockImplementation(() => {});
+    const logSpy = vi
+      .spyOn(utils, 'logWorkerError')
+      .mockImplementation(() => {});
     const error = new Error('test error');
+
     expect(() => handleRunError(error)).toThrow(error);
     expect(logSpy).toHaveBeenCalledWith('main', error);
     logSpy.mockRestore();
