@@ -24,9 +24,7 @@ describe('handleRunError', () => {
     expect(loggerErrorSpy).toHaveBeenCalledWith(
       `Unhandled error in main: ${error.message}`,
     );
-    // Таймер еще не сработал
     expect(processExitSpy).not.toHaveBeenCalled();
-    // Прокручиваем таймеры
     expect(() => {
       vi.runAllTimers();
     }).toThrow('exit');
