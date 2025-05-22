@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { vi } from 'vitest';
 
-import { handleRunError, run } from '../index';
+import { handleRunError, logger, run } from '../index';
 
 describe('run', () => {
   it('should return true', async () => {
@@ -11,22 +11,29 @@ describe('run', () => {
 
 describe('handleRunError', () => {
   it('should log error and exit process', () => {
+    vi.useFakeTimers();
     const error = new Error('test error');
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
+    const loggerErrorSpy = vi
+      .spyOn(logger, 'error')
       .mockImplementation(() => {});
     const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
       throw new Error('exit');
     });
 
-    expect(() => handleRunError(error)).toThrow('exit');
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Unhandled error in main:',
-      error,
+    expect(() => handleRunError(error)).toThrow(error);
+    expect(loggerErrorSpy).toHaveBeenCalledWith(
+      `Unhandled error in main: ${error.message}`,
     );
+    // Таймер еще не сработал
+    expect(processExitSpy).not.toHaveBeenCalled();
+    // Прокручиваем таймеры
+    expect(() => {
+      vi.runAllTimers();
+    }).toThrow('exit');
     expect(processExitSpy).toHaveBeenCalledWith(1);
 
-    consoleErrorSpy.mockRestore();
+    loggerErrorSpy.mockRestore();
     processExitSpy.mockRestore();
+    vi.useRealTimers();
   });
 });
