@@ -1,19 +1,52 @@
-import { DefaultLogger } from '@temporalio/worker';
+import { DefaultLogger, NativeConnection, Worker } from '@temporalio/worker';
+
+import { logWorkerError, validateEnv } from '../../common/utils';
+import { temporalConfig } from './configs/temporal';
+import { workerConfig } from './configs/worker';
 
 export const logger = new DefaultLogger('ERROR');
 
-/**
- * Executes the main worker process.
- * @returns {Promise<boolean>} Returns true when the worker completes successfully.
- */
-export async function run(): Promise<boolean> {
-  return true;
+validateEnv();
+
+export async function createConnection() {
+  return NativeConnection.connect(temporalConfig);
 }
 
-export function handleRunError(err: Error): never {
-  logger.error(`Unhandled error in main: ${err.message}`);
+export async function createWorker(connection: NativeConnection) {
+  const workerOptions = {
+    ...workerConfig,
+    connection,
+  };
+
+  return Worker.create(workerOptions);
+}
+
+export async function run(): Promise<void> {
+  const connection = await createConnection();
+
+  try {
+    const worker = await createWorker(connection);
+
+    await worker.run();
+  } catch (err) {
+    handleRunError(err);
+  } finally {
+    if (connection) {
+      await connection.close();
+    }
+  }
+}
+
+export function handleRunError(err: unknown): never {
+  logWorkerError('main', err);
   setTimeout(() => process.exit(1), 100);
   throw err;
 }
 
-run().catch(handleRunError);
+export function mainEntry() {
+  if (require.main === module) {
+    run().catch(handleRunError);
+  }
+}
+
+mainEntry();
