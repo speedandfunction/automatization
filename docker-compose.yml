@@ -152,6 +152,11 @@ services:
       context: .
       dockerfile: Dockerfile.temporal-worker-main
       target: dev
+    environment:
+      - TEMPORAL_CLI_ADDRESS=temporal:${TEMPORAL_PORT:-7233}
+      - TEMPORAL_CLI_SHOW_STACKS=1
+    env_file:
+      - .env
     depends_on:
       temporal:
         condition: service_healthy

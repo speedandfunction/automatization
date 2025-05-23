@@ -1,6 +1,8 @@
 import { DefaultLogger, NativeConnection, Worker } from '@temporalio/worker';
+import path from 'path';
 
 import { logWorkerError, validateEnv } from '../../common/utils';
+import * as activities from './activities';
 import { temporalConfig } from './configs/temporal';
 import { workerConfig } from './configs/worker';
 
@@ -15,6 +17,9 @@ export async function createConnection() {
 export async function createWorker(connection: NativeConnection) {
   const workerOptions = {
     ...workerConfig,
+    activities,
+    workflowsPath:
+      process.env.WORKFLOWS_PATH || path.join(__dirname, './workflows'),
     connection,
   };
 

@@ -1,3 +1,21 @@
+import { Redmine } from '../../../../common/Redmine';
+import { redmineDatabaseConfig } from '../../configs/redmineDatabase';
+
+export interface ProjectUnit {
+  group_id: number;
+  group_name: string;
+  project_id: number;
+  project_name: string;
+}
+
+export const getProjectUnits = async (): Promise<ProjectUnit[]> => {
+  console.log(redmineDatabaseConfig);
+  
+  const redmine = new Redmine(redmineDatabaseConfig);
+
+  return redmine.getProjectUnits();
+};
+
 export interface FinancialData {
   period: string;
   contractType: string;
