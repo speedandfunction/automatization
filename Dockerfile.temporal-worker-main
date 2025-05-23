@@ -1,0 +1,32 @@
+# Install dependencies only
+FROM node:20-bullseye AS deps
+WORKDIR /app/main
+COPY workers/main/package*.json ./
+RUN npm ci --ignore-scripts
+
+# Development image
+FROM node:20-bullseye AS dev
+# sonarcloud-disable-next-line docker:S4507
+ENV NODE_ENV=development
+ENV DEBUG=*
+WORKDIR /app/main
+COPY --from=deps /app/main/node_modules ./node_modules
+CMD ["npx", "nodemon", "--watch", "./", "--watch", "/app/common", "--ext", "ts", "--exec", "npx", "ts-node", "src/index.ts"]
+
+# Build the app
+FROM node:20-bullseye AS build
+WORKDIR /app/main
+COPY --from=deps /app/main/node_modules ./node_modules
+COPY workers/main/ ./
+RUN npm run build
+
+# Production image
+FROM gcr.io/distroless/nodejs20-debian11 AS production
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+WORKDIR /app/main
+COPY --from=build /app/main/dist ./build
+COPY --from=build /app/main/node_modules ./node_modules
+
+USER node
+CMD ["node", "build/worker.js"]
