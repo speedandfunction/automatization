@@ -11,13 +11,12 @@ describe('weeklyFinancialReportsWorkflow', () => {
     expect(result.length).toBeGreaterThan(0);
   });
 
-  it('should return the report string for a custom period and config', async () => {
+  it('should return the report string for a custom period', async () => {
     const result = await weeklyFinancialReportsWorkflow({
       period: 'Q1 2025',
-      config: { reportTitle: 'Custom Report Title' },
     });
 
-    expect(result.startsWith('Custom Report Title')).toBe(true);
+    expect(result.startsWith('Weekly Financial Report')).toBe(true);
     expect(result).toContain('Period: Q1 2025');
   });
 
