@@ -4,11 +4,21 @@ import * as utils from '../../../common/utils';
 import { weeklyFinancialReportsWorkflow } from '../workflows';
 
 describe('weeklyFinancialReportsWorkflow', () => {
-  it('should return the report string', async () => {
+  it('should return the report string with default parameters', async () => {
     const result = await weeklyFinancialReportsWorkflow();
 
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('should return the report string for a custom period and config', async () => {
+    const result = await weeklyFinancialReportsWorkflow({
+      period: 'Q1 2025',
+      config: { reportTitle: 'Custom Report Title' },
+    });
+
+    expect(result.startsWith('Custom Report Title')).toBe(true);
+    expect(result).toContain('Period: Q1 2025');
   });
 
   it('should log and rethrow errors', async () => {

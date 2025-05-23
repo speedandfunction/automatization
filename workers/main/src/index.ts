@@ -29,7 +29,7 @@ export async function run(): Promise<void> {
 
     await worker.run();
   } catch (err) {
-    handleRunError(err as Error);
+    handleRunError(err);
   } finally {
     if (connection) {
       await connection.close();

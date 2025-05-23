@@ -1,28 +1,18 @@
 import { logWorkflowError } from '../../../../common/utils';
+import { fetchFinancialData } from '../../activities/fetchFinancialData';
 
-export async function weeklyFinancialReportsWorkflow(): Promise<string> {
+export async function weeklyFinancialReportsWorkflow({
+  period = 'current',
+}: { period?: string } = {}): Promise<string> {
   try {
-    const data = {
-      period: 'Q1 2025',
-      contractType: 'T&M',
-      revenue: 120000,
-      cogs: 80000,
-      margin: 40000,
-      marginality: 33.3,
-      effectiveRevenue: 110000,
-      effectiveMargin: 35000,
-      effectiveMarginality: 31.8,
-    };
-
     const reportTitle = 'Weekly Financial Report';
+    const data = await fetchFinancialData(period);
     const report = `Period: ${data.period}
 Contract Type: ${data.contractType}
 Revenue: $${data.revenue.toLocaleString()}
 COGS: $${data.cogs.toLocaleString()}
 Margin: $${data.margin.toLocaleString()}
-Marginality: ${data.marginality}%
-
-Effective Revenue (last 4 months): $${data.effectiveRevenue.toLocaleString()}
+Marginality: ${data.marginality}%\n\nEffective Revenue (last 4 months): $${data.effectiveRevenue.toLocaleString()}
 Effective Margin: $${data.effectiveMargin.toLocaleString()}
 Effective Marginality: ${data.effectiveMarginality}%`;
 
