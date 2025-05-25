@@ -9,8 +9,6 @@ export interface ProjectUnit {
 }
 
 export const getProjectUnits = async (): Promise<ProjectUnit[]> => {
-  console.log(redmineDatabaseConfig);
-  
   const redmine = new Redmine(redmineDatabaseConfig);
 
   return redmine.getProjectUnits();
