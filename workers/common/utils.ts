@@ -23,3 +23,14 @@ export function logWorkerError(workerName: string, error: unknown) {
     `Error in ${workerName} workerName: ${error instanceof Error ? error.message : String(error)}`,
   );
 }
+
+/**
+ * Logs a workflow error in a consistent format.
+ * @param workflowName - The name of the workflow
+ * @param error - The error object
+ */
+export function logWorkflowError(workflowName: string, error: unknown) {
+  logger.error(
+    `Error in ${workflowName} workflow: ${error instanceof Error ? error.message : String(error)}`,
+  );
+}
