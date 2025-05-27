@@ -1,8 +1,9 @@
 import { TestWorkflowEnvironment } from '@temporalio/testing';
-import {DefaultLogger, LogEntry, Runtime, Worker} from '@temporalio/worker';
+import { DefaultLogger, LogEntry, Runtime, Worker } from '@temporalio/worker';
 import { v4 as uuidv4 } from 'uuid';
-import { describe, beforeAll, afterAll, it, expect} from 'vitest';
-import {ProjectUnit, FinancialData, getProjectUnits} from '../activities';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { FinancialData, getProjectUnits, ProjectUnit } from '../activities';
 import { weeklyFinancialReportsWorkflow } from '../workflows';
 
 // Mock data
@@ -42,7 +43,9 @@ describe('weeklyFinancialReportsWorkflow', () => {
 
   beforeAll(async () => {
     Runtime.install({
-      logger: new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message)),
+      logger: new DefaultLogger('WARN', (entry: LogEntry) =>
+        console.log(`[${entry.level}]`, entry.message),
+      ),
     });
 
     testEnv = await TestWorkflowEnvironment.createTimeSkipping();
@@ -72,7 +75,7 @@ describe('weeklyFinancialReportsWorkflow', () => {
       client.workflow.execute(weeklyFinancialReportsWorkflow, {
         workflowId: uuidv4(),
         taskQueue,
-      })
+      }),
     );
 
     expect(result).toContain('Weekly Financial Report');

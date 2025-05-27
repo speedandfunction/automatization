@@ -1,8 +1,12 @@
-import { MockActivityEnvironment, TestWorkflowEnvironment } from '@temporalio/testing';
+import {
+  MockActivityEnvironment,
+  TestWorkflowEnvironment,
+} from '@temporalio/testing';
 import { DefaultLogger, LogEntry, Runtime } from '@temporalio/worker';
-import { describe, beforeAll, afterAll, it, expect, vi } from 'vitest';
-import {getProjectUnits} from '../activities/weeklyFinancialReports/redmine';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+
 import { Redmine } from '../../../common/Redmine';
+import { getProjectUnits } from '../activities/weeklyFinancialReports/redmine';
 
 // Mock data
 const mockProjectUnits = [
@@ -38,10 +42,12 @@ describe('Redmine Activities', () => {
   });
 
   it('getProjectUnits returns project units from Redmine', async () => {
-    vi.spyOn(Redmine.prototype, 'getProjectUnits').mockResolvedValue(mockProjectUnits);
+    vi.spyOn(Redmine.prototype, 'getProjectUnits').mockResolvedValue(
+      mockProjectUnits,
+    );
 
-    const result = await activityContext.run(getProjectUnits) as typeof mockProjectUnits;
-    
+    const result = await activityContext.run(getProjectUnits);
+
     expect(result).toBeDefined();
     expect(result.length).toBe(2);
   });
@@ -49,14 +55,15 @@ describe('Redmine Activities', () => {
   it('getProjectUnits handles errors gracefully', async () => {
     const errorMessage = 'Database connection failed';
     const mockError = new Error(errorMessage);
-    
-    const mockGetProjectUnits = vi.spyOn(Redmine.prototype, 'getProjectUnits')
+
+    const mockGetProjectUnits = vi
+      .spyOn(Redmine.prototype, 'getProjectUnits')
       .mockRejectedValue(mockError);
 
-    await expect(activityContext.run(getProjectUnits))
-      .rejects
-      .toThrow(errorMessage);
+    await expect(activityContext.run(getProjectUnits)).rejects.toThrow(
+      errorMessage,
+    );
 
     expect(mockGetProjectUnits).toHaveBeenCalledTimes(1);
   });
-}); 
+});
