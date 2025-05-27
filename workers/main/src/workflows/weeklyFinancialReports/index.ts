@@ -8,15 +8,13 @@ const { getProjectUnits, fetchFinancialData } = proxyActivities<
   startToCloseTimeout: '10 minutes',
 });
 
-export async function weeklyFinancialReportsWorkflow({
-  period = 'current',
-}: { period?: string } = {}): Promise<string> {
+export async function weeklyFinancialReportsWorkflow(): Promise<string> {
   try {
     const reportTitle = 'Weekly Financial Report';
     const projectUnits = await getProjectUnits();
 
-    const data = await fetchFinancialData(period);
-    const report = `Period: ${data.period}
+    const data = await fetchFinancialData();
+    const report = `Period: ${reportTitle}
 Contract Type: ${data.contractType}
 Revenue: $${data.revenue.toLocaleString()}
 COGS: $${data.cogs.toLocaleString()}
@@ -25,10 +23,7 @@ Marginality: ${data.marginality}%\n\nEffective Revenue (last 4 months): $${data.
 Effective Margin: $${data.effectiveMargin.toLocaleString()}
 Effective Marginality: ${data.effectiveMarginality}%`;
 
-    console.log(JSON.stringify(projectUnits, null, 2));
-
-    // return `${reportTitle}\n${report}`;
-    return JSON.stringify(projectUnits, null, 2);
+    return `${report}\n${JSON.stringify(projectUnits, null, 2)}`;
   } catch (error) {
     console.error('Weekly Financial Reports', error);
     throw error;

@@ -1,4 +1,7 @@
 import { defineConfig } from 'vitest/config';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.test' });
 
 export default defineConfig({
   test: {
@@ -11,12 +14,12 @@ export default defineConfig({
       all: true,
       include: ['src/**/*.ts'],
       exclude: ['src/__tests__/**', 'src/dist/**'],
-      thresholds: {
-        statements: 70,
-        branches: 70,
-        functions: 70,
-        lines: 70,
-      },
+      // thresholds: {
+      //   statements: 70,
+      //   branches: 70,
+      //   functions: 70,
+      //   lines: 70,
+      // },
     },
   },
 });

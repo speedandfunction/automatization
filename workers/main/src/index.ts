@@ -1,7 +1,7 @@
 import { DefaultLogger, NativeConnection, Worker } from '@temporalio/worker';
 import path from 'path';
 
-import { logWorkerError, validateEnv } from '../../common/utils';
+import { validateEnv } from '../../common/utils';
 import * as activities from './activities';
 import { temporalConfig } from './configs/temporal';
 import { workerConfig } from './configs/worker';
@@ -43,7 +43,9 @@ export async function run(): Promise<void> {
 }
 
 export function handleRunError(err: unknown): never {
-  logWorkerError('main', err);
+  logger.error(
+    `Error in main worker: ${err instanceof Error ? err.message : String(err)}`,
+  );
   setTimeout(() => process.exit(1), 100);
   throw err;
 }
@@ -55,3 +57,5 @@ export function mainEntry() {
 }
 
 mainEntry();
+
+export { temporalConfig };

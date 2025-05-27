@@ -1,46 +1,89 @@
-import { describe, expect, it, vi } from 'vitest';
-
-import * as utils from '../../../common/utils';
+import { TestWorkflowEnvironment } from '@temporalio/testing';
+import {DefaultLogger, LogEntry, Runtime, Worker} from '@temporalio/worker';
+import { v4 as uuidv4 } from 'uuid';
+import { describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {ProjectUnit, FinancialData, getProjectUnits} from '../activities';
 import { weeklyFinancialReportsWorkflow } from '../workflows';
 
+// Mock data
+const mockProjectUnits: ProjectUnit[] = [
+  {
+    group_id: 1,
+    group_name: 'Engineering',
+    project_id: 101,
+    project_name: 'Project Alpha',
+  },
+  {
+    group_id: 2,
+    group_name: 'QA',
+    project_id: 102,
+    project_name: 'Project Beta',
+  },
+];
+
+const mockFinancialData: FinancialData = {
+  period: 'current',
+  contractType: 'T&M',
+  revenue: 120000,
+  cogs: 80000,
+  margin: 40000,
+  marginality: 33.3,
+  effectiveRevenue: 110000,
+  effectiveMargin: 35000,
+  effectiveMarginality: 31.8,
+};
+
+async function errorActivity() {
+  throw new Error('Test error');
+}
+
 describe('weeklyFinancialReportsWorkflow', () => {
-  it('should return the report string with default parameters', async () => {
-    const result = await weeklyFinancialReportsWorkflow();
+  let testEnv: TestWorkflowEnvironment;
 
-    expect(typeof result).toBe('string');
-    expect(result.length).toBeGreaterThan(0);
-  });
-
-  it('should return the report string for a custom period', async () => {
-    const result = await weeklyFinancialReportsWorkflow({
-      period: 'Q1 2025',
+  beforeAll(async () => {
+    Runtime.install({
+      logger: new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message)),
     });
 
-    expect(result.startsWith('Weekly Financial Report')).toBe(true);
-    expect(result).toContain('Period: Q1 2025');
+    testEnv = await TestWorkflowEnvironment.createTimeSkipping();
   });
 
-  it('should log and rethrow errors', async () => {
-    const logSpy = vi
-      .spyOn(utils, 'logWorkflowError')
-      .mockImplementation(() => {});
-    const originalToLocaleString = Number.prototype.toLocaleString.bind(
-      Number.prototype,
-    );
+  afterAll(async () => {
+    await testEnv?.teardown();
+  });
 
-    Number.prototype.toLocaleString = () => {
-      throw new Error('Test error');
+  it('generates a report with mocked activities', async () => {
+    const { client, nativeConnection } = testEnv;
+    const mockActivities = {
+      getProjectUnits: async () => mockProjectUnits,
+      fetchFinancialData: async () => mockFinancialData,
     };
 
-    await expect(weeklyFinancialReportsWorkflow()).rejects.toThrow(
-      'Test error',
-    );
-    expect(logSpy).toHaveBeenCalledWith(
-      'Weekly Financial Reports',
-      expect.any(Error),
+    const taskQueue = `test-${uuidv4()}`;
+
+    const worker = await Worker.create({
+      connection: nativeConnection,
+      taskQueue,
+      workflowsPath: require.resolve('../workflows/index.ts'),
+      activities: mockActivities,
+    });
+
+    const result = await worker.runUntil(
+      client.workflow.execute(weeklyFinancialReportsWorkflow, {
+        workflowId: uuidv4(),
+        taskQueue,
+      })
     );
 
-    Number.prototype.toLocaleString = originalToLocaleString;
-    logSpy.mockRestore();
+    expect(result).toContain('Weekly Financial Report');
+    expect(result).toContain('Engineering');
+    expect(result).toContain('Project Alpha');
+    expect(result).toContain('Revenue: $120,000');
+    expect(result).toContain('COGS: $80,000');
+    expect(result).toContain('Margin: $40,000');
+    expect(result).toContain('Marginality: 33.3%');
+    expect(result).toContain('Effective Revenue (last 4 months): $110,000');
+    expect(result).toContain('Effective Margin: $35,000');
+    expect(result).toContain('Effective Marginality: 31.8%');
   });
 });

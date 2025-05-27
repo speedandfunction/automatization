@@ -1,5 +1,4 @@
 import { validationResult } from '../main/src/configs';
-import {logger} from "../main";
 
 export const formatValidationIssues = (issues: { path: (string | number)[]; message: string }[]): string =>
   issues
@@ -11,26 +10,4 @@ export function validateEnv() {
     console.error(formatValidationIssues(validationResult.error.issues));
     process.exit(1);
   }
-}
-
-/**
- * Logs a worker error in a consistent format.
- * @param workerName - The name of the workflow
- * @param error - The error object
- */
-export function logWorkerError(workerName: string, error: unknown) {
-  logger.error(
-    `Error in ${workerName} workerName: ${error instanceof Error ? error.message : String(error)}`,
-  );
-}
-
-/**
- * Logs a workflow error in a consistent format.
- * @param workflowName - The name of the workflow
- * @param error - The error object
- */
-export function logWorkflowError(workflowName: string, error: unknown) {
-  logger.error(
-    `Error in ${workflowName} workflow: ${error instanceof Error ? error.message : String(error)}`,
-  );
 }
