@@ -1,6 +1,7 @@
 import { proxyActivities } from '@temporalio/workflow';
 
 import type * as activities from '../../activities/weeklyFinancialReports';
+import { FinancialData } from '../../activities/weeklyFinancialReports';
 
 const { getProjectUnits, fetchFinancialData } = proxyActivities<
   typeof activities
@@ -8,13 +9,11 @@ const { getProjectUnits, fetchFinancialData } = proxyActivities<
   startToCloseTimeout: '10 minutes',
 });
 
-export const weeklyFinancialReportsWorkflow = async (): Promise<string> => {
-  try {
-    const reportTitle = 'Weekly Financial Report';
-    const projectUnits = await getProjectUnits();
-
-    const data = await fetchFinancialData();
-    const report = `Period: ${reportTitle}
+export function generateReport(
+  reportTitle: string,
+  data: FinancialData,
+): string {
+  return `Period: ${reportTitle}
 Contract Type: ${data.contractType}
 Revenue: $${data.revenue.toLocaleString()}
 COGS: $${data.cogs.toLocaleString()}
@@ -22,10 +21,18 @@ Margin: $${data.margin.toLocaleString()}
 Marginality: ${data.marginality}%\n\nEffective Revenue (last 4 months): $${data.effectiveRevenue.toLocaleString()}
 Effective Margin: $${data.effectiveMargin.toLocaleString()}
 Effective Marginality: ${data.effectiveMarginality}%`;
+}
+
+export async function weeklyFinancialReportsWorkflow(): Promise<string> {
+  try {
+    const reportTitle = 'Weekly Financial Report';
+    const projectUnits = await getProjectUnits();
+    const data = await fetchFinancialData();
+    const report = generateReport(reportTitle, data);
 
     return `${report}\n${JSON.stringify(projectUnits, null, 2)}`;
   } catch (error) {
     console.error('Weekly Financial Reports', error);
     throw error;
   }
-};
+}

@@ -3,10 +3,10 @@ import { DefaultLogger, LogEntry, Runtime, Worker } from '@temporalio/worker';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { FinancialData, ProjectUnit } from '../activities';
-import { weeklyFinancialReportsWorkflow } from '.';
+import type { FinancialData, ProjectUnit } from '../../activities';
+import { weeklyFinancialReportsWorkflow } from '..';
+import { generateReport } from './index';
 
-// Mock data
 const mockProjectUnits: ProjectUnit[] = [
   {
     group_id: 1,
@@ -64,7 +64,7 @@ describe('weeklyFinancialReportsWorkflow', () => {
     const worker = await Worker.create({
       connection: nativeConnection,
       taskQueue,
-      workflowsPath: require.resolve('../workflows/index.ts'),
+      workflowsPath: require.resolve('./index.ts'),
       activities: mockActivities,
     });
 
@@ -85,5 +85,22 @@ describe('weeklyFinancialReportsWorkflow', () => {
     expect(result).toContain('Effective Revenue (last 4 months): $110,000');
     expect(result).toContain('Effective Margin: $35,000');
     expect(result).toContain('Effective Marginality: 31.8%');
+  });
+});
+
+describe('generateReport', () => {
+  it('formats the report string as expected', () => {
+    const reportTitle = 'Test Report';
+    const report = generateReport(reportTitle, mockFinancialData);
+
+    expect(report).toContain('Period: Test Report');
+    expect(report).toContain('Contract Type: T&M');
+    expect(report).toContain('Revenue: $120,000');
+    expect(report).toContain('COGS: $80,000');
+    expect(report).toContain('Margin: $40,000');
+    expect(report).toContain('Marginality: 33.3%');
+    expect(report).toContain('Effective Revenue (last 4 months): $110,000');
+    expect(report).toContain('Effective Margin: $35,000');
+    expect(report).toContain('Effective Marginality: 31.8%');
   });
 });
