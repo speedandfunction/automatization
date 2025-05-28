@@ -1,5 +1,5 @@
-import { Redmine } from '../../../../common/Redmine';
 import { redmineDatabaseConfig } from '../../configs/redmineDatabase';
+import {Redmine} from "../../common/Redmine";
 
 export interface ProjectUnit {
   group_id: number;

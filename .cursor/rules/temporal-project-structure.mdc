@@ -18,6 +18,7 @@ The project follows a modular structure with workers as independent packages:
 │   ├── main/                 # Main worker package
 │   │   ├── src/              # Source code
 │   │   │   ├── activities/   # Activity implementations
+│   │   │   ├── common/       # Shared utilities, types, and configuration for all workers
 │   │   │   ├── workflows/    # Workflow definitions
 │   │   │   ├── index.ts      # Worker entry point
 │   │   │   └── types.ts      # Worker-specific types
@@ -25,7 +26,6 @@ The project follows a modular structure with workers as independent packages:
 │   │   ├── tsconfig.json     # TypeScript configuration
 │   │   └── README.md         # Worker documentation
 │   └── [other-workers]/      # Additional worker packages
-├── common/                   # Shared utilities, types, and configuration for all workers
 ├── docs/                     # Project documentation
 │   └── user-guide/           # User guides and documentation
 ├── docker-compose.yml        # Docker compose configuration
@@ -39,15 +39,6 @@ All Temporal workers must be placed under `workers/<worker-name>/` and include:
 - `index.ts` — worker entry point (registers workflows/activities, sets task queue)
 - `types.ts` — (optional) worker-specific types
 - `README.md` — brief usage and development instructions
-
-### Shared Utilities
-
-Shared utilities, types, and configuration that are used by multiple workers should be placed in the `workers-shared/` directory at the project root. This directory is intended for code that is not specific to a single worker but is reused across multiple workers to avoid duplication and promote consistency.
-
-- `workers-shared/` — shared modules, types, and configuration for all workers
-    - Utilities and helpers
-    - Common type definitions
-    - Shared configuration files
 
 ## Documentation
 
