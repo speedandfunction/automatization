@@ -10,6 +10,14 @@ export const logger = new DefaultLogger('ERROR');
 
 validateEnv();
 
+export function handleRunError(err: unknown): never {
+  logger.error(
+    `Error in main worker: ${err instanceof Error ? err.message : String(err)}`,
+  );
+  setTimeout(() => process.exit(1), 100);
+  throw err;
+}
+
 export async function createConnection() {
   return NativeConnection.connect(temporalConfig);
 }
@@ -40,14 +48,6 @@ export async function run(): Promise<void> {
       await connection.close();
     }
   }
-}
-
-export function handleRunError(err: unknown): never {
-  logger.error(
-    `Error in main worker: ${err instanceof Error ? err.message : String(err)}`,
-  );
-  setTimeout(() => process.exit(1), 100);
-  throw err;
 }
 
 export function mainEntry() {
