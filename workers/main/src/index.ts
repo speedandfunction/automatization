@@ -1,8 +1,8 @@
 import { DefaultLogger, NativeConnection, Worker } from '@temporalio/worker';
 import path from 'path';
 
-import { validateEnv } from '../../common/utils';
 import * as activities from './activities';
+import { validateEnv } from './common/utils';
 import { temporalConfig } from './configs/temporal';
 import { workerConfig } from './configs/worker';
 

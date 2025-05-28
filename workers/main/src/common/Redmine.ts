@@ -1,5 +1,5 @@
 import * as mysql from 'mysql2/promise';
-import { PoolOptions, Pool, RowDataPacket } from 'mysql2/promise';
+import { Pool, PoolOptions, RowDataPacket } from 'mysql2/promise';
 
 export interface ProjectUnit {
   group_id: number;
@@ -31,7 +31,10 @@ export class Redmine {
    * @param {number} [options.groupId] - Group id to filter by
    * @returns {Promise<ProjectUnit[]>} Array of group-project associations
    */
-  async getProjectUnits(options?: { unitName?: string; unitId?: number }): Promise<ProjectUnit[]> {
+  async getProjectUnits(options?: {
+    unitName?: string;
+    unitId?: number;
+  }): Promise<ProjectUnit[]> {
     this.ensureConnection();
 
     let whereClause = "g.type = 'Group'";
@@ -55,12 +58,8 @@ export class Redmine {
        JOIN projects AS p ON p.id = m.project_id
        WHERE ${whereClause}`;
 
-    console.log(query);
-    console.log(params);
-
-    
-
     const [rows] = await this.pool.execute<RowDataPacket[]>(query, params);
+
     return rows as ProjectUnit[];
   }
 

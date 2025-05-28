@@ -6,7 +6,7 @@ import { DefaultLogger, LogEntry, Runtime } from '@temporalio/worker';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { getProjectUnits } from '../activities/weeklyFinancialReports/redmine';
-import {Redmine} from "../common/Redmine";
+import { Redmine } from '../common/Redmine';
 
 // Mock data
 const mockProjectUnits = [
