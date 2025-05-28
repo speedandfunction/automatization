@@ -57,5 +57,3 @@ export function mainEntry() {
 }
 
 mainEntry();
-
-export { temporalConfig };
