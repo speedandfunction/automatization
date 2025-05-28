@@ -6,8 +6,8 @@ import { DefaultLogger, LogEntry, Runtime } from '@temporalio/worker';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { getProjectUnits } from '../activities';
-import { Redmine } from '../common/Redmine';
 import { fetchFinancialData } from '../activities/weeklyFinancialReports/redmine';
+import { Redmine } from '../common/Redmine';
 
 // Mock data
 const mockProjectUnits = [
@@ -72,6 +72,7 @@ describe('Redmine Activities', () => {
 
   it('fetchFinancialData returns expected mock data for default period', async () => {
     const data = await fetchFinancialData();
+
     expect(data).toBeDefined();
     expect(data.period).toBe('current');
     expect(data.contractType).toBe('T&M');
@@ -80,6 +81,7 @@ describe('Redmine Activities', () => {
 
   it('fetchFinancialData returns expected mock data for custom period', async () => {
     const data = await fetchFinancialData('previous');
+
     expect(data).toBeDefined();
     expect(data.period).toBe('previous');
   });
