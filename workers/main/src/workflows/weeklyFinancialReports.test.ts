@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { FinancialData, ProjectUnit } from '../activities';
-import { weeklyFinancialReportsWorkflow } from '../workflows';
+import { weeklyFinancialReportsWorkflow } from '.';
 
 // Mock data
 const mockProjectUnits: ProjectUnit[] = [
