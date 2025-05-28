@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: cd workers/main && npm install
       - name: Run tests with coverage
-        run: cd workers/main && npm run coverage
+        run: cd workers/main && rm -rf node_modules package-lock.json && npm run coverage
       - name: Run SonarQube scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
