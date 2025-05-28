@@ -21,16 +21,6 @@ export class Redmine {
     if (!this?.pool) this.pool = mysql.createPool(this.credentials);
   }
 
-  /**
-   * Fetches groups (optionally filtered by name or id) with their associated projects from Redmine DB.
-   * Only groups with at least one project membership are returned.
-   * Uses a persistent connection pool.
-   *
-   * @param {Object} [options] - Optional filter options
-   * @param {string} [options.groupName] - Group name to filter by
-   * @param {number} [options.groupId] - Group id to filter by
-   * @returns {Promise<ProjectUnit[]>} Array of group-project associations
-   */
   async getProjectUnits(options?: {
     unitName?: string;
     unitId?: number;

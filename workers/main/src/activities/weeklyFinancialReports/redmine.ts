@@ -1,12 +1,6 @@
 import { Redmine } from '../../common/Redmine';
 import { redmineDatabaseConfig } from '../../configs/redmineDatabase';
-
-export interface ProjectUnit {
-  group_id: number;
-  group_name: string;
-  project_id: number;
-  project_name: string;
-}
+import type { FinancialData, ProjectUnit } from './redmine.types';
 
 export const getProjectUnits = async (): Promise<ProjectUnit[]> => {
   const redmine = new Redmine(redmineDatabaseConfig);
@@ -14,26 +8,9 @@ export const getProjectUnits = async (): Promise<ProjectUnit[]> => {
   return redmine.getProjectUnits();
 };
 
-export interface FinancialData {
-  period: string;
-  contractType: string;
-  revenue: number;
-  cogs: number;
-  margin: number;
-  marginality: number;
-  effectiveRevenue: number;
-  effectiveMargin: number;
-  effectiveMarginality: number;
-}
-
-/**
- * Fetches financial data for a given period from an external source or database.
- * @param period - The period to fetch data for (e.g., 'Q1 2025', 'current')
- */
 export async function fetchFinancialData(
   period: string = 'current',
 ): Promise<FinancialData> {
-  // TODO: Replace this stub with actual data fetching logic (e.g., DB query, API call)
   return {
     period: period,
     contractType: 'T&M',

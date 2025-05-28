@@ -8,7 +8,7 @@ const { getProjectUnits, fetchFinancialData } = proxyActivities<
   startToCloseTimeout: '10 minutes',
 });
 
-export async function weeklyFinancialReportsWorkflow(): Promise<string> {
+export const weeklyFinancialReportsWorkflow = async (): Promise<string> => {
   try {
     const reportTitle = 'Weekly Financial Report';
     const projectUnits = await getProjectUnits();
@@ -28,4 +28,4 @@ Effective Marginality: ${data.effectiveMarginality}%`;
     console.error('Weekly Financial Reports', error);
     throw error;
   }
-}
+};
