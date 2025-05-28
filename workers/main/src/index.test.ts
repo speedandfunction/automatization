@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { vi } from 'vitest';
 
-import * as utils from './common/utils';
-import { handleRunError, run, logger } from './index';
+import { handleRunError, logger, run } from './index';
 
 vi.mock('@temporalio/worker', () => ({
   DefaultLogger: class {
@@ -32,7 +31,7 @@ describe('handleRunError', () => {
 
     expect(() => handleRunError(error)).toThrow(error);
     expect(logSpy).toHaveBeenCalledWith(
-      `Error in main worker: ${error.message}`
+      `Error in main worker: ${error.message}`,
     );
     logSpy.mockRestore();
   });
