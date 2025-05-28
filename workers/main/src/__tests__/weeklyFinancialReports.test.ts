@@ -3,7 +3,7 @@ import { DefaultLogger, LogEntry, Runtime, Worker } from '@temporalio/worker';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { FinancialData, getProjectUnits, ProjectUnit } from '../activities';
+import { FinancialData, ProjectUnit } from '../activities';
 import { weeklyFinancialReportsWorkflow } from '../workflows';
 
 // Mock data
@@ -34,16 +34,13 @@ const mockFinancialData: FinancialData = {
   effectiveMarginality: 31.8,
 };
 
-async function errorActivity() {
-  throw new Error('Test error');
-}
-
 describe('weeklyFinancialReportsWorkflow', () => {
   let testEnv: TestWorkflowEnvironment;
 
   beforeAll(async () => {
     Runtime.install({
       logger: new DefaultLogger('WARN', (entry: LogEntry) =>
+        // eslint-disable-next-line no-console
         console.log(`[${entry.level}]`, entry.message),
       ),
     });

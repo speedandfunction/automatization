@@ -30,7 +30,10 @@ describe('Redmine Activities', () => {
 
   beforeAll(async () => {
     Runtime.install({
-      logger: new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message)),
+      logger: new DefaultLogger('WARN', (entry: LogEntry) =>
+        // eslint-disable-next-line no-console
+        console.log(`[${entry.level}]`, entry.message),
+      ),
     });
 
     testEnv = await TestWorkflowEnvironment.createTimeSkipping();
