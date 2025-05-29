@@ -3,7 +3,15 @@ import {
   TestWorkflowEnvironment,
 } from '@temporalio/testing';
 import { DefaultLogger, LogEntry, Runtime } from '@temporalio/worker';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 import { getProjectUnits } from '../activities';
 import { Redmine } from './Redmine';
@@ -56,11 +64,6 @@ describe('Redmine Activities', () => {
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(mockProjectUnits.length);
     expect(result).toEqual(mockProjectUnits);
-    // Optionally, check key properties of the first item
-    expect(result[0]).toHaveProperty('group_id', 1);
-    expect(result[0]).toHaveProperty('group_name', 'Engineering');
-    expect(result[0]).toHaveProperty('project_id', 101);
-    expect(result[0]).toHaveProperty('project_name', 'Project Alpha');
   });
 
   it('getProjectUnits handles errors gracefully', async () => {
@@ -81,36 +84,52 @@ describe('Redmine Activities', () => {
 
 describe('Redmine.getProjectUnitsQuery (private method)', () => {
   // Use a dummy credentials object for instantiation
-  const dummyCredentials = { host: 'localhost', user: 'root', database: 'test', password: 'test' };
+  const dummyCredentials = {
+    host: 'localhost',
+    user: 'root',
+    database: 'test',
+    password: 'test',
+  };
   const redmine = new Redmine(dummyCredentials);
 
   // Helper to access private method
-  function callGetProjectUnitsQuery(options?: { unitName?: string; unitId?: number }) {
+  function callGetProjectUnitsQuery(options?: {
+    unitName?: string;
+    unitId?: number;
+  }) {
     // @ts-expect-error: Accessing private method for test purposes
     return redmine.getProjectUnitsQuery(options);
   }
 
   it('returns correct query and params with no options', () => {
     const { query, params } = callGetProjectUnitsQuery();
+
     expect(query).toContain("g.type = 'Group'");
     expect(params).toEqual([]);
   });
 
   it('returns correct query and params with unitId', () => {
     const { query, params } = callGetProjectUnitsQuery({ unitId: 42 });
+
     expect(query).toContain('g.id = ?');
     expect(params).toEqual([42]);
   });
 
   it('returns correct query and params with unitName', () => {
     const { query, params } = callGetProjectUnitsQuery({ unitName: 'QA' });
+
     expect(query).toContain('g.lastname = ?');
     expect(params).toEqual(['QA']);
   });
 });
 
 describe('Redmine class internals', () => {
-  const credentials = { host: 'localhost', user: 'root', database: 'test', password: 'test' };
+  const credentials = {
+    host: 'localhost',
+    user: 'root',
+    database: 'test',
+    password: 'test',
+  };
   let redmine: Redmine;
 
   beforeEach(() => {
@@ -123,6 +142,7 @@ describe('Redmine class internals', () => {
 
   it('should re-initialize pool if poolEnded is true', () => {
     const oldPool = redmine['pool'];
+
     redmine['poolEnded'] = true;
     redmine['ensureConnection']();
     expect(redmine['pool']).not.toBe(oldPool);
@@ -130,7 +150,10 @@ describe('Redmine class internals', () => {
   });
 
   it('should re-initialize pool if pool is undefined', () => {
-    redmine['pool'] = undefined as any;
+    Object.defineProperty(redmine, 'pool', {
+      value: undefined,
+      writable: true,
+    });
     redmine['poolEnded'] = false;
     redmine['ensureConnection']();
     expect(redmine['pool']).toBeDefined();
@@ -138,7 +161,10 @@ describe('Redmine class internals', () => {
   });
 
   it('should end the pool and set poolEnded to true', async () => {
-    const endSpy = vi.spyOn(redmine['pool'], 'end').mockResolvedValue(undefined);
+    const endSpy = vi
+      .spyOn(redmine['pool'], 'end')
+      .mockResolvedValue(undefined);
+
     await redmine.endPool();
     expect(endSpy).toHaveBeenCalled();
     expect(redmine['poolEnded']).toBe(true);
@@ -147,6 +173,7 @@ describe('Redmine class internals', () => {
   it('should not call end if pool is already ended', async () => {
     redmine['poolEnded'] = true;
     const endSpy = vi.spyOn(redmine['pool'], 'end');
+
     await redmine.endPool();
     expect(endSpy).not.toHaveBeenCalled();
   });
