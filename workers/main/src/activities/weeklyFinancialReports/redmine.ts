@@ -1,10 +1,11 @@
 import { Redmine } from '../../common/Redmine';
+import type { ProjectUnit } from '../../common/types';
 import { redmineDatabaseConfig } from '../../configs/redmineDatabase';
-import type { FinancialData, ProjectUnit } from './redmine.types';
+import type { FinancialData } from './redmine.types';
+
+const redmine = new Redmine(redmineDatabaseConfig);
 
 export const getProjectUnits = async (): Promise<ProjectUnit[]> => {
-  const redmine = new Redmine(redmineDatabaseConfig);
-
   return redmine.getProjectUnits();
 };
 

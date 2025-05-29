@@ -3,11 +3,11 @@ import { DefaultLogger, LogEntry, Runtime, Worker } from '@temporalio/worker';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import type { FinancialData, ProjectUnit } from '../../activities';
+import type { FinancialData } from '../../activities';
 import { weeklyFinancialReportsWorkflow } from '..';
 import { generateReport } from './index';
 
-const mockProjectUnits: ProjectUnit[] = [
+const mockProjectUnits = [
   {
     group_id: 1,
     group_name: 'Engineering',

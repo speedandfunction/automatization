@@ -7,9 +7,10 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { getProjectUnits } from '../activities';
 import { Redmine } from './Redmine';
+import { ProjectUnit } from './types';
 
 // Mock data
-const mockProjectUnits = [
+const mockProjectUnits: ProjectUnit[] = [
   {
     group_id: 1,
     group_name: 'Engineering',
@@ -52,6 +53,14 @@ describe('Redmine Activities', () => {
     const result = await activityContext.run(getProjectUnits);
 
     expect(result).toBeDefined();
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).toHaveLength(mockProjectUnits.length);
+    expect(result).toEqual(mockProjectUnits);
+    // Optionally, check key properties of the first item
+    expect(result[0]).toHaveProperty('group_id', 1);
+    expect(result[0]).toHaveProperty('group_name', 'Engineering');
+    expect(result[0]).toHaveProperty('project_id', 101);
+    expect(result[0]).toHaveProperty('project_name', 'Project Alpha');
   });
 
   it('getProjectUnits handles errors gracefully', async () => {

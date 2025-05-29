@@ -1,16 +1,12 @@
 import * as mysql from 'mysql2/promise';
 import { Pool, PoolOptions, RowDataPacket } from 'mysql2/promise';
 
-export interface ProjectUnit {
-  group_id: number;
-  group_name: string;
-  project_id: number;
-  project_name: string;
-}
+import { ProjectUnit } from './types';
 
 export class Redmine {
   private pool: Pool;
   private credentials: PoolOptions;
+  private poolEnded = false;
 
   constructor(credentials: PoolOptions) {
     this.credentials = credentials;
@@ -18,7 +14,18 @@ export class Redmine {
   }
 
   private ensureConnection() {
-    if (!this?.pool) this.pool = mysql.createPool(this.credentials);
+    if (!this.pool || this.poolEnded) {
+      this.pool = mysql.createPool(this.credentials);
+      this.poolEnded = false;
+    }
+  }
+
+  /** Call this when you want to end the pool */
+  async endPool() {
+    if (this.pool && !this.poolEnded) {
+      await this.pool.end();
+      this.poolEnded = true;
+    }
   }
 
   async getProjectUnits(options?: {
