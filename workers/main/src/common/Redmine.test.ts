@@ -4,6 +4,7 @@ import {
 } from '@temporalio/testing';
 import { DefaultLogger, LogEntry, Runtime } from '@temporalio/worker';
 import * as mysql from 'mysql2/promise';
+import type { Mock } from 'vitest';
 import {
   afterAll,
   beforeAll,
@@ -33,6 +34,16 @@ const mockProjectUnits: ProjectUnit[] = [
     project_name: 'Project Beta',
   },
 ];
+
+vi.mock('mysql2/promise', async () => {
+  const actual =
+    await vi.importActual<typeof import('mysql2/promise')>('mysql2/promise');
+
+  return {
+    ...actual,
+    createPool: vi.fn(() => ({ end: vi.fn() })),
+  };
+});
 
 describe('Redmine Activities', () => {
   let testEnv: TestWorkflowEnvironment;
@@ -132,15 +143,11 @@ describe('Redmine class internals', () => {
   };
   let redmine: Redmine;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     redmine = new Redmine(credentials);
   });
 
   it('should initialize pool in constructor', () => {
-    const mockPool = { end: vi.fn() } as unknown as mysql.Pool;
-    const createPoolMock = vi
-      .spyOn(mysql, 'createPool')
-      .mockReturnValue(mockPool);
     const testCredentials = {
       host: 'localhost',
       user: 'test',
@@ -149,9 +156,8 @@ describe('Redmine class internals', () => {
     };
     const testRedmine = new Redmine(testCredentials);
 
-    expect(createPoolMock).toHaveBeenCalledWith(testCredentials);
+    expect(mysql.createPool as Mock).toHaveBeenCalledWith(testCredentials);
     expect(testRedmine['pool']).toBeDefined();
-    createPoolMock.mockRestore();
   });
 
   it('should re-initialize pool if poolEnded is true', () => {
