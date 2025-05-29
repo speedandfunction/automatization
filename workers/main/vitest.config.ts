@@ -12,8 +12,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       all: true,
-      // include: ['src/**/*.ts'],
-      exclude: ['src/dist/**', 'eslint.config.js', 'vitest.config.ts'],
+      exclude: ['src/dist/**', 'src/**/*.test.ts', 'eslint.config.mjs', 'vitest.config.ts'],
     },
   },
 });
