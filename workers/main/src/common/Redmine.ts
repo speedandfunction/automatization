@@ -28,12 +28,10 @@ export class Redmine {
     }
   }
 
-  async getProjectUnits(options?: {
+  private getProjectUnitsQuery(options?: {
     unitName?: string;
     unitId?: number;
-  }): Promise<ProjectUnit[]> {
-    this.ensureConnection();
-
+  }): { query: string; params: (string | number)[] } {
     let whereClause = "g.type = 'Group'";
     const params: (string | number)[] = [];
 
@@ -55,6 +53,16 @@ export class Redmine {
        JOIN projects AS p ON p.id = m.project_id
        WHERE ${whereClause}`;
 
+    return { query, params };
+  }
+
+  async getProjectUnits(options?: {
+    unitName?: string;
+    unitId?: number;
+  }): Promise<ProjectUnit[]> {
+    this.ensureConnection();
+
+    const { query, params } = this.getProjectUnitsQuery(options);
     const [rows] = await this.pool.execute<RowDataPacket[]>(query, params);
 
     return rows as ProjectUnit[];
