@@ -13,14 +13,18 @@ export function generateReport(
   reportTitle: string,
   data: FinancialData,
 ): string {
-  return `Period: ${reportTitle}
-Contract Type: ${data.contractType}
-Revenue: $${data.revenue.toLocaleString()}
-COGS: $${data.cogs.toLocaleString()}
-Margin: $${data.margin.toLocaleString()}
-Marginality: ${data.marginality}%\n\nEffective Revenue (last 4 months): $${data.effectiveRevenue.toLocaleString()}
-Effective Margin: $${data.effectiveMargin.toLocaleString()}
-Effective Marginality: ${data.effectiveMarginality}%`;
+  return (
+    `Period: ${reportTitle}\n` +
+    `Contract Type: ${data.contractType}\n` +
+    `Revenue: $${data.revenue.toLocaleString()}\n` +
+    `COGS: $${data.cogs.toLocaleString()}\n` +
+    `Margin: $${data.margin.toLocaleString()}\n` +
+    `Marginality: ${data.marginality}%\n` +
+    `\n` +
+    `Effective Revenue (last 4 months): $${data.effectiveRevenue.toLocaleString()}\n` +
+    `Effective Margin: $${data.effectiveMargin.toLocaleString()}\n` +
+    `Effective Marginality: ${data.effectiveMarginality}%\n`
+  );
 }
 
 export async function weeklyFinancialReportsWorkflow(): Promise<string> {

@@ -44,17 +44,21 @@ This project uses custom Docker images built from the following Dockerfiles:
 
 ### Create environment file
 
-Create a `.env` file in the root directory of the project with your environment variables:
+Before starting the services, you **must** create a `.env` file in the root directory of the project. This file is required for Docker Compose to provide all necessary environment variables to the containers.
+
+Copy the example file:
 
 ```bash
 cp .env.example .env
 ```
 
-Then edit the `.env` file to set your specific configuration values.
+> **Note:**
+> - The `.env.example` file contains all required variables for onboarding and local development. Edit the `.env` file to set your specific configuration values as needed.
+> - If you do not create a `.env` file, `docker-compose` will fail to start some services due to missing environment variables.
 
 ### Starting the services
 
-You can start the services in two ways, depending on your environment:
+After creating and editing your `.env` file, you can start the services in two ways, depending on your environment:
 
 #### 1. Development
 
