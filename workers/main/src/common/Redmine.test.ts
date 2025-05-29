@@ -170,12 +170,15 @@ describe('Redmine class internals', () => {
   });
 
   it('should re-initialize pool if pool is undefined', () => {
+    // Reset the mock to clear previous calls
+    (mysql.createPool as Mock).mockClear();
     Object.defineProperty(redmine, 'pool', {
       value: undefined,
       writable: true,
     });
     redmine['poolEnded'] = false;
     redmine['ensureConnection']();
+    expect(mysql.createPool as Mock).toHaveBeenCalledWith(credentials);
     expect(redmine['pool']).toBeDefined();
     expect(redmine['poolEnded']).toBe(false);
   });
