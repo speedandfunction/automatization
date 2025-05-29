@@ -3,6 +3,7 @@ import {
   TestWorkflowEnvironment,
 } from '@temporalio/testing';
 import { DefaultLogger, LogEntry, Runtime } from '@temporalio/worker';
+import * as mysql from 'mysql2/promise';
 import {
   afterAll,
   beforeAll,
@@ -136,7 +137,21 @@ describe('Redmine class internals', () => {
   });
 
   it('should initialize pool in constructor', () => {
-    expect(redmine['pool']).toBeDefined();
+    const mockPool = { end: vi.fn() } as unknown as mysql.Pool;
+    const createPoolMock = vi
+      .spyOn(mysql, 'createPool')
+      .mockReturnValue(mockPool);
+    const testCredentials = {
+      host: 'localhost',
+      user: 'test',
+      database: 'test',
+      password: 'test',
+    };
+    const testRedmine = new Redmine(testCredentials);
+
+    expect(createPoolMock).toHaveBeenCalledWith(testCredentials);
+    expect(testRedmine['pool']).toBeDefined();
+    createPoolMock.mockRestore();
   });
 
   it('should re-initialize pool if poolEnded is true', () => {
