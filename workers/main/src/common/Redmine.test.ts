@@ -83,10 +83,9 @@ describe('Redmine Activities', () => {
 });
 
 describe('Redmine.getProjectUnitsQuery (private method)', () => {
-  // Use a dummy credentials object for instantiation
   const dummyCredentials = {
     host: 'localhost',
-    user: 'root',
+    user: 'test',
     database: 'test',
     password: 'test',
   };
@@ -126,7 +125,7 @@ describe('Redmine.getProjectUnitsQuery (private method)', () => {
 describe('Redmine class internals', () => {
   const credentials = {
     host: 'localhost',
-    user: 'root',
+    user: 'test',
     database: 'test',
     password: 'test',
   };
