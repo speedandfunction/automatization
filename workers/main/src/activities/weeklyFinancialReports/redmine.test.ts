@@ -6,13 +6,15 @@ import * as redmineModule from './redmine';
 
 describe('getProjectUnits', () => {
   it('calls redmineRepo.getProjectUnits', async () => {
-    const spy = vi
-      .spyOn(redmineModule, 'getProjectUnits')
+    const serviceSpy = vi
+      .spyOn(RedmineService.prototype, 'getProjectUnits')
       .mockResolvedValue([]);
 
-    await redmineModule.getProjectUnits();
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
+    const result = await redmineModule.getProjectUnits();
+
+    expect(serviceSpy).toHaveBeenCalled();
+    expect(result).toEqual([]);
+    serviceSpy.mockRestore();
   });
 });
 
