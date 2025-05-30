@@ -104,33 +104,19 @@ describe('Redmine.getProjectUnitsQuery (private method)', () => {
   const redmine = new Redmine(dummyCredentials);
 
   // Helper to access private method
-  function callGetProjectUnitsQuery(options?: {
-    unitName?: string;
-    unitId?: number;
-  }) {
+  function callGetProjectUnitsQuery() {
     // @ts-expect-error: Accessing private method for test purposes
-    return redmine.getProjectUnitsQuery(options);
+    return redmine.getProjectUnitsQuery();
   }
 
-  it('returns correct query and params with no options', () => {
-    const { query, params } = callGetProjectUnitsQuery();
+  it('returns correct query string', () => {
+    const query = callGetProjectUnitsQuery();
 
-    expect(query).toContain("g.type = 'Group'");
-    expect(params).toEqual([]);
-  });
-
-  it('returns correct query and params with unitId', () => {
-    const { query, params } = callGetProjectUnitsQuery({ unitId: 42 });
-
-    expect(query).toContain('g.id = ?');
-    expect(params).toEqual([42]);
-  });
-
-  it('returns correct query and params with unitName', () => {
-    const { query, params } = callGetProjectUnitsQuery({ unitName: 'QA' });
-
-    expect(query).toContain('g.lastname = ?');
-    expect(params).toEqual(['QA']);
+    expect(typeof query).toBe('string');
+    expect(query).toContain('SELECT');
+    expect(query).toContain('FROM users AS g');
+    expect(query).toContain('JOIN members AS m ON m.user_id = g.id');
+    expect(query).toContain('JOIN projects AS p ON p.id = m.project_id');
   });
 });
 

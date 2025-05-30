@@ -28,47 +28,46 @@ export class Redmine {
     }
   }
 
-  private getProjectUnitsQuery(options?: {
-    unitName?: string;
-    unitId?: number;
-  }): { query: string; params: (string | number)[] } {
-    let whereClause = "g.type = 'Group'";
-    const params: (string | number)[] = [];
-
-    if (options?.unitId) {
-      whereClause += ' AND g.id = ?';
-      params.push(options.unitId);
-    } else if (options?.unitName) {
-      whereClause += ' AND g.lastname = ?';
-      params.push(options.unitName);
-    }
-
-    const query = `SELECT
-         g.id AS group_id,
-         g.lastname AS group_name,
-         p.id AS project_id,
-         p.name AS project_name
-       FROM users AS g
-       JOIN members AS m ON m.user_id = g.id
-       JOIN projects AS p ON p.id = m.project_id
-       WHERE ${whereClause}`;
-
-    return { query, params };
+  private getProjectUnitsQuery() {
+    return `SELECT
+  group_id,
+  group_name,
+  project_id,
+  project_name,
+  user_id,
+  username,
+  spent_on,
+  SUM(total_hours) AS total_hours
+FROM (
+  SELECT
+    g.id AS group_id,
+    g.lastname AS group_name,
+    p.id AS project_id,
+    p.name AS project_name,
+    te.user_id AS user_id,
+    CONCAT(u.firstname, ' ', u.lastname) AS username,
+    te.spent_on AS spent_on,
+    te.hours AS total_hours
+  FROM users AS g
+  JOIN members AS m ON m.user_id = g.id
+  JOIN projects AS p ON p.id = m.project_id
+  JOIN time_entries te ON te.project_id = p.id
+  JOIN users AS u ON u.id = te.user_id
+  WHERE te.spent_on >= CURDATE() - INTERVAL 7 DAY
+) t
+GROUP BY group_id, group_name, project_id, project_name, user_id, username, spent_on
+ORDER BY group_name ASC, project_name ASC, username ASC, spent_on ASC`;
   }
 
-  async getProjectUnits(options?: {
-    unitName?: string;
-    unitId?: number;
-  }): Promise<ProjectUnit[]> {
+  async getProjectUnits(): Promise<ProjectUnit[]> {
     this.ensureConnection();
 
-    const { query, params } = this.getProjectUnitsQuery(options);
-    const [rows] = await this.pool.execute<RowDataPacket[]>(query, params);
+    const query = this.getProjectUnitsQuery();
+    const [rows] = await this.pool.execute<RowDataPacket[]>(query);
 
     return rows as ProjectUnit[];
   }
 
-  /** Expose the Pool Connection */
   get connection() {
     return this.pool;
   }
