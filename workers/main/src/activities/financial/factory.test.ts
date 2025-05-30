@@ -19,4 +19,16 @@ describe('factory', () => {
 
     expect(service).toBeInstanceOf(FinancialReportService);
   });
+
+  it('ProjectUnitRepository instance has getProjectUnits method', () => {
+    const repo = createProjectUnitRepository();
+
+    expect(typeof repo.getProjectUnits).toBe('function');
+  });
+
+  it('FinancialReportService instance has getWeeklyReport method', () => {
+    const service = createFinancialReportService();
+
+    expect(typeof service.getWeeklyReport).toBe('function');
+  });
 });

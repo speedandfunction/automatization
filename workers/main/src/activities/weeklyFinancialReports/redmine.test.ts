@@ -45,3 +45,43 @@ describe('RedmineService', () => {
     serviceSpy.mockRestore();
   });
 });
+
+describe('getProjectUnits additional cases', () => {
+  it('returns correct structure for project units', async () => {
+    const mockUnits = [
+      {
+        group_id: 1,
+        group_name: 'Group A',
+        project_id: 10,
+        project_name: 'Project X',
+      },
+    ];
+
+    vi.spyOn(RedmineService.prototype, 'getProjectUnits').mockResolvedValueOnce(
+      mockUnits,
+    );
+    const result = await redmineModule.getProjectUnits();
+
+    expect(result).toEqual(mockUnits);
+    expect(result[0]).toHaveProperty('group_id');
+    expect(result[0]).toHaveProperty('group_name');
+    expect(result[0]).toHaveProperty('project_id');
+    expect(result[0]).toHaveProperty('project_name');
+  });
+
+  it('returns empty array if no units found', async () => {
+    vi.spyOn(RedmineService.prototype, 'getProjectUnits').mockResolvedValueOnce(
+      [],
+    );
+    const result = await redmineModule.getProjectUnits();
+
+    expect(result).toEqual([]);
+  });
+
+  it('throws if RedmineService.getProjectUnits fails', async () => {
+    vi.spyOn(RedmineService.prototype, 'getProjectUnits').mockRejectedValueOnce(
+      new Error('DB error'),
+    );
+    await expect(redmineModule.getProjectUnits()).rejects.toThrow('DB error');
+  });
+});
