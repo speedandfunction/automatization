@@ -1,72 +1,47 @@
-import { describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type Mock,
+  vi,
+} from 'vitest';
 
-import { RedmineRepository } from '../../services/redmine/RedmineRepository';
+import type { ProjectUnit } from '../../common/types';
 import { RedmineService } from '../../services/redmine/RedmineService';
-import * as redmineModule from './redmine';
+import {
+  createMockProjectUnit,
+  createMockRedmineRepository,
+} from './mocks/redmine';
+import { createRedmineService, getProjectUnits } from './redmine';
 
 describe('getProjectUnits', () => {
-  it('calls redmineRepo.getProjectUnits', async () => {
-    const serviceSpy = vi
-      .spyOn(RedmineService.prototype, 'getProjectUnits')
-      .mockResolvedValue([]);
+  let service: RedmineService;
+  let repo: ReturnType<typeof createMockRedmineRepository>;
 
-    const result = await redmineModule.getProjectUnits();
-
-    expect(serviceSpy).toHaveBeenCalled();
-    expect(result).toEqual([]);
-    serviceSpy.mockRestore();
+  beforeEach(() => {
+    repo = createMockRedmineRepository();
+    service = new RedmineService(repo);
   });
-});
 
-describe('getProjectUnits activity', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('calls RedmineService.getProjectUnits', async () => {
-    const serviceSpy = vi
-      .spyOn(RedmineService.prototype, 'getProjectUnits')
-      .mockResolvedValue([]);
+    const spy = vi.spyOn(service, 'getProjectUnits' as const);
+    const result = await getProjectUnits(service);
 
-    await redmineModule.getProjectUnits();
-    expect(serviceSpy).toHaveBeenCalled();
-    serviceSpy.mockRestore();
+    expect(spy).toHaveBeenCalled();
+    expect(result).toEqual([]);
   });
-});
 
-describe('RedmineService', () => {
-  it('delegates to repository', async () => {
-    const repo = {
-      getProjectUnits: vi.fn().mockResolvedValue(['unit']),
-    } as unknown as RedmineRepository;
-    const service = new RedmineService(repo);
-
-    const serviceSpy = vi.spyOn(service, 'getProjectUnits');
-
-    const result = await service.getProjectUnits();
-
-    expect(result).toEqual(['unit']);
-    expect(serviceSpy).toHaveBeenCalled();
-
-    serviceSpy.mockRestore();
-  });
-});
-
-describe('getProjectUnits additional cases', () => {
   it('returns correct structure for project units', async () => {
-    const mockUnits = [
-      {
-        group_id: 1,
-        group_name: 'Group A',
-        project_id: 10,
-        project_name: 'Project X',
-        user_id: 100,
-        username: 'John Doe',
-        spent_on: '2024-06-01',
-        total_hours: 8,
-      },
-    ];
+    const mockUnits: ProjectUnit[] = [createMockProjectUnit()];
 
-    vi.spyOn(RedmineService.prototype, 'getProjectUnits').mockResolvedValueOnce(
-      mockUnits,
-    );
-    const result = await redmineModule.getProjectUnits();
+    (repo.getProjectUnits as Mock).mockResolvedValueOnce(mockUnits);
+    const result = await getProjectUnits(service);
 
     expect(result).toEqual(mockUnits);
     expect(result[0]).toHaveProperty('group_id');
@@ -80,18 +55,24 @@ describe('getProjectUnits additional cases', () => {
   });
 
   it('returns empty array if no units found', async () => {
-    vi.spyOn(RedmineService.prototype, 'getProjectUnits').mockResolvedValueOnce(
-      [],
-    );
-    const result = await redmineModule.getProjectUnits();
+    (repo.getProjectUnits as Mock).mockResolvedValueOnce([]);
+    const result = await getProjectUnits(service);
 
     expect(result).toEqual([]);
   });
 
   it('throws if RedmineService.getProjectUnits fails', async () => {
-    vi.spyOn(RedmineService.prototype, 'getProjectUnits').mockRejectedValueOnce(
-      new Error('DB error'),
-    );
-    await expect(redmineModule.getProjectUnits()).rejects.toThrow('DB error');
+    const error = new Error('DB error');
+
+    (repo.getProjectUnits as Mock).mockRejectedValueOnce(error);
+    await expect(getProjectUnits(service)).rejects.toThrow('DB error');
+  });
+});
+
+describe('createRedmineService', () => {
+  it('creates a RedmineService instance', () => {
+    const service = createRedmineService();
+
+    expect(service).toBeInstanceOf(RedmineService);
   });
 });
