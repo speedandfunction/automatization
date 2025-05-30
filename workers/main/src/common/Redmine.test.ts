@@ -3,6 +3,7 @@ import {
   TestWorkflowEnvironment,
 } from '@temporalio/testing';
 import { DefaultLogger, LogEntry, Runtime } from '@temporalio/worker';
+import type { Pool } from 'mysql2/promise';
 import * as mysql from 'mysql2/promise';
 import type { Mock } from 'vitest';
 import {
@@ -41,7 +42,12 @@ vi.mock('mysql2/promise', async () => {
 
   return {
     ...actual,
-    createPool: vi.fn(() => ({ end: vi.fn() })),
+    createPool: vi.fn(
+      () =>
+        ({
+          end: vi.fn(),
+        }) as unknown as Pool,
+    ),
   };
 });
 
@@ -157,7 +163,6 @@ describe('RedmineRepository class internals', () => {
   });
 
   it('should re-initialize pool if pool is undefined', () => {
-    // Reset the mock to clear previous calls
     (mysql.createPool as Mock).mockClear();
     Object.defineProperty(redminePool, 'pool', {
       value: undefined,
@@ -172,7 +177,7 @@ describe('RedmineRepository class internals', () => {
 
   it('should end the pool and set poolEnded to true', async () => {
     const endSpy = vi
-      .spyOn(redminePool['pool'], 'end')
+      .spyOn(redminePool['pool'] as Pool, 'end')
       .mockResolvedValue(undefined);
 
     await redminePool.endPool();
@@ -182,7 +187,7 @@ describe('RedmineRepository class internals', () => {
 
   it('should not call end if pool is already ended', async () => {
     redminePool['poolEnded'] = true;
-    const endSpy = vi.spyOn(redminePool['pool'], 'end');
+    const endSpy = vi.spyOn(redminePool['pool'] as Pool, 'end');
 
     await redminePool.endPool();
     expect(endSpy).not.toHaveBeenCalled();
