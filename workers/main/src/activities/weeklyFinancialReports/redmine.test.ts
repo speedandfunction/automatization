@@ -54,6 +54,10 @@ describe('getProjectUnits additional cases', () => {
         group_name: 'Group A',
         project_id: 10,
         project_name: 'Project X',
+        user_id: 100,
+        username: 'John Doe',
+        spent_on: '2024-06-01',
+        total_hours: 8,
       },
     ];
 
@@ -67,6 +71,10 @@ describe('getProjectUnits additional cases', () => {
     expect(result[0]).toHaveProperty('group_name');
     expect(result[0]).toHaveProperty('project_id');
     expect(result[0]).toHaveProperty('project_name');
+    expect(result[0]).toHaveProperty('user_id');
+    expect(result[0]).toHaveProperty('username');
+    expect(result[0]).toHaveProperty('spent_on');
+    expect(result[0]).toHaveProperty('total_hours');
   });
 
   it('returns empty array if no units found', async () => {
