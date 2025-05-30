@@ -16,7 +16,8 @@ import {
 } from 'vitest';
 
 import { getProjectUnits } from '../activities';
-import { Redmine } from './Redmine';
+import { RedmineRepository } from './Redmine';
+import { RedminePool } from './RedminePool';
 import { ProjectUnit } from './types';
 
 // Mock data
@@ -66,7 +67,7 @@ describe('Redmine Activities', () => {
   });
 
   it('getProjectUnits returns project units from Redmine', async () => {
-    vi.spyOn(Redmine.prototype, 'getProjectUnits').mockResolvedValue(
+    vi.spyOn(RedmineRepository.prototype, 'getProjectUnits').mockResolvedValue(
       mockProjectUnits,
     );
 
@@ -83,7 +84,7 @@ describe('Redmine Activities', () => {
     const mockError = new Error(errorMessage);
 
     const mockGetProjectUnits = vi
-      .spyOn(Redmine.prototype, 'getProjectUnits')
+      .spyOn(RedmineRepository.prototype, 'getProjectUnits')
       .mockRejectedValue(mockError);
 
     await expect(activityContext.run(getProjectUnits)).rejects.toThrow(
@@ -94,19 +95,20 @@ describe('Redmine Activities', () => {
   });
 });
 
-describe('Redmine.getProjectUnitsQuery (private method)', () => {
+describe('RedmineRepository.getProjectUnitsQuery (private method)', () => {
   const dummyCredentials = {
     host: 'localhost',
     user: 'test',
     database: 'test',
     password: 'test',
   };
-  const redmine = new Redmine(dummyCredentials);
+  const redminePool = new RedminePool(dummyCredentials);
+  const redmineRepo = new RedmineRepository(redminePool);
 
   // Helper to access private method
   function callGetProjectUnitsQuery() {
     // @ts-expect-error: Accessing private method for test purposes
-    return redmine.getProjectUnitsQuery();
+    return redmineRepo.getProjectUnitsQuery();
   }
 
   it('returns correct query string', () => {
@@ -120,74 +122,74 @@ describe('Redmine.getProjectUnitsQuery (private method)', () => {
   });
 });
 
-describe('Redmine class internals', () => {
+describe('RedmineRepository class internals', () => {
   const credentials = {
     host: 'localhost',
     user: 'test',
     database: 'test',
     password: 'test',
   };
-  let redmine: Redmine;
+  let redminePool: RedminePool;
 
   beforeEach(async () => {
-    redmine = new Redmine(credentials);
+    redminePool = new RedminePool(credentials);
   });
 
-  it('should initialize pool in constructor', () => {
+  it('should initialize pool in RedminePool constructor', () => {
     const testCredentials = {
       host: 'localhost',
       user: 'test',
       database: 'test',
       password: 'test',
     };
-    const testRedmine = new Redmine(testCredentials);
+    const testRedminePool = new RedminePool(testCredentials);
 
     expect(mysql.createPool as Mock).toHaveBeenCalledWith(testCredentials);
-    expect(testRedmine['pool']).toBeDefined();
+    expect(testRedminePool['pool']).toBeDefined();
   });
 
   it('should re-initialize pool if poolEnded is true', () => {
-    const oldPool = redmine['pool'];
+    const oldPool = redminePool['pool'];
 
-    redmine['poolEnded'] = true;
-    redmine['ensureConnection']();
-    expect(redmine['pool']).not.toBe(oldPool);
-    expect(redmine['poolEnded']).toBe(false);
+    redminePool['poolEnded'] = true;
+    redminePool['getPool']();
+    expect(redminePool['pool']).not.toBe(oldPool);
+    expect(redminePool['poolEnded']).toBe(false);
   });
 
   it('should re-initialize pool if pool is undefined', () => {
     // Reset the mock to clear previous calls
     (mysql.createPool as Mock).mockClear();
-    Object.defineProperty(redmine, 'pool', {
+    Object.defineProperty(redminePool, 'pool', {
       value: undefined,
       writable: true,
     });
-    redmine['poolEnded'] = false;
-    redmine['ensureConnection']();
+    redminePool['poolEnded'] = false;
+    redminePool['getPool']();
     expect(mysql.createPool as Mock).toHaveBeenCalledWith(credentials);
-    expect(redmine['pool']).toBeDefined();
-    expect(redmine['poolEnded']).toBe(false);
+    expect(redminePool['pool']).toBeDefined();
+    expect(redminePool['poolEnded']).toBe(false);
   });
 
   it('should end the pool and set poolEnded to true', async () => {
     const endSpy = vi
-      .spyOn(redmine['pool'], 'end')
+      .spyOn(redminePool['pool'], 'end')
       .mockResolvedValue(undefined);
 
-    await redmine.endPool();
+    await redminePool.endPool();
     expect(endSpy).toHaveBeenCalled();
-    expect(redmine['poolEnded']).toBe(true);
+    expect(redminePool['poolEnded']).toBe(true);
   });
 
   it('should not call end if pool is already ended', async () => {
-    redmine['poolEnded'] = true;
-    const endSpy = vi.spyOn(redmine['pool'], 'end');
+    redminePool['poolEnded'] = true;
+    const endSpy = vi.spyOn(redminePool['pool'], 'end');
 
-    await redmine.endPool();
+    await redminePool.endPool();
     expect(endSpy).not.toHaveBeenCalled();
   });
 
-  it('should return the pool instance from connection getter', () => {
-    expect(redmine.connection).toBe(redmine['pool']);
+  it('should return the pool instance from getPool', () => {
+    expect(redminePool.getPool()).toBe(redminePool['pool']);
   });
 });

@@ -1,31 +1,13 @@
-import * as mysql from 'mysql2/promise';
-import { Pool, PoolOptions, RowDataPacket } from 'mysql2/promise';
+import { Pool } from 'mysql2/promise';
 
+import { RedminePool } from './RedminePool';
 import { ProjectUnit } from './types';
 
-export class Redmine {
+export class RedmineRepository {
   private pool: Pool;
-  private credentials: PoolOptions;
-  private poolEnded = false;
 
-  constructor(credentials: PoolOptions) {
-    this.credentials = credentials;
-    this.pool = mysql.createPool(this.credentials);
-  }
-
-  private ensureConnection() {
-    if (!this.pool || this.poolEnded) {
-      this.pool = mysql.createPool(this.credentials);
-      this.poolEnded = false;
-    }
-  }
-
-  /** Call this when you want to end the pool */
-  async endPool() {
-    if (this.pool && !this.poolEnded) {
-      await this.pool.end();
-      this.poolEnded = true;
-    }
+  constructor(redminePool: RedminePool) {
+    this.pool = redminePool.getPool();
   }
 
   private getProjectUnitsQuery() {
@@ -60,15 +42,9 @@ ORDER BY group_name ASC, project_name ASC, username ASC, spent_on ASC`;
   }
 
   async getProjectUnits(): Promise<ProjectUnit[]> {
-    this.ensureConnection();
-
     const query = this.getProjectUnitsQuery();
-    const [rows] = await this.pool.execute<RowDataPacket[]>(query);
+    const [rows] = await this.pool.execute(query);
 
     return rows as ProjectUnit[];
-  }
-
-  get connection() {
-    return this.pool;
   }
 }

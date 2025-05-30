@@ -1,13 +1,14 @@
-import { Redmine } from '../../common/Redmine';
+import { RedmineRepository } from '../../common/Redmine';
+import { RedminePool } from '../../common/RedminePool';
 import type { ProjectUnit } from '../../common/types';
 import { redmineDatabaseConfig } from '../../configs/redmineDatabase';
 import type { FinancialData } from './redmine.types';
 
-const redmine = new Redmine(redmineDatabaseConfig);
+const redminePool = new RedminePool(redmineDatabaseConfig);
+const redmineRepo = new RedmineRepository(redminePool);
 
-export const getProjectUnits = async (): Promise<ProjectUnit[]> => {
-  return redmine.getProjectUnits();
-};
+export const getProjectUnits = async (): Promise<ProjectUnit[]> =>
+  redmineRepo.getProjectUnits();
 
 export async function fetchFinancialData(
   period: string = 'current',
