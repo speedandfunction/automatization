@@ -1,16 +1,15 @@
 import type { Pool } from 'mysql2/promise';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { RedminePool } from '../../common/RedminePool';
-import { RedmineRepository } from './RedmineRepository';
+import { IPoolProvider, RedmineRepository } from './RedmineRepository';
 
-// Mock RedminePool and Pool
-const mockExecute = vi.fn();
+// Mock Pool and IPoolProvider
+const mockQuery = vi.fn();
 const mockPool: Partial<Pool> = {
-  execute: mockExecute,
+  query: mockQuery,
 };
 
-const mockRedminePool: Partial<RedminePool> = {
+const mockPoolProvider: IPoolProvider = {
   getPool: () => mockPool as Pool,
 };
 
@@ -19,35 +18,52 @@ describe('RedmineRepository', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    repo = new RedmineRepository(mockRedminePool as RedminePool);
-  });
-
-  it('getProjectUnitsQuery returns correct SQL', () => {
-    // @ts-expect-error: access private method for test
-    const query = repo.getProjectUnitsQuery();
-
-    expect(query).toContain('SELECT');
-    expect(query).toContain('group_id');
-    expect(query).toContain('SUM(total_hours) AS total_hours');
-    expect(query).toContain('ORDER BY group_name ASC');
+    repo = new RedmineRepository(mockPoolProvider);
   });
 
   it('getProjectUnits returns rows from pool', async () => {
     const mockRows = [
-      { group_id: 1, group_name: 'A', project_id: 2, project_name: 'B' },
+      {
+        group_id: 1,
+        group_name: 'A',
+        project_id: 2,
+        project_name: 'B',
+        user_id: 3,
+        username: 'User X',
+        spent_on: '2024-06-01',
+        total_hours: 5,
+      },
     ];
 
-    mockExecute.mockResolvedValueOnce([mockRows]);
+    mockQuery.mockResolvedValueOnce([mockRows]);
     const result = await repo.getProjectUnits();
 
-    expect(result).toEqual(mockRows);
-    expect(mockExecute).toHaveBeenCalled();
+    expect(result).toEqual([
+      {
+        group_id: 1,
+        group_name: 'A',
+        project_id: 2,
+        project_name: 'B',
+        user_id: 3,
+        username: 'User X',
+        spent_on: '2024-06-01',
+        total_hours: 5,
+      },
+    ]);
+    expect(mockQuery).toHaveBeenCalled();
   });
 
   it('getProjectUnits returns empty array if no rows', async () => {
-    mockExecute.mockResolvedValueOnce([[]]);
+    mockQuery.mockResolvedValueOnce([[]]);
     const result = await repo.getProjectUnits();
 
     expect(result).toEqual([]);
+  });
+
+  it('getProjectUnits throws error if query fails', async () => {
+    mockQuery.mockRejectedValueOnce(new Error('DB error'));
+    await expect(repo.getProjectUnits()).rejects.toThrow(
+      'RedmineRepository.getProjectUnits failed: DB error',
+    );
   });
 });

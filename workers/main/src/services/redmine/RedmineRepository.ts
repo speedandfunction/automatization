@@ -1,18 +1,20 @@
-import { Pool } from 'mysql2/promise';
+import { Pool, RowDataPacket } from 'mysql2/promise';
 
-import { RedminePool } from '../../common/RedminePool';
 import { ProjectUnit } from '../../common/types';
 import { IRedmineRepository } from './IRedmineRepository';
 
-export class RedmineRepository implements IRedmineRepository {
-  private pool: Pool;
+interface ProjectUnitRow extends RowDataPacket {
+  group_id: number;
+  group_name: string;
+  project_id: number;
+  project_name: string;
+  user_id: number;
+  username: string;
+  spent_on: string;
+  total_hours: number;
+}
 
-  constructor(redminePool: RedminePool) {
-    this.pool = redminePool.getPool();
-  }
-
-  private getProjectUnitsQuery() {
-    return `SELECT
+const PROJECT_UNITS_QUERY = `SELECT
   group_id,
   group_name,
   project_id,
@@ -40,28 +42,41 @@ FROM (
 ) t
 GROUP BY group_id, group_name, project_id, project_name, user_id, username, spent_on
 ORDER BY group_name ASC, project_name ASC, username ASC, spent_on ASC`;
+
+export interface IPoolProvider {
+  getPool(): Pool;
+}
+
+export class RedmineRepository implements IRedmineRepository {
+  private readonly pool: Pool;
+
+  constructor(poolProvider: IPoolProvider) {
+    this.pool = poolProvider.getPool();
   }
 
   async getProjectUnits(): Promise<ProjectUnit[]> {
-    const query = this.getProjectUnitsQuery();
-
     try {
-      const [rows] = await this.pool.execute(query);
+      const [rows] =
+        await this.pool.query<ProjectUnitRow[]>(PROJECT_UNITS_QUERY);
 
       if (!Array.isArray(rows)) {
         throw new Error('Query did not return an array');
       }
 
-      return (rows as Record<string, unknown>[]).map((row) => ({
+      return rows.map((row) => ({
         group_id: Number(row.group_id),
         group_name: String(row.group_name),
         project_id: Number(row.project_id),
         project_name: String(row.project_name),
+        user_id: Number(row.user_id),
+        username: String(row.username),
+        spent_on: String(row.spent_on),
+        total_hours: Number(row.total_hours),
       }));
     } catch (error) {
-      const err = error as Error;
-
-      throw new Error(`Failed to fetch project units: ${err.message}`);
+      throw new Error(
+        `RedmineRepository.getProjectUnits failed: ${(error as Error).message}`,
+      );
     }
   }
 }
