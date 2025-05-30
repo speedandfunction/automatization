@@ -52,7 +52,12 @@ ORDER BY group_name ASC, project_name ASC, username ASC, spent_on ASC`;
         throw new Error('Query did not return an array');
       }
 
-      return rows as ProjectUnit[];
+      return (rows as Record<string, unknown>[]).map((row) => ({
+        group_id: Number(row.group_id),
+        group_name: String(row.group_name),
+        project_id: Number(row.project_id),
+        project_name: String(row.project_name),
+      }));
     } catch (error) {
       const err = error as Error;
 
