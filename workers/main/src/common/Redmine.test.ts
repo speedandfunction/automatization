@@ -20,7 +20,6 @@ import { RedmineRepository } from './Redmine';
 import { RedminePool } from './RedminePool';
 import { ProjectUnit } from './types';
 
-// Mock data
 const mockProjectUnits: ProjectUnit[] = [
   {
     group_id: 1,

@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import * as redmineModule from './redmine';
 import { fetchFinancialData } from './redmine';
 
 describe('fetchFinancialData', () => {
@@ -17,5 +18,17 @@ describe('fetchFinancialData', () => {
 
     expect(data).toBeDefined();
     expect(data.period).toBe('previous');
+  });
+});
+
+describe('getProjectUnits', () => {
+  it('calls redmineRepo.getProjectUnits', async () => {
+    const spy = vi
+      .spyOn(redmineModule, 'getProjectUnits')
+      .mockResolvedValue([]);
+
+    await redmineModule.getProjectUnits();
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
   });
 });
