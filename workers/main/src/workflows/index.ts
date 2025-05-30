@@ -1,1 +1,1 @@
-export { weeklyFinancialReportsWorkflow } from './weeklyFinancialReports';
+export { weeklyFinancialReportsWorkflow } from './financial/index';

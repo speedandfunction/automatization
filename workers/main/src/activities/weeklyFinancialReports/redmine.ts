@@ -1,10 +1,9 @@
-import { RedmineRepository } from '../../common/Redmine';
 import { RedminePool } from '../../common/RedminePool';
-import type { ProjectUnit } from '../../common/types';
 import { redmineDatabaseConfig } from '../../configs/redmineDatabase';
+import { RedmineRepository } from '../../services/redmine/RedmineRepository';
+import { RedmineService } from '../../services/redmine/RedmineService';
 
-const redminePool = new RedminePool(redmineDatabaseConfig);
-const redmineRepo = new RedmineRepository(redminePool);
+const repo = new RedmineRepository(new RedminePool(redmineDatabaseConfig));
+const service = new RedmineService(repo);
 
-export const getProjectUnits = async (): Promise<ProjectUnit[]> =>
-  redmineRepo.getProjectUnits();
+export const getProjectUnits = async () => service.getProjectUnits();

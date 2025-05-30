@@ -26,7 +26,6 @@ describe('run', () => {
 describe('handleRunError', () => {
   it('should log the error and throw the error', () => {
     const error = new Error('test error');
-    // Spy on logger.error
     const logSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
     expect(() => handleRunError(error)).toThrow(error);

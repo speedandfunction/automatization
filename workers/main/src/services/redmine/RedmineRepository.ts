@@ -1,9 +1,10 @@
 import { Pool } from 'mysql2/promise';
 
-import { RedminePool } from './RedminePool';
-import { ProjectUnit } from './types';
+import { RedminePool } from '../../common/RedminePool';
+import { ProjectUnit } from '../../common/types';
+import { IRedmineRepository } from './IRedmineRepository';
 
-export class RedmineRepository {
+export class RedmineRepository implements IRedmineRepository {
   private pool: Pool;
 
   constructor(redminePool: RedminePool) {

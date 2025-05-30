@@ -2,9 +2,8 @@ import { TestWorkflowEnvironment } from '@temporalio/testing';
 import { DefaultLogger, LogEntry, Runtime, Worker } from '@temporalio/worker';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { vi } from 'vitest';
 
-import { weeklyFinancialReportsWorkflow } from '..';
+import { weeklyFinancialReportsWorkflow } from './weeklyFinancialReports.workflow';
 
 const mockProjectUnits = [
   {
