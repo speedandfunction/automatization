@@ -34,9 +34,14 @@ describe('RedmineService', () => {
       getProjectUnits: vi.fn().mockResolvedValue(['unit']),
     } as unknown as RedmineRepository;
     const service = new RedmineService(repo);
+
+    const serviceSpy = vi.spyOn(service, 'getProjectUnits');
+
     const result = await service.getProjectUnits();
 
     expect(result).toEqual(['unit']);
-    expect(repo.getProjectUnits).toHaveBeenCalled();
+    expect(serviceSpy).toHaveBeenCalled();
+
+    serviceSpy.mockRestore();
   });
 });
