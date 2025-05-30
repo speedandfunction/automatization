@@ -7,13 +7,17 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/__tests__/**/*.test.ts'],
+    include: ['src/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
       all: true,
-      include: ['src/**/*.ts'],
-      exclude: ['src/__tests__/**', 'src/dist/**'],
+      exclude: [
+        'src/dist/**',
+        'src/**/*.test.ts',
+        'eslint.config.mjs',
+        'vitest.config.ts',
+      ],
     },
   },
 });
