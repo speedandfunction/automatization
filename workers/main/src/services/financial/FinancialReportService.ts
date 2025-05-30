@@ -2,7 +2,7 @@ import { IProjectUnitRepository } from '../../repositories/financial/IProjectUni
 
 export class FinancialReportService {
   constructor(private repo: IProjectUnitRepository) {}
-  async getWeeklyReport() {
+  async getWeeklyReport(): Promise<ProjectUnit[]> {
     return this.repo.getProjectUnits();
   }
 }
