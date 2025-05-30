@@ -1,3 +1,4 @@
+import type { ProjectUnit } from '../../common/types';
 import { IProjectUnitRepository } from '../../repositories/financial/IProjectUnitRepository';
 
 export class FinancialReportService {

@@ -44,8 +44,19 @@ ORDER BY group_name ASC, project_name ASC, username ASC, spent_on ASC`;
 
   async getProjectUnits(): Promise<ProjectUnit[]> {
     const query = this.getProjectUnitsQuery();
-    const [rows] = await this.pool.execute(query);
 
-    return rows as ProjectUnit[];
+    try {
+      const [rows] = await this.pool.execute(query);
+
+      if (!Array.isArray(rows)) {
+        throw new Error('Query did not return an array');
+      }
+
+      return rows as ProjectUnit[];
+    } catch (error) {
+      const err = error as Error;
+
+      throw new Error(`Failed to fetch project units: ${err.message}`);
+    }
   }
 }
