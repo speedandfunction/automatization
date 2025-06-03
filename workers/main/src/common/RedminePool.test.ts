@@ -73,4 +73,19 @@ describe('RedminePool', () => {
     await poolInstance.endPool();
     expect(poolMock.end).not.toHaveBeenCalled();
   });
+
+  it('should handle pool creation errors gracefully', () => {
+    (mysql.createPool as Mock).mockImplementationOnce(() => {
+      throw new Error('Connection failed');
+    });
+    expect(() => new RedminePool(credentials)).toThrow('Connection failed');
+  });
+
+  it('should handle pool.end() errors gracefully', async () => {
+    poolMock.end.mockRejectedValueOnce(new Error('End failed'));
+    await expect(poolInstance.endPool()).rejects.toThrow('End failed');
+    expect((poolInstance as unknown as { poolEnded: boolean }).poolEnded).toBe(
+      true,
+    );
+  });
 });

@@ -8,7 +8,13 @@ export class RedminePool {
 
   constructor(credentials: PoolOptions) {
     this.credentials = credentials;
-    this.createPool();
+    try {
+      this.createPool();
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : String(error);
+
+      throw new Error(`RedminePool initialization failed: ${errMsg}`);
+    }
   }
 
   private createPool() {
@@ -26,8 +32,15 @@ export class RedminePool {
 
   async endPool() {
     if (this.pool && !this.poolEnded) {
-      await this.pool.end();
-      this.poolEnded = true;
+      try {
+        await this.pool.end();
+        this.poolEnded = true;
+      } catch (error) {
+        this.poolEnded = true;
+        const errMsg = error instanceof Error ? error.message : String(error);
+
+        throw new Error(`Failed to end MySQL connection pool: ${errMsg}`);
+      }
     }
   }
 }
