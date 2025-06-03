@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../common/../configs', () => ({
+vi.mock('../configs', () => ({
   validationResult: { success: true },
 }));
 
-import * as configs from '../common/../configs';
-import { validateEnv } from '../common/utils';
+import * as configs from '../configs';
+import { validateEnv } from './utils';
 
 type ValidationResult = {
   success: boolean;
