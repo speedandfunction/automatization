@@ -37,12 +37,11 @@ export async function run(): Promise<void> {
   }
 }
 
-export function handleRunError(error: unknown): never {
+export function handleRunError(error: unknown): void {
   logger.error(
     `Error in main worker: ${error instanceof Error ? error.message : String(error)}`,
   );
   setTimeout(() => process.exit(1), 100);
-  throw error;
 }
 
 export function mainEntry() {

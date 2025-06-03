@@ -1,5 +1,4 @@
-import { describe, expect, it } from 'vitest';
-import { vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { handleRunError, logger, run } from './index';
 
@@ -24,11 +23,31 @@ describe('run', () => {
 });
 
 describe('handleRunError', () => {
-  it('should log the error and throw the error', () => {
+  it('should log the error', () => {
     const error = new Error('test error');
     const logSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
-    expect(() => handleRunError(error)).toThrow(error);
+    handleRunError(error);
+    expect(logSpy).toHaveBeenCalledWith(
+      `Error in main worker: ${error.message}`,
+    );
+    logSpy.mockRestore();
+  });
+
+  it('should log when error is a string', () => {
+    const error = 'string error';
+    const logSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
+
+    handleRunError(error);
+    expect(logSpy).toHaveBeenCalledWith(`Error in main worker: ${error}`);
+    logSpy.mockRestore();
+  });
+
+  it('should log when error is an Error object', () => {
+    const error = new Error('error from Error object');
+    const logSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
+
+    handleRunError(error);
     expect(logSpy).toHaveBeenCalledWith(
       `Error in main worker: ${error.message}`,
     );
