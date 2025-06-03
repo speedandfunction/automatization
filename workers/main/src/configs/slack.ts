@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const slackConfig = {
-  token: String(process.env.SLACK_TOKEN),
-  channelId: String(process.env.SLACK_FIN_REPORT_CHANNEL_ID),
+  token: process.env.SLACK_TOKEN,
+  channelId: process.env.SLACK_FIN_REPORT_CHANNEL_ID,
 };
 
 export const slackSchema = z.object({
