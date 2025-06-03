@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import * as utils from '../../../common/utils';
-import { weeklyFinancialReportsWorkflow } from '../workflows';
+import * as utils from '../../../../common/utils';
+import { weeklyFinancialReportsWorkflow } from '..';
 
 describe('weeklyFinancialReportsWorkflow', () => {
   it('should return the report string with default parameters', async () => {
