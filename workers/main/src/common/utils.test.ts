@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../common/../configs', () => ({
+vi.mock('../configs', () => ({
   validationResult: { success: true },
 }));
 

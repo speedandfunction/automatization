@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import * as utils from '../../../../common/utils';
 import { weeklyFinancialReportsWorkflow } from '..';
 
 describe('weeklyFinancialReportsWorkflow', () => {
@@ -21,9 +20,7 @@ describe('weeklyFinancialReportsWorkflow', () => {
   });
 
   it('should log and rethrow errors', async () => {
-    const logSpy = vi
-      .spyOn(utils, 'logWorkflowError')
-      .mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const originalToLocaleString = Number.prototype.toLocaleString.bind(
       Number.prototype,
     );
@@ -35,12 +32,12 @@ describe('weeklyFinancialReportsWorkflow', () => {
     await expect(weeklyFinancialReportsWorkflow()).rejects.toThrow(
       'Test error',
     );
-    expect(logSpy).toHaveBeenCalledWith(
+    expect(errorSpy).toHaveBeenCalledWith(
       'Weekly Financial Reports',
       expect.any(Error),
     );
 
     Number.prototype.toLocaleString = originalToLocaleString;
-    logSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 });

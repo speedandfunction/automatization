@@ -1,4 +1,3 @@
-import { logWorkflowError } from '../../../../common/utils';
 import { fetchFinancialData } from '../../activities/fetchFinancialData';
 
 export async function weeklyFinancialReportsWorkflow({
@@ -18,7 +17,7 @@ Effective Marginality: ${data.effectiveMarginality}%`;
 
     return `${reportTitle}\n${report}`;
   } catch (error) {
-    logWorkflowError('Weekly Financial Reports', error);
+    console.error('Weekly Financial Reports', error);
     throw error;
   }
 }
