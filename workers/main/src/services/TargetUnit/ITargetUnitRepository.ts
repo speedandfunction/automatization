@@ -1,5 +1,5 @@
-import { ProjectUnit } from '../../common/types';
+import { TargetUnit } from '../../common/types';
 
 export interface ITargetUnitRepository {
-  getProjectUnits(): Promise<ProjectUnit[]>;
+  getProjectUnits(): Promise<TargetUnit[]>;
 }

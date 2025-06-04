@@ -1,10 +1,10 @@
-import { ProjectUnit } from '../../common/types';
+import { TargetUnit } from '../../common/types';
 import { ITargetUnitRepository } from './ITargetUnitRepository';
 
 export class TargetUnitService {
   constructor(private repo: ITargetUnitRepository) {}
 
-  async getProjectUnits(): Promise<ProjectUnit[]> {
+  async getProjectUnits(): Promise<TargetUnit[]> {
     return this.repo.getProjectUnits();
   }
 }

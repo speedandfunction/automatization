@@ -1,7 +1,7 @@
 import { Pool } from 'mysql2/promise';
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
-import { ProjectUnit } from '../../common/types';
+import { TargetUnit } from '../../common/types';
 import {
   TargetUnitRepository,
   TargetUnitRepositoryError,
@@ -45,7 +45,7 @@ describe('TargetUnitRepository', () => {
     mockPool.query.mockResolvedValueOnce([rows]);
     const result = await repo.getProjectUnits();
 
-    expect(result).toEqual<Partial<ProjectUnit>[]>([
+    expect(result).toEqual<Partial<TargetUnit>[]>([
       {
         group_id: 1,
         group_name: 'Group',

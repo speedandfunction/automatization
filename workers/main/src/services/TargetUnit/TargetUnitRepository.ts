@@ -1,6 +1,6 @@
 import { Pool } from 'mysql2/promise';
 
-import { ProjectUnit } from '../../common/types';
+import { TargetUnit } from '../../common/types';
 import { ITargetUnitRepository } from './ITargetUnitRepository';
 import { PROJECT_UNITS_QUERY } from './queries';
 import { IPoolProvider, TargetUnitRow } from './types';
@@ -37,7 +37,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
       spent_on,
       total_hours,
     }: TargetUnitRow,
-  ): ProjectUnit {
+  ): TargetUnit {
     return {
       group_id: Number(group_id),
       group_name: String(group_name),
@@ -50,7 +50,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     };
   }
 
-  async getProjectUnits(): Promise<ProjectUnit[]> {
+  async getProjectUnits(): Promise<TargetUnit[]> {
     try {
       const [rows] =
         await this.pool.query<TargetUnitRow[]>(PROJECT_UNITS_QUERY);

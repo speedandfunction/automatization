@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
-import { ProjectUnit } from '../../common/types';
+import { TargetUnit } from '../../common/types';
 import { TargetUnitService } from './TargetUnitService';
 
 const createProjectUnit = (
-  overrides: Partial<ProjectUnit> = {},
-): ProjectUnit => ({
+  overrides: Partial<TargetUnit> = {},
+): TargetUnit => ({
   group_id: 1,
   group_name: 'Group',
   project_id: 2,
