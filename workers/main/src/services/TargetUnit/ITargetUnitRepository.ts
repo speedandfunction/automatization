@@ -1,5 +1,5 @@
 import { ProjectUnit } from '../../common/types';
 
-export interface IRedmineRepository {
+export interface ITargetUnitRepository {
   getProjectUnits(): Promise<ProjectUnit[]>;
 }

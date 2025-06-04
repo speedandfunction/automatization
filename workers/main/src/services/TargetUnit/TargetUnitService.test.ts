@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { ProjectUnit } from '../../common/types';
-import { RedmineService } from './RedmineService';
+import { TargetUnitService } from './TargetUnitService';
 
 const createProjectUnit = (
   overrides: Partial<ProjectUnit> = {},
@@ -21,13 +21,13 @@ const createMockRepo = () => ({
   getProjectUnits: vi.fn(),
 });
 
-describe('RedmineService', () => {
+describe('TargetUnitService', () => {
   let mockRepo: { getProjectUnits: Mock };
-  let service: RedmineService;
+  let service: TargetUnitService;
 
   beforeEach(() => {
     mockRepo = createMockRepo();
-    service = new RedmineService(mockRepo);
+    service = new TargetUnitService(mockRepo);
   });
 
   afterEach(() => {

@@ -23,9 +23,9 @@ FROM (
   JOIN time_entries te ON te.project_id = p.id
   JOIN users AS u ON u.id = te.user_id
   WHERE 
-    g.type='Group' AND 
-    te.spent_on >= DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 7 DAY), INTERVAL 0 DAY) AND 
-    te.spent_on <= DATE_ADD(DATE_ADD(CURDATE(), INTERVAL 6 - WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY)
+    g.type='Group' 
+    AND te.spent_on >= DATE_SUB(CURDATE(), INTERVAL (WEEKDAY(CURDATE()) + 7) DAY)
+    AND te.spent_on <= DATE_ADD(CURDATE(), INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
 ) t
 GROUP BY group_id, group_name, project_id, project_name, user_id, username, spent_on
 ORDER BY group_name ASC, project_name ASC, username ASC, spent_on ASC`;

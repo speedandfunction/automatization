@@ -2,13 +2,16 @@ import { Pool } from 'mysql2/promise';
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { ProjectUnit } from '../../common/types';
-import { RedmineRepository, RedmineRepositoryError } from './RedmineRepository';
-import { IPoolProvider, ProjectUnitRow } from './types';
+import {
+  TargetUnitRepository,
+  TargetUnitRepositoryError,
+} from './TargetUnitRepository';
+import { IPoolProvider, TargetUnitRow } from './types';
 
-describe('RedmineRepository', () => {
+describe('TargetUnitRepository', () => {
   let mockPool: { query: Mock };
   let mockPoolProvider: IPoolProvider;
-  let repo: RedmineRepository;
+  let repo: TargetUnitRepository;
 
   beforeEach(() => {
     mockPool = {
@@ -17,15 +20,15 @@ describe('RedmineRepository', () => {
     mockPoolProvider = {
       getPool: () => mockPool as unknown as Pool,
     };
-    repo = new RedmineRepository(mockPoolProvider);
+    repo = new TargetUnitRepository(mockPoolProvider);
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it('maps rows to ProjectUnit and returns them', async () => {
-    const rows: ProjectUnitRow[] = [
+  it('maps rows to TargetUnit and returns them', async () => {
+    const rows: TargetUnitRow[] = [
       {
         group_id: 1,
         group_name: 'Group',
@@ -36,7 +39,7 @@ describe('RedmineRepository', () => {
         spent_on: '2024-06-01',
         total_hours: 8,
         constructor: { name: 'RowDataPacket' },
-      } as ProjectUnitRow,
+      } as TargetUnitRow,
     ];
 
     mockPool.query.mockResolvedValueOnce([rows]);
@@ -56,14 +59,14 @@ describe('RedmineRepository', () => {
     ]);
   });
 
-  it('throws RedmineRepositoryError if query does not return array', async () => {
+  it('throws TargetUnitRepositoryError if query does not return array', async () => {
     mockPool.query.mockResolvedValueOnce([null]);
     await expect(repo.getProjectUnits()).rejects.toThrow(
-      RedmineRepositoryError,
+      TargetUnitRepositoryError,
     );
   });
 
-  it('throws RedmineRepositoryError on query error', async () => {
+  it('throws TargetUnitRepositoryError on query error', async () => {
     mockPool.query.mockRejectedValueOnce(new Error('db error'));
     await expect(repo.getProjectUnits()).rejects.toThrow('db error');
   });

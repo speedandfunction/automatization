@@ -1,24 +1,24 @@
 import { Pool } from 'mysql2/promise';
 
 import { ProjectUnit } from '../../common/types';
-import { IRedmineRepository } from './IRedmineRepository';
+import { ITargetUnitRepository } from './ITargetUnitRepository';
 import { PROJECT_UNITS_QUERY } from './queries';
-import { IPoolProvider, ProjectUnitRow } from './types';
+import { IPoolProvider, TargetUnitRow } from './types';
 
-export class RedmineRepositoryError extends Error {
+export class TargetUnitRepositoryError extends Error {
   constructor(
     message: string,
     public originalError?: unknown,
   ) {
     super(message);
-    this.name = 'RedmineRepositoryError';
+    this.name = 'TargetUnitRepositoryError';
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, RedmineRepositoryError);
+      Error.captureStackTrace(this, TargetUnitRepositoryError);
     }
   }
 }
 
-export class RedmineRepository implements IRedmineRepository {
+export class TargetUnitRepository implements ITargetUnitRepository {
   private readonly pool: Pool;
 
   constructor(poolProvider: IPoolProvider) {
@@ -36,7 +36,7 @@ export class RedmineRepository implements IRedmineRepository {
       username,
       spent_on,
       total_hours,
-    }: ProjectUnitRow,
+    }: TargetUnitRow,
   ): ProjectUnit {
     return {
       group_id: Number(group_id),
@@ -53,17 +53,17 @@ export class RedmineRepository implements IRedmineRepository {
   async getProjectUnits(): Promise<ProjectUnit[]> {
     try {
       const [rows] =
-        await this.pool.query<ProjectUnitRow[]>(PROJECT_UNITS_QUERY);
+        await this.pool.query<TargetUnitRow[]>(PROJECT_UNITS_QUERY);
 
       if (!Array.isArray(rows)) {
-        throw new RedmineRepositoryError('Query did not return an array');
+        throw new TargetUnitRepositoryError('Query did not return an array');
       }
 
-      return rows.map(RedmineRepository.mapRowToProjectUnit);
+      return rows.map(TargetUnitRepository.mapRowToProjectUnit);
     } catch (error) {
-      console.error('RedmineRepository.getProjectUnits error:', error);
-      throw new RedmineRepositoryError(
-        `RedmineRepository.getProjectUnits failed: ${(error as Error).message}`,
+      console.error('TargetUnitRepository.getProjectUnits error:', error);
+      throw new TargetUnitRepositoryError(
+        `TargetUnitRepository.getProjectUnits failed: ${(error as Error).message}`,
         error,
       );
     }

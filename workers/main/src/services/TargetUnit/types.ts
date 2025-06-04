@@ -1,6 +1,6 @@
 import { Pool, RowDataPacket } from 'mysql2/promise';
 
-export interface ProjectUnitRow extends RowDataPacket {
+export interface TargetUnitRow extends RowDataPacket {
   group_id: number;
   group_name: string;
   project_id: number;
@@ -15,7 +15,7 @@ export interface IPoolProvider {
   getPool(): Pool;
 }
 
-export type ProjectUnitsResult = {
+export type TargetUnitResult = {
   fileLink: string;
 };
 
