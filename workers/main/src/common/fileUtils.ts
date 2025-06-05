@@ -3,11 +3,12 @@ import path from 'path';
 
 import { FileUtilsError } from './errors';
 
-export async function readJsonFile<T = unknown>(filePath: string): Promise<T> {
+export async function readJsonFile<T = object>(filePath: string): Promise<T> {
   try {
     const content = await fs.readFile(filePath, 'utf-8');
+    const parsed = JSON.parse(content) as T;
 
-    return JSON.parse(content) as T;
+    return parsed;
   } catch {
     throw new FileUtilsError(
       `Failed to read or parse JSON file at "${filePath}"`,
@@ -20,10 +21,11 @@ export async function writeJsonFile<T = object>(
   data: T,
 ): Promise<void> {
   try {
+    const content = JSON.stringify(data, null, 2);
     const dir = path.dirname(filePath);
 
     await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    await fs.writeFile(filePath, content, 'utf-8');
   } catch {
     throw new FileUtilsError(`Failed to write JSON file at "${filePath}"`);
   }
