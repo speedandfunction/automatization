@@ -13,30 +13,25 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     this.pool = pool;
   }
 
-  private static mapRowToTargetUnit(
-    this: void,
-    {
-      group_id,
-      group_name,
-      project_id,
-      project_name,
-      user_id,
-      username,
-      spent_on,
-      total_hours,
-    }: TargetUnitRow,
-  ): TargetUnit {
-    return {
-      group_id: Number(group_id),
-      group_name: String(group_name),
-      project_id: Number(project_id),
-      project_name: String(project_name),
-      user_id: Number(user_id),
-      username: String(username),
-      spent_on: String(spent_on),
-      total_hours: Number(total_hours),
-    };
-  }
+  private static mapRowToTargetUnit = ({
+    group_id,
+    group_name,
+    project_id,
+    project_name,
+    user_id,
+    username,
+    spent_on,
+    total_hours,
+  }: TargetUnitRow): TargetUnit => ({
+    group_id: Number(group_id),
+    group_name: String(group_name),
+    project_id: Number(project_id),
+    project_name: String(project_name),
+    user_id: Number(user_id),
+    username: String(username),
+    spent_on: String(spent_on),
+    total_hours: Number(total_hours),
+  });
 
   async getTargetUnits(): Promise<TargetUnit[]> {
     try {
