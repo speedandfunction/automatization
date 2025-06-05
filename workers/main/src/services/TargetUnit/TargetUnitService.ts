@@ -4,7 +4,7 @@ import { ITargetUnitRepository } from './ITargetUnitRepository';
 export class TargetUnitService {
   constructor(private repo: ITargetUnitRepository) {}
 
-  async getProjectUnits(): Promise<TargetUnit[]> {
-    return this.repo.getProjectUnits();
+  async getTargetUnits(): Promise<TargetUnit[]> {
+    return this.repo.getTargetUnits();
   }
 }

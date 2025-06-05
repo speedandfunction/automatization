@@ -14,11 +14,3 @@ export interface TargetUnitRow extends RowDataPacket {
 export interface IPoolProvider {
   getPool(): Pool;
 }
-
-export type TargetUnitResult = {
-  fileLink: string;
-};
-
-export type EmployeeRatesResult = {
-  fileLink: string;
-};

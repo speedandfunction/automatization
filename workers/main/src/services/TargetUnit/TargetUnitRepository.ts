@@ -25,7 +25,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     this.pool = poolProvider.getPool();
   }
 
-  private static mapRowToProjectUnit(
+  private static mapRowToTargetUnit(
     this: void,
     {
       group_id,
@@ -50,7 +50,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     };
   }
 
-  async getProjectUnits(): Promise<TargetUnit[]> {
+  async getTargetUnits(): Promise<TargetUnit[]> {
     try {
       const [rows] =
         await this.pool.query<TargetUnitRow[]>(PROJECT_UNITS_QUERY);
@@ -59,11 +59,11 @@ export class TargetUnitRepository implements ITargetUnitRepository {
         throw new TargetUnitRepositoryError('Query did not return an array');
       }
 
-      return rows.map(TargetUnitRepository.mapRowToProjectUnit);
+      return rows.map(TargetUnitRepository.mapRowToTargetUnit);
     } catch (error) {
-      console.error('TargetUnitRepository.getProjectUnits error:', error);
+      console.error('TargetUnitRepository.getTargetUnits error:', error);
       throw new TargetUnitRepositoryError(
-        `TargetUnitRepository.getProjectUnits failed: ${(error as Error).message}`,
+        `TargetUnitRepository.getTargetUnits failed: ${(error as Error).message}`,
         error,
       );
     }

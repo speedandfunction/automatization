@@ -43,7 +43,7 @@ describe('TargetUnitRepository', () => {
     ];
 
     mockPool.query.mockResolvedValueOnce([rows]);
-    const result = await repo.getProjectUnits();
+    const result = await repo.getTargetUnits();
 
     expect(result).toEqual<Partial<TargetUnit>[]>([
       {
@@ -61,13 +61,13 @@ describe('TargetUnitRepository', () => {
 
   it('throws TargetUnitRepositoryError if query does not return array', async () => {
     mockPool.query.mockResolvedValueOnce([null]);
-    await expect(repo.getProjectUnits()).rejects.toThrow(
+    await expect(repo.getTargetUnits()).rejects.toThrow(
       TargetUnitRepositoryError,
     );
   });
 
   it('throws TargetUnitRepositoryError on query error', async () => {
     mockPool.query.mockRejectedValueOnce(new Error('db error'));
-    await expect(repo.getProjectUnits()).rejects.toThrow('db error');
+    await expect(repo.getTargetUnits()).rejects.toThrow('db error');
   });
 });
