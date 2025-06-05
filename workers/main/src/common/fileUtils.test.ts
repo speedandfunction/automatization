@@ -31,10 +31,6 @@ describe('fileUtils', () => {
       expect(fs.readFile).toHaveBeenCalledWith('test.json', 'utf-8');
     });
 
-    test('throws FileUtilsError for invalid path', async () => {
-      await expect(readJsonFile('')).rejects.toBeInstanceOf(FileUtilsError);
-    });
-
     test('throws FileUtilsError for invalid JSON', async () => {
       vi.mocked(fs.readFile).mockResolvedValueOnce('not-json');
       await expect(readJsonFile('bad.json')).rejects.toBeInstanceOf(
@@ -65,12 +61,6 @@ describe('fileUtils', () => {
         filePath,
         JSON.stringify(data, null, 2),
         'utf-8',
-      );
-    });
-
-    test('throws FileUtilsError for invalid path', async () => {
-      await expect(writeJsonFile('', {})).rejects.toBeInstanceOf(
-        FileUtilsError,
       );
     });
 

@@ -4,9 +4,6 @@ import path from 'path';
 import { FileUtilsError } from './errors';
 
 export async function readJsonFile<T = unknown>(filePath: string): Promise<T> {
-  if (!filePath || typeof filePath !== 'string') {
-    throw new FileUtilsError('Invalid file path provided to readJsonFile');
-  }
   try {
     const content = await fs.readFile(filePath, 'utf-8');
 
@@ -22,9 +19,6 @@ export async function writeJsonFile<T = object>(
   filePath: string,
   data: T,
 ): Promise<void> {
-  if (!filePath || typeof filePath !== 'string') {
-    throw new FileUtilsError('Invalid file path provided to writeJsonFile');
-  }
   try {
     const dir = path.dirname(filePath);
 
