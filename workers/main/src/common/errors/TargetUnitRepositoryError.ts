@@ -1,12 +1,12 @@
-export class FileUtilsError extends Error {
+export class TargetUnitRepositoryError extends Error {
   public cause?: unknown;
 
   constructor(message: string, cause?: unknown) {
     super(message);
-    this.name = 'FileUtilsError';
+    this.name = 'TargetUnitRepositoryError';
     this.cause = cause;
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, FileUtilsError);
+      Error.captureStackTrace(this, TargetUnitRepositoryError);
     }
   }
 }
