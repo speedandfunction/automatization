@@ -1,28 +1,16 @@
 import { Pool } from 'mysql2/promise';
 
+import { TargetUnitRepositoryError } from '../../common/errors';
 import { TargetUnit } from '../../common/types';
 import { ITargetUnitRepository } from './ITargetUnitRepository';
-import { PROJECT_UNITS_QUERY } from './queries';
-import { IPoolProvider, TargetUnitRow } from './types';
-
-export class TargetUnitRepositoryError extends Error {
-  constructor(
-    message: string,
-    public originalError?: unknown,
-  ) {
-    super(message);
-    this.name = 'TargetUnitRepositoryError';
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, TargetUnitRepositoryError);
-    }
-  }
-}
+import { TARGET_UNITS_QUERY } from './queries';
+import { TargetUnitRow } from './types';
 
 export class TargetUnitRepository implements ITargetUnitRepository {
   private readonly pool: Pool;
 
-  constructor(poolProvider: IPoolProvider) {
-    this.pool = poolProvider.getPool();
+  constructor(pool: Pool) {
+    this.pool = pool;
   }
 
   private static mapRowToTargetUnit(
@@ -52,8 +40,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
 
   async getTargetUnits(): Promise<TargetUnit[]> {
     try {
-      const [rows] =
-        await this.pool.query<TargetUnitRow[]>(PROJECT_UNITS_QUERY);
+      const [rows] = await this.pool.query<TargetUnitRow[]>(TARGET_UNITS_QUERY);
 
       if (!Array.isArray(rows)) {
         throw new TargetUnitRepositoryError('Query did not return an array');

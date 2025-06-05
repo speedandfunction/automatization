@@ -1,26 +1,20 @@
 import { Pool } from 'mysql2/promise';
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
+import { TargetUnitRepositoryError } from '../../common/errors';
 import { TargetUnit } from '../../common/types';
-import {
-  TargetUnitRepository,
-  TargetUnitRepositoryError,
-} from './TargetUnitRepository';
-import { IPoolProvider, TargetUnitRow } from './types';
+import { TargetUnitRepository } from './TargetUnitRepository';
+import { TargetUnitRow } from './types';
 
 describe('TargetUnitRepository', () => {
   let mockPool: { query: Mock };
-  let mockPoolProvider: IPoolProvider;
   let repo: TargetUnitRepository;
 
   beforeEach(() => {
     mockPool = {
       query: vi.fn(),
     };
-    mockPoolProvider = {
-      getPool: () => mockPool as unknown as Pool,
-    };
-    repo = new TargetUnitRepository(mockPoolProvider);
+    repo = new TargetUnitRepository(mockPool as unknown as Pool);
   });
 
   afterEach(() => {
@@ -68,6 +62,6 @@ describe('TargetUnitRepository', () => {
 
   it('throws TargetUnitRepositoryError on query error', async () => {
     mockPool.query.mockRejectedValueOnce(new Error('db error'));
-    await expect(repo.getTargetUnits()).rejects.toThrow('db error');
+    await expect(repo.getTargetUnits()).rejects.toThrowError('db error');
   });
 });

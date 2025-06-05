@@ -1,4 +1,4 @@
-import { Pool, RowDataPacket } from 'mysql2/promise';
+import { RowDataPacket } from 'mysql2/promise';
 
 export interface TargetUnitRow extends RowDataPacket {
   group_id: number;
@@ -9,8 +9,4 @@ export interface TargetUnitRow extends RowDataPacket {
   username: string;
   spent_on: string;
   total_hours: number;
-}
-
-export interface IPoolProvider {
-  getPool(): Pool;
 }
