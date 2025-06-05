@@ -48,7 +48,6 @@ export class TargetUnitRepository implements ITargetUnitRepository {
 
       return rows.map(TargetUnitRepository.mapRowToTargetUnit);
     } catch (error) {
-      console.error('TargetUnitRepository.getTargetUnits error:', error);
       throw new TargetUnitRepositoryError(
         `TargetUnitRepository.getTargetUnits failed: ${(error as Error).message}`,
         error,
