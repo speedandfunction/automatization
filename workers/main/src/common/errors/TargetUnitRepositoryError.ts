@@ -1,12 +1,7 @@
-export class TargetUnitRepositoryError extends Error {
-  public cause?: unknown;
+import { AppError } from './AppError';
 
-  constructor(message: string, cause?: unknown) {
-    super(message);
-    this.name = 'TargetUnitRepositoryError';
-    this.cause = cause;
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, TargetUnitRepositoryError);
-    }
+export class TargetUnitRepositoryError extends AppError {
+  constructor(message: string) {
+    super(message, 'TargetUnitRepositoryError');
   }
 }
