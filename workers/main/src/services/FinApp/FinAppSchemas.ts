@@ -1,4 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+
+import { Employee, Project } from './types';
 
 export const historySchema = new mongoose.Schema(
   {
@@ -12,8 +14,10 @@ export const employeeSchema = new mongoose.Schema({
   history: historySchema,
 });
 
-export const EmployeeModel =
-  mongoose.models.Employee || mongoose.model('Employee', employeeSchema);
+export const EmployeeModel = mongoose.model<Employee & Document>(
+  'Employee',
+  employeeSchema,
+);
 
 export const projectSchema = new mongoose.Schema({
   redmine_id: { type: Number, required: true, index: true },
@@ -21,5 +25,7 @@ export const projectSchema = new mongoose.Schema({
   history: historySchema,
 });
 
-export const ProjectModel =
-  mongoose.models.Project || mongoose.model('Project', projectSchema);
+export const ProjectModel = mongoose.model<Project & Document>(
+  'Project',
+  projectSchema,
+);
