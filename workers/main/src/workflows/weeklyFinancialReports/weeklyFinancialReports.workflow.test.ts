@@ -7,9 +7,6 @@ vi.mock('@temporalio/workflow', () => ({
     getTargetUnits: vi
       .fn()
       .mockResolvedValue({ fileLink: 'sub-dir/mocked-link.json' }),
-    getFinAppData: vi
-      .fn()
-      .mockResolvedValue({ fileLink: 'sub-dir/mocked-link.json' }),
   }),
 }));
 
