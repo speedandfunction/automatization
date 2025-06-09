@@ -45,7 +45,6 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     } catch (error) {
       throw new TargetUnitRepositoryError(
         `TargetUnitRepository.getTargetUnits failed: ${(error as Error).message}`,
-        error,
       );
     }
   }
