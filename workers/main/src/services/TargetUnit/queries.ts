@@ -1,3 +1,5 @@
+const TARGET_UNITS_GROUP = 'Weekly Financial Report';
+
 export const TARGET_UNITS_QUERY = `SELECT
   group_id,
   group_name,
@@ -18,11 +20,13 @@ FROM (
     te.spent_on AS spent_on,
     te.hours AS total_hours
   FROM users AS g
+  JOIN custom_values as cv ON  cv.customized_id = g.id
   JOIN members AS m ON m.user_id = g.id
   JOIN projects AS p ON p.id = m.project_id
   JOIN time_entries te ON te.project_id = p.id
   JOIN users AS u ON u.id = te.user_id
   WHERE g.type = 'Group'
+  	AND cv.customized_type = 'Principal' and cv.value='${TARGET_UNITS_GROUP}'
     AND te.spent_on BETWEEN DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 7 DAY)
                         AND DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY)
 ) t
