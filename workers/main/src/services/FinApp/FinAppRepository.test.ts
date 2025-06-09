@@ -63,7 +63,7 @@ describe('FinAppRepository', () => {
   describe('getEmployees', () => {
     it('should return employees when EmployeeModel.find resolves', async () => {
       mockEmployeeFindSuccess();
-      const result = await repo.getEmployees([1]);
+      const result = await repo.getEmployeesByRedmineIds([1]);
 
       expect(result).toEqual(mockEmployees);
       expect(vi.mocked(EmployeeModel).find).toHaveBeenCalledWith(
@@ -74,7 +74,7 @@ describe('FinAppRepository', () => {
 
     it('should throw FinAppRepositoryError when EmployeeModel.find throws', async () => {
       mockEmployeeFindError();
-      await expect(repo.getEmployees([1])).rejects.toThrow(
+      await expect(repo.getEmployeesByRedmineIds([1])).rejects.toThrow(
         FinAppRepositoryError,
       );
     });
@@ -83,7 +83,7 @@ describe('FinAppRepository', () => {
   describe('getProjects', () => {
     it('should return projects when ProjectModel.find resolves', async () => {
       mockProjectFindSuccess();
-      const result = await repo.getProjects([2]);
+      const result = await repo.getProjectsByRedmineIds([2]);
 
       expect(result).toEqual(mockProjects);
       expect(vi.mocked(ProjectModel).find).toHaveBeenCalledWith(
@@ -94,7 +94,7 @@ describe('FinAppRepository', () => {
 
     it('should throw FinAppRepositoryError when ProjectModel.find throws', async () => {
       mockProjectFindError();
-      await expect(repo.getProjects([2])).rejects.toThrow(
+      await expect(repo.getProjectsByRedmineIds([2])).rejects.toThrow(
         FinAppRepositoryError,
       );
     });
