@@ -2,7 +2,9 @@ import { proxyActivities } from '@temporalio/workflow';
 
 import type * as activities from '../../activities/weeklyFinancialReports';
 
-const { getTargetUnits, fetchFinancialAppData } = proxyActivities<typeof activities>({
+const { getTargetUnits, fetchFinancialAppData } = proxyActivities<
+  typeof activities
+>({
   startToCloseTimeout: '10 minutes',
 });
 
