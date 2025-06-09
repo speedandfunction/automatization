@@ -19,15 +19,47 @@ vi.mock('./FinAppSchemas', () => {
 describe('FinAppRepository', () => {
   let repo: FinAppRepository;
 
+  // Mock data representing a typical Employee document as returned from the database.
   const mockEmployees: Employee[] = [
-    { redmine_id: 1, history: { rate: { '2024-01-01': 100 } } },
+    {
+      redmine_id: 1,
+      history: {
+        rate: {
+          '2017-01-01': 100,
+          '2017-07-01': 200,
+          '2018-04-01': 300,
+        },
+      },
+      name: 'John Doe',
+      sorting: 95,
+      updatedAt: new Date('2024-11-26T10:54:02.372Z'),
+      email: 'john.dow@lvh.me',
+      slack_id: 'U016XUNJWES',
+      is_am: false,
+      is_pm: false,
+      is_pl: false,
+    },
   ];
 
+  // Mock data representing a typical Project document as returned from the database.
   const mockProjects: Project[] = [
     {
-      redmine_id: 2,
-      quick_books_id: 10,
-      history: { rate: { '2024-01-01': 200 } },
+      redmine_id: 550,
+      quick_books_id: undefined,
+      history: {
+        rate: {
+          '2019-10-01': 75,
+          '2020-06-01': 100,
+        },
+      },
+      name: 'Example Project',
+      sorting: 0,
+      is_hidden: false,
+      rg_project_id: 0,
+      createdAt: new Date('2019-10-28T12:24:14.146Z'),
+      updatedAt: new Date('2021-01-14T14:56:00.807Z'),
+      migrationVersion: 10,
+      firstWorkingDay: new Date('2019-10-21T00:00:00.000Z'),
     },
   ];
 
@@ -83,18 +115,18 @@ describe('FinAppRepository', () => {
   describe('getProjects', () => {
     it('should return projects when ProjectModel.find resolves', async () => {
       mockProjectFindSuccess();
-      const result = await repo.getProjectsByRedmineIds([2]);
+      const result = await repo.getProjectsByRedmineIds([550]);
 
       expect(result).toEqual(mockProjects);
       expect(vi.mocked(ProjectModel).find).toHaveBeenCalledWith(
-        { redmine_id: { $in: [2] } },
+        { redmine_id: { $in: [550] } },
         { 'redmine_id': 1, 'quick_books_id': 1, 'history.rate': 1 },
       );
     });
 
     it('should throw FinAppRepositoryError when ProjectModel.find throws', async () => {
       mockProjectFindError();
-      await expect(repo.getProjectsByRedmineIds([2])).rejects.toThrow(
+      await expect(repo.getProjectsByRedmineIds([550])).rejects.toThrow(
         FinAppRepositoryError,
       );
     });
