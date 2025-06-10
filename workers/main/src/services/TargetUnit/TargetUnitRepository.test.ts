@@ -2,11 +2,10 @@ import { Pool } from 'mysql2/promise';
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { TargetUnitRepositoryError } from '../../common/errors';
-import { GroupName, TargetUnit } from '../../common/types';
+import { TargetUnit } from '../../common/types';
+import { GroupNameEnum } from '../../configs/weeklyFinancialReport';
 import { TargetUnitRepository } from './TargetUnitRepository';
 import { TargetUnitRow } from './types';
-
-const groupName: GroupName = 'SD Weekly Financial Report';
 
 describe('TargetUnitRepository', () => {
   let mockPool: { query: Mock };
@@ -39,7 +38,7 @@ describe('TargetUnitRepository', () => {
     ];
 
     mockPool.query.mockResolvedValueOnce([rows]);
-    const result = await repo.getTargetUnits(groupName);
+    const result = await repo.getTargetUnits(GroupNameEnum.SD_REPORT);
 
     expect(result).toEqual<Partial<TargetUnit>[]>([
       {
@@ -57,15 +56,15 @@ describe('TargetUnitRepository', () => {
 
   it('throws TargetUnitRepositoryError if query does not return array', async () => {
     mockPool.query.mockResolvedValueOnce([null]);
-    await expect(repo.getTargetUnits(groupName)).rejects.toThrow(
+    await expect(repo.getTargetUnits(GroupNameEnum.SD_REPORT)).rejects.toThrow(
       TargetUnitRepositoryError,
     );
   });
 
   it('throws TargetUnitRepositoryError on query error', async () => {
     mockPool.query.mockRejectedValueOnce(new Error('db error'));
-    await expect(repo.getTargetUnits(groupName)).rejects.toThrowError(
-      'db error',
-    );
+    await expect(
+      repo.getTargetUnits(GroupNameEnum.SD_REPORT),
+    ).rejects.toThrowError('db error');
   });
 });

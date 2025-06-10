@@ -1,3 +1,5 @@
+import { GroupNameEnum } from '../configs';
+
 export interface TargetUnit {
   group_id: number;
   group_name: string;
@@ -11,6 +13,4 @@ export interface TargetUnit {
   projectRate?: number;
 }
 
-export type GroupName =
-  | 'SD Weekly Financial Report'
-  | 'ED Weekly Financial Report';
+export type GroupName = (typeof GroupNameEnum)[keyof typeof GroupNameEnum];
