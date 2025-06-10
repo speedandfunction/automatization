@@ -1,4 +1,4 @@
-export const getTargetUnitsQuery = `SELECT
+export const TARGET_UNITS_QUERY = `SELECT
     group_id,
     group_name,
     project_id,

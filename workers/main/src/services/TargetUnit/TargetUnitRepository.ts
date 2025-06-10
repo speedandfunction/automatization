@@ -3,7 +3,7 @@ import { Pool } from 'mysql2/promise';
 import { TargetUnitRepositoryError } from '../../common/errors';
 import { GroupName, TargetUnit } from '../../common/types';
 import { ITargetUnitRepository } from './ITargetUnitRepository';
-import { getTargetUnitsQuery } from './queries';
+import { TARGET_UNITS_QUERY } from './queries';
 import { TargetUnitRow } from './types';
 
 export class TargetUnitRepository implements ITargetUnitRepository {
@@ -36,7 +36,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
   async getTargetUnits(groupName: GroupName): Promise<TargetUnit[]> {
     try {
       const [rows] = await this.pool.query<TargetUnitRow[]>(
-        getTargetUnitsQuery,
+        TARGET_UNITS_QUERY,
         [groupName],
       );
 
