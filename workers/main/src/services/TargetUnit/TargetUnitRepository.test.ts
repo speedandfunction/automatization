@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { TargetUnitRepositoryError } from '../../common/errors';
 import { TargetUnit } from '../../common/types';
+import { defaultGroupName } from '../../workflows';
 import { TargetUnitRepository } from './TargetUnitRepository';
 import { TargetUnitRow } from './types';
 
@@ -37,7 +38,7 @@ describe('TargetUnitRepository', () => {
     ];
 
     mockPool.query.mockResolvedValueOnce([rows]);
-    const result = await repo.getTargetUnits();
+    const result = await repo.getTargetUnits(defaultGroupName);
 
     expect(result).toEqual<Partial<TargetUnit>[]>([
       {
@@ -55,13 +56,15 @@ describe('TargetUnitRepository', () => {
 
   it('throws TargetUnitRepositoryError if query does not return array', async () => {
     mockPool.query.mockResolvedValueOnce([null]);
-    await expect(repo.getTargetUnits()).rejects.toThrow(
+    await expect(repo.getTargetUnits(defaultGroupName)).rejects.toThrow(
       TargetUnitRepositoryError,
     );
   });
 
   it('throws TargetUnitRepositoryError on query error', async () => {
     mockPool.query.mockRejectedValueOnce(new Error('db error'));
-    await expect(repo.getTargetUnits()).rejects.toThrowError('db error');
+    await expect(repo.getTargetUnits(defaultGroupName)).rejects.toThrowError(
+      'db error',
+    );
   });
 });

@@ -11,8 +11,14 @@ vi.mock('@temporalio/workflow', () => ({
 }));
 
 describe('weeklyFinancialReportsWorkflow', () => {
-  it('returns the fileLink from getTargetUnits', async () => {
+  it('returns the fileLink from getTargetUnits (default group)', async () => {
     const result = await weeklyFinancialReportsWorkflow();
+
+    expect(result).toBe('sub-dir/mocked-link.json');
+  });
+
+  it('returns the fileLink from getTargetUnits (custom group)', async () => {
+    const result = await weeklyFinancialReportsWorkflow('Custom Group');
 
     expect(result).toBe('sub-dir/mocked-link.json');
   });
