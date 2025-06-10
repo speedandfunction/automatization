@@ -18,7 +18,7 @@ export async function weeklyFinancialReportsWorkflow(
       'weeklyFinancialReportsWorkflow',
     );
   }
-  const targetUnits = await getTargetUnits();
+  const targetUnits = await getTargetUnits(groupName);
 
   return targetUnits.fileLink;
 }
