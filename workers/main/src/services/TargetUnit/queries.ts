@@ -1,5 +1,6 @@
 export function getTargetUnitsQuery(groupName: string) {
-  return `SELECT
+  return {
+    sql: `SELECT
     group_id,
     group_name,
     project_id,
@@ -25,7 +26,7 @@ export function getTargetUnitsQuery(groupName: string) {
     JOIN time_entries te ON te.project_id = p.id
     JOIN users AS u ON u.id = te.user_id
     WHERE g.type = 'Group'
-      AND cv.customized_type = 'Principal' and cv.value='${groupName}'
+      AND cv.customized_type = 'Principal' and cv.value = ?
       AND te.spent_on BETWEEN DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 7 DAY)
                           AND DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY)
   ) t
@@ -41,5 +42,7 @@ export function getTargetUnitsQuery(groupName: string) {
     group_name ASC,
     project_name ASC,
     username ASC,
-    spent_on ASC`;
+    spent_on ASC`,
+    params: [groupName],
+  };
 }
