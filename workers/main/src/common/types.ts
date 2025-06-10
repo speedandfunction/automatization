@@ -10,3 +10,7 @@ export interface TargetUnit {
   rate?: number;
   projectRate?: number;
 }
+
+export type GroupName =
+  | 'SD Weekly Financial Report'
+  | 'ED Weekly Financial Report';

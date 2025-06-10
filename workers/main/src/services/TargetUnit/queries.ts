@@ -1,6 +1,4 @@
-export function getTargetUnitsQuery(groupName: string) {
-  return {
-    sql: `SELECT
+export const getTargetUnitsQuery = `SELECT
     group_id,
     group_name,
     project_id,
@@ -42,7 +40,4 @@ export function getTargetUnitsQuery(groupName: string) {
     group_name ASC,
     project_name ASC,
     username ASC,
-    spent_on ASC`,
-    params: [groupName],
-  };
-}
+    spent_on ASC`;

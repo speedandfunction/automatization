@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { GroupName } from '../../common/types';
 import { weeklyFinancialReportsWorkflow } from './weeklyFinancialReports.workflow';
+
+const groupName: GroupName = 'SD Weekly Financial Report';
 
 vi.mock('@temporalio/workflow', () => ({
   proxyActivities: () => ({
@@ -12,13 +15,7 @@ vi.mock('@temporalio/workflow', () => ({
 
 describe('weeklyFinancialReportsWorkflow', () => {
   it('returns the fileLink from getTargetUnits (default group)', async () => {
-    const result = await weeklyFinancialReportsWorkflow();
-
-    expect(result).toBe('sub-dir/mocked-link.json');
-  });
-
-  it('returns the fileLink from getTargetUnits (custom group)', async () => {
-    const result = await weeklyFinancialReportsWorkflow('Custom Group');
+    const result = await weeklyFinancialReportsWorkflow(groupName);
 
     expect(result).toBe('sub-dir/mocked-link.json');
   });

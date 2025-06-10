@@ -1,7 +1,7 @@
 import { Pool } from 'mysql2/promise';
 
 import { TargetUnitRepositoryError } from '../../common/errors';
-import { TargetUnit } from '../../common/types';
+import { GroupName, TargetUnit } from '../../common/types';
 import { ITargetUnitRepository } from './ITargetUnitRepository';
 import { getTargetUnitsQuery } from './queries';
 import { TargetUnitRow } from './types';
@@ -33,10 +33,12 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     total_hours: Number(total_hours),
   });
 
-  async getTargetUnits(groupName: string): Promise<TargetUnit[]> {
+  async getTargetUnits(groupName: GroupName): Promise<TargetUnit[]> {
     try {
-      const query = getTargetUnitsQuery(groupName);
-      const [rows] = await this.pool.query<TargetUnitRow[]>(query);
+      const [rows] = await this.pool.query<TargetUnitRow[]>(
+        getTargetUnitsQuery,
+        [groupName],
+      );
 
       if (!Array.isArray(rows)) {
         throw new TargetUnitRepositoryError('Query did not return an array');

@@ -3,8 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { AppError } from '../../common/errors';
 import { writeJsonFile } from '../../common/fileUtils';
 import { RedminePool } from '../../common/RedminePool';
-import { defaultGroupName } from '../../workflows';
+import { GroupName } from '../../common/types';
 import { getTargetUnits } from './getTargetUnits';
+
+const groupName: GroupName = 'SD Weekly Financial Report';
 
 type TargetUnit = {
   group_id: number;
@@ -116,16 +118,7 @@ describe('getTargetUnits', () => {
   it('returns fileLink when successful (default group)', async () => {
     mockRepo(true);
     writeJsonFileMock.mockResolvedValue(undefined);
-    const result = await getTargetUnits(defaultGroupName);
-
-    expect(result).toEqual({ fileLink: mockFile });
-    expect(writeJsonFile).toHaveBeenCalledWith(mockFile, mockUnits);
-  });
-
-  it('returns fileLink when successful (custom group)', async () => {
-    mockRepo(true);
-    writeJsonFileMock.mockResolvedValue(undefined);
-    const result = await getTargetUnits('Custom Group');
+    const result = await getTargetUnits(groupName);
 
     expect(result).toEqual({ fileLink: mockFile });
     expect(writeJsonFile).toHaveBeenCalledWith(mockFile, mockUnits);
@@ -134,8 +127,8 @@ describe('getTargetUnits', () => {
   it('throws AppError when repo.getTargetUnits throws', async () => {
     mockRepo(false);
     writeJsonFileMock.mockResolvedValue(undefined);
-    await expect(getTargetUnits(defaultGroupName)).rejects.toThrow(AppError);
-    await expect(getTargetUnits(defaultGroupName)).rejects.toThrow(
+    await expect(getTargetUnits(groupName)).rejects.toThrow(AppError);
+    await expect(getTargetUnits(groupName)).rejects.toThrow(
       'Failed to get Target Units',
     );
   });
@@ -143,8 +136,8 @@ describe('getTargetUnits', () => {
   it('throws AppError when writeJsonFile throws', async () => {
     mockRepo(true);
     writeJsonFileMock.mockRejectedValue(new Error('fail-write'));
-    await expect(getTargetUnits(defaultGroupName)).rejects.toThrow(AppError);
-    await expect(getTargetUnits(defaultGroupName)).rejects.toThrow(
+    await expect(getTargetUnits(groupName)).rejects.toThrow(AppError);
+    await expect(getTargetUnits(groupName)).rejects.toThrow(
       'Failed to get Target Units',
     );
   });
@@ -152,7 +145,7 @@ describe('getTargetUnits', () => {
   it('always ends the Redmine pool', async () => {
     mockRepo(true);
     writeJsonFileMock.mockResolvedValue(undefined);
-    await getTargetUnits(defaultGroupName);
+    await getTargetUnits(groupName);
     expect(endPool).toHaveBeenCalled();
   });
 });

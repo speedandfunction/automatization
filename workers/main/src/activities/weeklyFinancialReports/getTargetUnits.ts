@@ -1,6 +1,7 @@
 import { AppError } from '../../common/errors';
 import { writeJsonFile } from '../../common/fileUtils';
 import { RedminePool } from '../../common/RedminePool';
+import { GroupName } from '../../common/types';
 import { redmineDatabaseConfig } from '../../configs/redmineDatabase';
 import { TargetUnitRepository } from '../../services/TargetUnit/TargetUnitRepository';
 
@@ -9,7 +10,7 @@ interface GetTargetUnitsResult {
 }
 
 export const getTargetUnits = async (
-  groupName: string,
+  groupName: GroupName,
 ): Promise<GetTargetUnitsResult> => {
   const redminePool = new RedminePool(redmineDatabaseConfig);
 
