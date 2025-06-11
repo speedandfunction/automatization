@@ -1,4 +1,4 @@
-import { GroupNameEnum } from '../configs';
+import { GroupNameEnum } from '../configs/weeklyFinancialReport';
 
 export interface TargetUnit {
   group_id: number;
