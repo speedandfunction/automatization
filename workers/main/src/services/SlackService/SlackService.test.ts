@@ -1,7 +1,7 @@
 import { WebAPICallResult } from '@slack/web-api';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { AppError } from '../../common/errors';
+import { SlackRepositoryError } from '../../common/errors';
 import { SlackService } from './SlackService';
 
 vi.mock('@slack/web-api', () => ({
@@ -62,7 +62,9 @@ describe('SlackService', () => {
       .spyOn(service['client'].chat, 'postMessage')
       .mockResolvedValue(errorRes);
 
-    await expect(service.postMessage('fail')).rejects.toThrow(AppError);
+    await expect(service.postMessage('fail')).rejects.toThrow(
+      SlackRepositoryError,
+    );
 
     postMessageSpy.mockRestore();
   });

@@ -1,6 +1,6 @@
 import { WebClient } from '@slack/web-api';
 
-import { AppError } from '../../common/errors';
+import { SlackRepositoryError } from '../../common/errors';
 import { slackConfig } from '../../configs/slack';
 
 export class SlackService {
@@ -8,23 +8,31 @@ export class SlackService {
 
   constructor() {
     if (!slackConfig.token) {
-      throw new AppError('Slack token not set', 'SlackServiceError');
+      throw new SlackRepositoryError('Slack token not set');
     }
     this.client = new WebClient(slackConfig.token);
   }
 
   async postMessage(text: string, thread?: string) {
     if (!slackConfig.channelId) {
-      throw new AppError('Slack channel ID not set', 'SlackServiceError');
+      throw new SlackRepositoryError('Slack channel ID not set');
     }
-    const res = await this.client.chat.postMessage({
-      channel: slackConfig.channelId,
-      text,
-      ...(thread ? { thread_ts: thread } : {}),
-    });
+    let res;
+
+    try {
+      res = await this.client.chat.postMessage({
+        channel: slackConfig.channelId,
+        text,
+        ...(thread ? { thread_ts: thread } : {}),
+      });
+    } catch (error) {
+      throw new SlackRepositoryError(
+        `SlackService.postMessage failed: ${(error as Error).message}`,
+      );
+    }
 
     if (!res.ok) {
-      throw new AppError(`Slack API error: ${res.error}`, 'SlackServiceError');
+      throw new SlackRepositoryError(`Slack API error: ${res.error}`);
     }
 
     return res;
