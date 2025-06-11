@@ -59,7 +59,7 @@ describe('SlackService', () => {
     const errorRes: WebAPICallResult = { ok: false, error: 'invalid_auth' };
     const service = new SlackService();
     const postMessageSpy = vi
-      .spyOn(service['client'].chat, 'postMessage')
+      .spyOn(service.getClientForTest().chat, 'postMessage')
       .mockResolvedValue(errorRes);
 
     await expect(service.postMessage('fail')).rejects.toThrow(

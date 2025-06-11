@@ -37,4 +37,8 @@ export class SlackService {
 
     return res;
   }
+
+  public getClientForTest() {
+    return this.client;
+  }
 }
