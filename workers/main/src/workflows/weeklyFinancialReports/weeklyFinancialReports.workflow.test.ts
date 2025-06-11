@@ -7,42 +7,38 @@ import { weeklyFinancialReportsWorkflow } from './weeklyFinancialReports.workflo
 
 vi.mock('@temporalio/workflow', () => {
   const getTargetUnitsMock = vi.fn();
+  const fetchFinancialAppDataMock = vi.fn();
 
   return {
     proxyActivities: () => ({
       getTargetUnits: getTargetUnitsMock,
+      fetchFinancialAppData: fetchFinancialAppDataMock,
     }),
     __getTargetUnitsMock: () => getTargetUnitsMock,
+    __getFetchFinancialAppDataMock: () => fetchFinancialAppDataMock,
   };
 });
 
 describe('weeklyFinancialReportsWorkflow', () => {
   type WorkflowModuleWithMock = typeof workflowModule & {
     __getTargetUnitsMock: () => ReturnType<typeof vi.fn>;
+    __getFetchFinancialAppDataMock: () => ReturnType<typeof vi.fn>;
   };
   const getTargetUnitsMock = (
     workflowModule as WorkflowModuleWithMock
   ).__getTargetUnitsMock();
+  const fetchFinancialAppDataMock = (
+    workflowModule as WorkflowModuleWithMock
+  ).__getFetchFinancialAppDataMock();
 
   beforeEach(() => {
     getTargetUnitsMock.mockReset();
+    fetchFinancialAppDataMock.mockReset();
   });
-
-  it.each([[GroupNameEnum.SD_REPORT], [GroupNameEnum.ED_REPORT]])(
-    'returns the fileLink from getTargetUnits for group %s',
-    async (groupName: GroupNameEnum) => {
-      getTargetUnitsMock.mockResolvedValueOnce({
-        fileLink: `${groupName}-mocked-link.json`,
-      });
-      const result = await weeklyFinancialReportsWorkflow(groupName);
-
-      expect(result).toBe(`${groupName}-mocked-link.json`);
-    },
-  );
 
   it('throws AppError for invalid group name', async () => {
     const allowedValues = Object.values(GroupNameEnum).join('", "');
-    const expectedMessage = `Invalid groupName paramter: INVALID_GROUP. Allowed values: "${allowedValues}"`;
+    const expectedMessage = `Invalid groupName parameter: INVALID_GROUP. Allowed values: "${allowedValues}"`;
 
     await expect(
       weeklyFinancialReportsWorkflow(
@@ -61,5 +57,27 @@ describe('weeklyFinancialReportsWorkflow', () => {
     await expect(
       weeklyFinancialReportsWorkflow(GroupNameEnum.SD_REPORT),
     ).rejects.toThrow('activity error');
+  });
+
+  it('propagates error from fetchFinancialAppData', async () => {
+    getTargetUnitsMock.mockResolvedValueOnce({ fileLink: 'file.json' });
+    fetchFinancialAppDataMock.mockRejectedValueOnce(new Error('fetch error'));
+    await expect(
+      weeklyFinancialReportsWorkflow(GroupNameEnum.SD_REPORT),
+    ).rejects.toThrow('fetch error');
+  });
+
+  it('returns fileLink on success', async () => {
+    getTargetUnitsMock.mockResolvedValueOnce({ fileLink: 'file.json' });
+    fetchFinancialAppDataMock.mockResolvedValueOnce({
+      fileLink: 'result.json',
+    });
+    const result = await weeklyFinancialReportsWorkflow(
+      GroupNameEnum.SD_REPORT,
+    );
+
+    expect(result).toBe('result.json');
+    expect(getTargetUnitsMock).toHaveBeenCalledWith(GroupNameEnum.SD_REPORT);
+    expect(fetchFinancialAppDataMock).toHaveBeenCalledWith('file.json');
   });
 });
