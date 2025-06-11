@@ -10,7 +10,9 @@ export function getRateByDate(
     return undefined;
   }
 
-  const sortedDates = Object.keys(rateHistory).sort();
+  const sortedDates = Object.keys(rateHistory).sort(
+    (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+  );
   let lastRate: number | undefined = undefined;
 
   for (const rateDate of sortedDates) {
