@@ -16,11 +16,11 @@ export async function weeklyFinancialReportsWorkflow(
 ): Promise<string> {
   if (!(Object.values(GroupNameEnum) as GroupName[]).includes(groupName)) {
     throw new AppError(
-      `Invalid groupName paramter: ${groupName}. Allowed values: "${Object.values(GroupNameEnum).join('", "')}"`,
+      `Invalid groupName parameter: ${groupName}. Allowed values: "${Object.values(GroupNameEnum).join('", "')}"`,
       'weeklyFinancialReportsWorkflow',
     );
   }
-  const targetUnits = await getTargetUnits();
+  const targetUnits = await getTargetUnits(groupName);
   const finData = await fetchFinancialAppData(targetUnits.fileLink);
 
   return finData.fileLink;

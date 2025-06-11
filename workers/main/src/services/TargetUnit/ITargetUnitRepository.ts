@@ -1,5 +1,5 @@
-import { TargetUnit } from '../../common/types';
+import { GroupName, TargetUnit } from '../../common/types';
 
 export interface ITargetUnitRepository {
-  getTargetUnits(): Promise<TargetUnit[]>;
+  getTargetUnits(groupName: GroupName): Promise<TargetUnit[]>;
 }
