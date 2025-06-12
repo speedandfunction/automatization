@@ -66,17 +66,19 @@ export default [
       // Code complexity and size rules
       'max-depth': ['error', 4],
       'max-lines': ['error', 300],
+      'max-lines-per-function': ['error', 50],
       'max-nested-callbacks': ['error', 3],
       'max-params': ['error', 5],
       'max-statements': ['error', 50],
       'complexity': ['error', 15],
     },
   },
-  // Override for test files to allow more nested callbacks
+  // Override for test files to allow more nested callbacks and longer functions
   {
     files: ['**/*.test.ts', '**/*.test.js'],
     rules: {
       'max-nested-callbacks': ['error', 4],
+      'max-lines-per-function': ['error', 150],
     },
   },
 ];
