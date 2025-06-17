@@ -12,3 +12,9 @@ export interface IWeeklyFinancialReportRepository {
     params: GenerateReportInput,
   ): Promise<{ summary: string; details: string }>;
 }
+
+export interface AggregateGroupDataInput {
+  groupUnits: TargetUnit[];
+  employees: Employee[];
+  projects: Project[];
+}

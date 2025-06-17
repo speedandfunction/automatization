@@ -1,26 +1,30 @@
-import { formatCurrency, getRateByDate } from '../../common/formatUtils';
+import { getRateByDate } from '../../common/formatUtils';
+import type { TargetUnit } from '../../common/types';
+import type { Employee, Project } from '../FinApp';
+import { GroupAggregator } from './GroupAggregator';
 import {
+  AggregateGroupDataInput,
   GenerateReportInput,
   IWeeklyFinancialReportRepository,
 } from './IWeeklyFinancialReportRepository';
+import {
+  MarginalityCalculator,
+  MarginalityLevel,
+} from './MarginalityCalculator';
+import { WeeklyFinancialReportFormatter } from './WeeklyFinancialReportFormatter';
 
-function composeWeeklyReportTitle(currentDate: Date): string {
-  const periodStart = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    currentDate.getDate() - ((currentDate.getDay() + 6) % 7) - 7,
-  )
-    .toISOString()
-    .slice(0, 10);
-  const periodEnd = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    currentDate.getDate() - ((currentDate.getDay() + 6) % 7) - 1,
-  )
-    .toISOString()
-    .slice(0, 10);
-
-  return `*Weekly Financial Summary for Target Units* (${periodStart} - ${periodEnd})`;
+interface ProcessTargetUnitInput {
+  targetUnit: TargetUnit;
+  targetUnits: TargetUnit[];
+  employees: Employee[];
+  projects: Project[];
+  processedGroupIds: Set<number>;
+  currentQuarter: string;
+  highMarginalityGroups: string[];
+  mediumMarginalityGroups: string[];
+  lowMarginalityGroups: string[];
+  updateReportDetails: (detail: string) => void;
+  updateTotalReportedHours: (hours: number) => void;
 }
 
 export class WeeklyFinancialReportRepository
@@ -32,105 +36,167 @@ export class WeeklyFinancialReportRepository
     projects,
   }: GenerateReportInput) {
     const currentDate = new Date();
-    const reportTitle = composeWeeklyReportTitle(currentDate);
-
+    const reportTitle = this.composeWeeklyReportTitle(currentDate);
     const processedGroupIds = new Set<number>();
-    let reportDetails = ``;
+    let reportDetails = '';
     let totalReportedHours = 0;
     const currentQuarter = `Q${Math.floor(currentDate.getMonth() / 3) + 1}`;
-
-    const highMarginalityGroups: string[] = [];
-    const mediumMarginalityGroups: string[] = [];
-    const lowMarginalityGroups: string[] = [];
+    const highGroups: string[] = [];
+    const mediumGroups: string[] = [];
+    const lowGroups: string[] = [];
 
     for (const targetUnit of targetUnits) {
-      if (!processedGroupIds.has(targetUnit.group_id)) {
-        processedGroupIds.add(targetUnit.group_id);
-        const groupUnits = targetUnits.filter(
-          (unit) => unit.group_id === targetUnit.group_id,
-        );
-        const groupTotalHours = groupUnits.reduce(
-          (sum, unit) => sum + unit.total_hours,
-          0,
-        );
-
-        let groupTotalCogs = 0;
-        let groupTotalRevenue = 0;
-
-        for (const unit of groupUnits) {
-          const employee = employees.find((e) => e.redmine_id === unit.user_id);
-          const project = projects.find(
-            (p) => p.redmine_id === unit.project_id,
-          );
-          const date = unit.spent_on;
-          const employeeRate =
-            getRateByDate(employee?.history?.rate, date) || 0;
-          const projectRate = getRateByDate(project?.history?.rate, date) || 0;
-
-          groupTotalCogs += employeeRate * unit.total_hours;
-          groupTotalRevenue += projectRate * unit.total_hours;
-        }
-
-        const groupMarginAmount = groupTotalRevenue - groupTotalCogs;
-        const groupMarginalityPercent =
-          groupTotalRevenue > 0
-            ? (groupMarginAmount / groupTotalRevenue) * 100
-            : 0;
-
-        let marginalityIndicator = '';
-
-        if (groupMarginalityPercent >= 55) {
-          marginalityIndicator = ':arrowup:';
-          highMarginalityGroups.push(targetUnit.group_name);
-        } else if (groupMarginalityPercent >= 45) {
-          marginalityIndicator = ':large_yellow_circle:';
-          mediumMarginalityGroups.push(targetUnit.group_name);
-        } else {
-          marginalityIndicator = ':arrowdown:';
-          lowMarginalityGroups.push(targetUnit.group_name);
-        }
-
-        reportDetails += `${marginalityIndicator} *${targetUnit.group_name}* (${groupTotalHours}h)\n`;
-        reportDetails += `*Period*: ${currentQuarter}\n`;
-        reportDetails += `*Revenue*: ${formatCurrency(groupTotalRevenue)}\n`;
-        reportDetails += `*COGS*: ${formatCurrency(groupTotalCogs)}\n`;
-        reportDetails += `*Margin*: ${formatCurrency(groupMarginAmount)}\n`;
-        reportDetails += `*Marginality*: ${groupMarginalityPercent.toFixed(0)}%\n\n`;
-        totalReportedHours += groupTotalHours;
-      }
+      this.processTargetUnit({
+        targetUnit,
+        targetUnits,
+        employees,
+        projects,
+        processedGroupIds,
+        currentQuarter,
+        highMarginalityGroups: highGroups,
+        mediumMarginalityGroups: mediumGroups,
+        lowMarginalityGroups: lowGroups,
+        updateReportDetails: (detail) => (reportDetails += detail),
+        updateTotalReportedHours: (hours) => (totalReportedHours += hours),
+      });
     }
-    reportDetails += '\n*Total hours*: ' + totalReportedHours + 'h\n\n';
-    reportDetails += '*Notes:*\n';
-    reportDetails += '1. *Contract Type* is not implemented\n';
-    reportDetails += '2. *Effective Revenue* is not implemented\n';
-    reportDetails += '3. *Dept Tech* hours are not implemented\n\n';
+
     reportDetails +=
-      '*Legend*: Marginality :arrowup: ≥55%   :large_yellow_circle: 45-54%  :arrowdown: <45%';
+      WeeklyFinancialReportFormatter.formatFooter(totalReportedHours);
 
-    let reportSummary = `${reportTitle}\n`;
-
-    reportSummary += '________________________________\n';
-    reportSummary += ':arrowup: *Marginality is 55% or higher*:\n';
-    if (highMarginalityGroups.length) {
-      reportSummary += highMarginalityGroups.join('\n') + '\n';
-    }
-    reportSummary += '__________________________________\n';
-    reportSummary +=
-      ' :large_yellow_circle:  *Marginality is between 45-55%*:\n';
-    if (mediumMarginalityGroups.length) {
-      reportSummary += mediumMarginalityGroups.join('\n') + '\n';
-    }
-    reportSummary += '__________________________________\n';
-    reportSummary += ':arrowdown: *Marginality is under 45%*:\n';
-    if (lowMarginalityGroups.length) {
-      reportSummary += lowMarginalityGroups.join('\n') + '\n';
-    }
-    reportSummary += ' -------------------------------------------\n';
-    reportSummary += 'The specific figures will be available in the thread';
+    const reportSummary = WeeklyFinancialReportFormatter.formatSummary({
+      reportTitle,
+      highGroups,
+      mediumGroups,
+      lowGroups,
+    });
 
     return {
       details: reportDetails,
       summary: reportSummary,
     };
+  }
+
+  private processTargetUnit({
+    targetUnit,
+    targetUnits,
+    employees,
+    projects,
+    processedGroupIds,
+    currentQuarter,
+    highMarginalityGroups,
+    mediumMarginalityGroups,
+    lowMarginalityGroups,
+    updateReportDetails,
+    updateTotalReportedHours,
+  }: ProcessTargetUnitInput) {
+    if (!processedGroupIds.has(targetUnit.group_id)) {
+      processedGroupIds.add(targetUnit.group_id);
+
+      const { groupUnits, groupTotalHours } = GroupAggregator.aggregateGroup(
+        targetUnits,
+        targetUnit.group_id,
+      );
+      const { groupTotalCogs, groupTotalRevenue } = this.aggregateGroupData({
+        groupUnits,
+        employees,
+        projects,
+      });
+      const marginality = MarginalityCalculator.calculate(
+        groupTotalRevenue,
+        groupTotalCogs,
+      );
+
+      this.pushGroupByMarginality(marginality.level, targetUnit.group_name, {
+        highMarginalityGroups,
+        mediumMarginalityGroups,
+        lowMarginalityGroups,
+      });
+      updateReportDetails(
+        WeeklyFinancialReportFormatter.formatDetail({
+          groupName: targetUnit.group_name,
+          groupTotalHours,
+          currentQuarter,
+          groupTotalRevenue,
+          groupTotalCogs,
+          marginAmount: marginality.marginAmount,
+          marginalityPercent: marginality.marginalityPercent,
+          indicator: marginality.indicator,
+        }),
+      );
+      updateTotalReportedHours(groupTotalHours);
+    }
+  }
+
+  private pushGroupByMarginality(
+    level: MarginalityLevel,
+    groupName: string,
+    groups: {
+      highMarginalityGroups: string[];
+      mediumMarginalityGroups: string[];
+      lowMarginalityGroups: string[];
+    },
+  ) {
+    switch (level) {
+      case MarginalityLevel.High:
+        groups.highMarginalityGroups.push(groupName);
+        break;
+      case MarginalityLevel.Medium:
+        groups.mediumMarginalityGroups.push(groupName);
+        break;
+      case MarginalityLevel.Low:
+        groups.lowMarginalityGroups.push(groupName);
+        break;
+    }
+  }
+
+  private composeWeeklyReportTitle(currentDate: Date): string {
+    const periodStart = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate() - ((currentDate.getDay() + 6) % 7) - 7,
+    )
+      .toISOString()
+      .slice(0, 10);
+    const periodEnd = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate() - ((currentDate.getDay() + 6) % 7) - 1,
+    )
+      .toISOString()
+      .slice(0, 10);
+
+    return `*Weekly Financial Summary for Target Units* (${periodStart} - ${periodEnd})`;
+  }
+
+  private safeGetRate(
+    history: Employee['history'] | undefined,
+    date: string,
+  ): number {
+    if (!history || typeof history !== 'object' || !history.rate) return 0;
+
+    return getRateByDate(history.rate, date) || 0;
+  }
+
+  private aggregateGroupData({
+    groupUnits,
+    employees,
+    projects,
+  }: AggregateGroupDataInput) {
+    let groupTotalCogs = 0;
+    let groupTotalRevenue = 0;
+
+    for (const unit of groupUnits) {
+      const employee = employees.find((e) => e.redmine_id === unit.user_id);
+      const project = projects.find((p) => p.redmine_id === unit.project_id);
+      const date = unit.spent_on;
+      const employeeRate = this.safeGetRate(employee?.history, date);
+      const projectRate = this.safeGetRate(project?.history, date);
+
+      groupTotalCogs += employeeRate * unit.total_hours;
+      groupTotalRevenue += projectRate * unit.total_hours;
+    }
+
+    return { groupTotalCogs, groupTotalRevenue };
   }
 }
