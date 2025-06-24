@@ -22,6 +22,8 @@ export interface FormatDetailInput {
   indicator: string;
 }
 
+const spacer = ' '.repeat(4);
+
 export class WeeklyFinancialReportFormatter {
   static formatDetail = ({
     groupName,
@@ -34,11 +36,11 @@ export class WeeklyFinancialReportFormatter {
     indicator,
   }: FormatDetailInput) =>
     `${indicator} *${groupName}* (${groupTotalHours}h)\n` +
-    `*Period*: ${currentQuarter}\n` +
-    `*Revenue*: ${formatCurrency(groupTotalRevenue)}\n` +
-    `*COGS*: ${formatCurrency(groupTotalCogs)}\n` +
-    `*Margin*: ${formatCurrency(marginAmount)}\n` +
-    `*Marginality*: ${marginalityPercent.toFixed(0)}%\n\n`;
+    `${spacer}*Period*: ${currentQuarter}\n` +
+    `${spacer}*Revenue*: ${formatCurrency(groupTotalRevenue)}\n` +
+    `${spacer}*COGS*: ${formatCurrency(groupTotalCogs)}\n` +
+    `${spacer}*Margin*: ${formatCurrency(marginAmount)}\n` +
+    `${spacer}*Marginality*: ${marginalityPercent.toFixed(0)}%\n\n`;
 
   static formatSummary = ({
     reportTitle,
@@ -48,17 +50,23 @@ export class WeeklyFinancialReportFormatter {
   }: formatSummaryInput) => {
     let summary = `${reportTitle}\n`;
 
-    summary += '________________________________\n';
-    summary += `:arrowup: *Marginality is ${HIGH_MARGINALITY_THRESHOLD}% or higher*:\n`;
-    if (highGroups.length) summary += highGroups.join('\n') + '\n';
+    if (highGroups.length) {
+      summary += '________________________________\n';
+      summary += `:arrowup: *Marginality is ${HIGH_MARGINALITY_THRESHOLD}% or higher*:\n`;
+      summary += `${spacer}${highGroups.join(`\n${spacer}`)}\n`;
+    }
 
-    summary += '__________________________________\n';
-    summary += ` :large_yellow_circle:  *Marginality is between ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD}%*:\n`;
-    if (mediumGroups.length) summary += mediumGroups.join('\n') + '\n';
+    if (mediumGroups.length) {
+      summary += '__________________________________\n';
+      summary += ` :large_yellow_circle:  *Marginality is between ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD}%*:\n`;
+      summary += `${spacer}${mediumGroups.join(`\n${spacer}`)}\n`;
+    }
 
-    summary += '__________________________________\n';
-    summary += `:arrowdown: *Marginality is under ${MEDIUM_MARGINALITY_THRESHOLD}%*:\n`;
-    if (lowGroups.length) summary += lowGroups.join('\n') + '\n';
+    if (lowGroups.length) {
+      summary += '__________________________________\n';
+      summary += `:arrowdown: *Marginality is under ${MEDIUM_MARGINALITY_THRESHOLD}%*:\n`;
+      summary += `${spacer}${lowGroups.join(`\n${spacer}`)}\n`;
+    }
 
     summary += ' -------------------------------------------\n';
     summary += 'The specific figures will be available in the thread';
