@@ -36,15 +36,39 @@ describe('WeeklyFinancialReportRepository', () => {
       spent_on: '2024-06-01',
       total_hours: 5,
     },
+    {
+      group_id: 3,
+      group_name: 'Group C',
+      project_id: 30,
+      project_name: 'Project Z',
+      user_id: 103,
+      username: 'David',
+      spent_on: '2024-06-01',
+      total_hours: 100,
+    },
+    {
+      group_id: 4,
+      group_name: 'Group D',
+      project_id: 40,
+      project_name: 'Project W',
+      user_id: 104,
+      username: 'Eve',
+      spent_on: '2024-06-01',
+      total_hours: 10,
+    },
   ];
   const employees = [
     { redmine_id: 100, history: { rate: { '2024-01-01': 100 } } },
     { redmine_id: 101, history: { rate: { '2024-01-01': 200 } } },
     { redmine_id: 102, history: { rate: { '2024-01-01': 300 } } },
+    { redmine_id: 103, history: { rate: { '2024-01-01': 900 } } },
+    { redmine_id: 104, history: { rate: { '2024-01-01': 700 } } },
   ];
   const projects = [
     { redmine_id: 10, history: { rate: { '2024-01-01': 500 } } },
     { redmine_id: 20, history: { rate: { '2024-01-01': 1000 } } },
+    { redmine_id: 30, history: { rate: { '2024-01-01': 1500 } } },
+    { redmine_id: 40, history: { rate: { '2024-01-01': 1300 } } },
   ];
 
   it('generates a report with summary and details', async () => {
@@ -70,11 +94,15 @@ describe('WeeklyFinancialReportRepository', () => {
     // Group names should appear in summary
     expect(summary).toContain('Group A');
     expect(summary).toContain('Group B');
+    expect(summary).toContain('Group C');
+    expect(summary).toContain('Group D');
 
     // Check details content
     expect(details).toContain('Total hours');
     expect(details).toContain('Group A');
     expect(details).toContain('Group B');
+    expect(details).toContain('Group C');
+    expect(details).toContain('Group D');
     expect(details).toMatch(/\*Period\*: Q\d/);
     expect(details).toContain('Revenue');
     expect(details).toContain('COGS');
