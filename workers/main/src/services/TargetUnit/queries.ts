@@ -54,11 +54,11 @@ function buildRelatedProjectTimeEntries() {
     0 as project_hours,
     te.hours AS deptech_hours
     ${COMMON_FROM}
-        JOIN custom_values cv2 ON cv2.value = CAST(p.id AS CHAR)
-          AND cv2.customized_type = 'Issue'
-          AND cv2.custom_field_id = ${RELATED_PROJECT_FIELD_ID}
-          AND cv2.value <> ""
-        JOIN time_entries te ON te.issue_id = cv2.customized_id
+        JOIN custom_values icv ON icv.value = CAST(p.id AS CHAR)
+          AND icv.customized_type = 'Issue'
+          AND icv.custom_field_id = ${RELATED_PROJECT_FIELD_ID}
+          AND icv.value <> ""
+        JOIN time_entries te ON te.issue_id = icv.customized_id
         JOIN users AS u ON u.id = te.user_id
     ${COMMON_WHERE}
   `;
