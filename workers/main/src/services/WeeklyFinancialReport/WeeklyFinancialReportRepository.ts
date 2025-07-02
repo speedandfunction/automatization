@@ -152,11 +152,7 @@ export class WeeklyFinancialReportRepository
 
   private composeWeeklyReportTitle(currentDate: Date): string {
     const quarter = Math.floor(currentDate.getMonth() / 3);
-    const periodStart = new Date(
-      currentDate.getFullYear(),
-      quarter * 3,
-      1
-    )
+    const periodStart = new Date(currentDate.getFullYear(), quarter * 3, 1)
       .toISOString()
       .slice(0, 10);
     const periodEnd = new Date(
