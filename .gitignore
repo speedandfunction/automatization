@@ -148,3 +148,5 @@ volumes
 
 n8n-scan.sarif
 temporal-scan.sarif
+# Ignore data directory for main worker (contains runtime/generated data)
+/workers/main/data/
