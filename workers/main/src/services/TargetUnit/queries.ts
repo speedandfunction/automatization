@@ -5,7 +5,7 @@ import {
 } from '../../configs/weeklyFinancialReport';
 
 const groupNamesList = Object.values(GroupNameEnum)
-  .map((name) => `'${name.replace(/'/g, "''")}'`) 
+  .map((name) => `'${name.replace(/'/g, "''")}'`)
   .join(', ');
 
 const COMMON_SELECT = `
