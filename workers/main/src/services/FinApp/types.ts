@@ -23,3 +23,8 @@ export interface Project {
   history?: History;
   [key: string]: unknown;
 }
+
+export interface FinancialsAppData {
+  projects: Project[];
+  employees: Employee[];
+}
