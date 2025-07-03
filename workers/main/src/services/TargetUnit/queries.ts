@@ -89,7 +89,8 @@ export const TARGET_UNITS_QUERY = `
     t.project_name,
     t.user_id,
     t.username,
-    t.spent_on
+    t.spent_on,
+    t.filter_name
   ORDER BY
     t.group_name ASC,
     t.project_name ASC,
