@@ -25,8 +25,15 @@ export const TARGET_UNITS_QUERY = `SELECT
     JOIN users AS u ON u.id = te.user_id
     WHERE g.type = 'Group'
       AND cv.customized_type = 'Principal' and cv.value = ?
-      AND te.spent_on BETWEEN DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 7 DAY)
-                          AND DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY)
+      AND te.spent_on BETWEEN 
+        DATE_FORMAT(
+          DATE_SUB(
+            DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY),
+            INTERVAL (MONTH(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY))-1)%3 MONTH
+          ),
+          '%Y-%m-01'
+        )
+        AND DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY)
   ) t
   GROUP BY
     group_id,
