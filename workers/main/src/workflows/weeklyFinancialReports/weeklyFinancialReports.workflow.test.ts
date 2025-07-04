@@ -8,14 +8,17 @@ import { weeklyFinancialReportsWorkflow } from './weeklyFinancialReports.workflo
 vi.mock('@temporalio/workflow', () => {
   const getTargetUnitsMock = vi.fn();
   const fetchFinancialAppDataMock = vi.fn();
+  const sendReportToSlackMock = vi.fn();
 
   return {
     proxyActivities: () => ({
       getTargetUnits: getTargetUnitsMock,
       fetchFinancialAppData: fetchFinancialAppDataMock,
+      sendReportToSlack: sendReportToSlackMock,
     }),
     __getTargetUnitsMock: () => getTargetUnitsMock,
     __getFetchFinancialAppDataMock: () => fetchFinancialAppDataMock,
+    __getSendReportToSlackMock: () => sendReportToSlackMock,
   };
 });
 
@@ -23,6 +26,7 @@ describe('weeklyFinancialReportsWorkflow', () => {
   type WorkflowModuleWithMock = typeof workflowModule & {
     __getTargetUnitsMock: () => ReturnType<typeof vi.fn>;
     __getFetchFinancialAppDataMock: () => ReturnType<typeof vi.fn>;
+    __getSendReportToSlackMock: () => ReturnType<typeof vi.fn>;
   };
   const getTargetUnitsMock = (
     workflowModule as WorkflowModuleWithMock
@@ -30,10 +34,14 @@ describe('weeklyFinancialReportsWorkflow', () => {
   const fetchFinancialAppDataMock = (
     workflowModule as WorkflowModuleWithMock
   ).__getFetchFinancialAppDataMock();
+  const sendReportToSlackMock = (
+    workflowModule as WorkflowModuleWithMock
+  ).__getSendReportToSlackMock();
 
   beforeEach(() => {
     getTargetUnitsMock.mockReset();
     fetchFinancialAppDataMock.mockReset();
+    sendReportToSlackMock.mockReset();
   });
 
   it('throws AppError for invalid group name', async () => {
@@ -72,12 +80,17 @@ describe('weeklyFinancialReportsWorkflow', () => {
     fetchFinancialAppDataMock.mockResolvedValueOnce({
       fileLink: 'result.json',
     });
+    sendReportToSlackMock.mockResolvedValueOnce('slack-link.json');
     const result = await weeklyFinancialReportsWorkflow(
       GroupNameEnum.SD_REPORT,
     );
 
-    expect(result).toBe('result.json');
+    expect(result).toBe('slack-link.json');
     expect(getTargetUnitsMock).toHaveBeenCalledWith(GroupNameEnum.SD_REPORT);
     expect(fetchFinancialAppDataMock).toHaveBeenCalledWith('file.json');
+    expect(sendReportToSlackMock).toHaveBeenCalledWith(
+      'file.json',
+      'result.json',
+    );
   });
 });

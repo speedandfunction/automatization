@@ -5,11 +5,10 @@ import { AppError } from '../../common/errors';
 import { GroupName } from '../../common/types';
 import { GroupNameEnum } from '../../configs/weeklyFinancialReport';
 
-const { getTargetUnits, fetchFinancialAppData } = proxyActivities<
-  typeof activities
->({
-  startToCloseTimeout: '10 minutes',
-});
+const { getTargetUnits, fetchFinancialAppData, sendReportToSlack } =
+  proxyActivities<typeof activities>({
+    startToCloseTimeout: '10 minutes',
+  });
 
 export async function weeklyFinancialReportsWorkflow(
   groupName: GroupName,
@@ -23,5 +22,5 @@ export async function weeklyFinancialReportsWorkflow(
   const targetUnits = await getTargetUnits(groupName);
   const finData = await fetchFinancialAppData(targetUnits.fileLink);
 
-  return finData.fileLink;
+  return await sendReportToSlack(targetUnits.fileLink, finData.fileLink);
 }
