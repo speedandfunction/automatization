@@ -1,9 +1,9 @@
 import { mongoDatabaseSchema } from './mongoDatabase';
+import { qboSchema } from './qbo';
 import { redmineDatabaseSchema } from './redmineDatabase';
 import { slackSchema } from './slack';
 import { temporalSchema } from './temporal';
 import { workerSchema } from './worker';
-import { qboSchema } from './qbo';
 
 export const validationResult = temporalSchema
   .merge(workerSchema)

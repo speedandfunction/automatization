@@ -8,4 +8,4 @@ export const qboConfig = {
 export const qboSchema = z.object({
   QBO_API_URL: z.string().url(),
   QBO_BEARER_TOKEN: z.string(),
-}); 
+});
