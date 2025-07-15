@@ -1,4 +1,5 @@
 import { mongoDatabaseSchema } from './mongoDatabase';
+import { qboSchema } from './qbo';
 import { redmineDatabaseSchema } from './redmineDatabase';
 import { slackSchema } from './slack';
 import { temporalSchema } from './temporal';
@@ -9,4 +10,5 @@ export const validationResult = temporalSchema
   .merge(slackSchema)
   .merge(redmineDatabaseSchema)
   .merge(mongoDatabaseSchema)
+  .merge(qboSchema)
   .safeParse(process.env);
