@@ -8,16 +8,19 @@ import { weeklyFinancialReportsWorkflow } from './weeklyFinancialReports.workflo
 vi.mock('@temporalio/workflow', () => {
   const getTargetUnitsMock = vi.fn();
   const fetchFinancialAppDataMock = vi.fn();
+  const fetchQBODataMock = vi.fn();
   const sendReportToSlackMock = vi.fn();
 
   return {
     proxyActivities: () => ({
       getTargetUnits: getTargetUnitsMock,
       fetchFinancialAppData: fetchFinancialAppDataMock,
+      fetchQBOData: fetchQBODataMock,
       sendReportToSlack: sendReportToSlackMock,
     }),
     __getTargetUnitsMock: () => getTargetUnitsMock,
     __getFetchFinancialAppDataMock: () => fetchFinancialAppDataMock,
+    __getFetchQBODataMock: () => fetchQBODataMock,
     __getSendReportToSlackMock: () => sendReportToSlackMock,
   };
 });
@@ -26,6 +29,7 @@ describe('weeklyFinancialReportsWorkflow', () => {
   type WorkflowModuleWithMock = typeof workflowModule & {
     __getTargetUnitsMock: () => ReturnType<typeof vi.fn>;
     __getFetchFinancialAppDataMock: () => ReturnType<typeof vi.fn>;
+    __getFetchQBODataMock: () => ReturnType<typeof vi.fn>;
     __getSendReportToSlackMock: () => ReturnType<typeof vi.fn>;
   };
   const getTargetUnitsMock = (
@@ -34,6 +38,9 @@ describe('weeklyFinancialReportsWorkflow', () => {
   const fetchFinancialAppDataMock = (
     workflowModule as WorkflowModuleWithMock
   ).__getFetchFinancialAppDataMock();
+  const fetchQBODataMock = (
+    workflowModule as WorkflowModuleWithMock
+  ).__getFetchQBODataMock();
   const sendReportToSlackMock = (
     workflowModule as WorkflowModuleWithMock
   ).__getSendReportToSlackMock();
@@ -41,6 +48,7 @@ describe('weeklyFinancialReportsWorkflow', () => {
   beforeEach(() => {
     getTargetUnitsMock.mockReset();
     fetchFinancialAppDataMock.mockReset();
+    fetchQBODataMock.mockReset();
     sendReportToSlackMock.mockReset();
   });
 
@@ -80,17 +88,17 @@ describe('weeklyFinancialReportsWorkflow', () => {
     fetchFinancialAppDataMock.mockResolvedValueOnce({
       fileLink: 'result.json',
     });
+    fetchQBODataMock.mockResolvedValueOnce({
+      fileLink: 'qbo-result.json',
+    });
     sendReportToSlackMock.mockResolvedValueOnce('slack-link.json');
     const result = await weeklyFinancialReportsWorkflow(
       GroupNameEnum.SD_REPORT,
     );
 
-    expect(result).toBe('slack-link.json');
+    expect(result).toBe('testQBO');
     expect(getTargetUnitsMock).toHaveBeenCalledWith(GroupNameEnum.SD_REPORT);
     expect(fetchFinancialAppDataMock).toHaveBeenCalledWith('file.json');
-    expect(sendReportToSlackMock).toHaveBeenCalledWith(
-      'file.json',
-      'result.json',
-    );
+    expect(fetchQBODataMock).toHaveBeenCalledWith('result.json');
   });
 });
