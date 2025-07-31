@@ -28,30 +28,11 @@ export class QBORepository implements IQBORepository {
   private readonly axiosInstance: ReturnType<typeof axios.create>;
 
   constructor() {
-    if (!qboConfig.refreshToken) {
-      throw new QuickBooksRepositoryError(
-        'QBO_REFRESH_TOKEN is required but not provided',
-      );
-    }
-
-    if (!qboConfig.companyId) {
-      throw new QuickBooksRepositoryError(
-        'QBO_COMPANY_ID is required but not provided',
-      );
-    }
-
-    if (!qboConfig.apiUrl) {
-      throw new QuickBooksRepositoryError(
-        'QBO_API_URL is required but not provided',
-      );
-    }
-
     this.tokenManager = new OAuth2TokenManager(
       `qbo-${qboConfig.companyId}`,
       qboConfig.refreshToken,
     );
 
-    // Create axios instance with retry configuration
     this.axiosInstance = axios.create({
       timeout: axiosConfig.timeout,
       headers: {
@@ -59,7 +40,6 @@ export class QBORepository implements IQBORepository {
       },
     });
 
-    // Configure axios-retry for automatic retry logic
     axiosRetry(this.axiosInstance, {
       retries: axiosConfig.maxRetries,
       retryDelay: (retryCount, error) => this.getRetryDelay(error, retryCount),
@@ -100,7 +80,6 @@ export class QBORepository implements IQBORepository {
   }
 
   private calculateRetryDelay(error: any, attempt: number): number {
-    // Check for retry-after header in rate limiting responses
     if (error.response?.status === 429) {
       const retryAfter = error.response.headers['retry-after'];
 
