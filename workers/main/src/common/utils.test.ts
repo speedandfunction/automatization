@@ -59,21 +59,21 @@ describe('validateEnv', () => {
 
 describe('formatDateToISOString', () => {
   it('formats date to ISO string format (YYYY-MM-DD)', () => {
-    const testDate = new Date('2024-01-15T10:30:00Z');
+    const testDate = new Date(Date.UTC(2024, 0, 15)); // January 15, 2024 UTC
     const result = formatDateToISOString(testDate);
 
     expect(result).toBe('2024-01-15');
   });
 
   it('handles single digit month and day with proper padding', () => {
-    const testDate = new Date('2024-03-05T10:30:00Z');
+    const testDate = new Date(Date.UTC(2024, 2, 5)); // March 5, 2024 UTC
     const result = formatDateToISOString(testDate);
 
     expect(result).toBe('2024-03-05');
   });
 
   it('handles end of year date', () => {
-    const testDate = new Date(2024, 11, 31); // December 31, 2024 (month is 0-indexed)
+    const testDate = new Date(Date.UTC(2024, 11, 31)); // December 31, 2024 UTC
     const result = formatDateToISOString(testDate);
 
     expect(result).toBe('2024-12-31');
