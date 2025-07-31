@@ -96,15 +96,8 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
       const newTokenData =
         await this.refreshProvider.refreshToken(currentRefreshToken);
 
-      console.log(JSON.stringify(newTokenData, null, 2));
-
       this.setTokenData(newTokenData);
       await this.saveTokens();
-
-      this.logRefreshTokenChange(
-        currentRefreshToken,
-        newTokenData.refresh_token,
-      );
     } catch (error) {
       if (
         error instanceof Error &&
@@ -157,10 +150,5 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
     };
 
     await this.storage.save(tokenData);
-  }
-
-  private logRefreshTokenChange(oldToken: string, newToken: string): void {
-    if (oldToken !== newToken) {
-    }
   }
 }
