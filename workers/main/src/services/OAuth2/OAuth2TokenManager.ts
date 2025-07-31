@@ -1,3 +1,4 @@
+import { OAuth2Error } from '../../common/errors';
 import { ERROR_MESSAGES, TOKEN_CONFIG } from './constants';
 import { FileTokenStorage } from './FileTokenStorage';
 import {
@@ -34,7 +35,7 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
     await this.refreshAccessToken();
 
     if (!this.accessToken) {
-      throw new Error(ERROR_MESSAGES.NO_ACCESS_TOKEN);
+      throw new OAuth2Error(ERROR_MESSAGES.NO_ACCESS_TOKEN);
     }
 
     return this.accessToken;

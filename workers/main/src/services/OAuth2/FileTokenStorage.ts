@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
+import { OAuth2Error } from '../../common/errors';
 import { TokenStorageProvider } from './IOAuth2TokenManager';
 import { TokenData } from './types';
 
@@ -26,7 +27,7 @@ export class FileTokenStorage implements TokenStorageProvider {
         JSON.stringify(tokenData, null, 2),
       );
     } catch {
-      throw new Error('Failed to save token data to file');
+      throw new OAuth2Error('Failed to save token data to file');
     }
   }
 
@@ -54,7 +55,7 @@ export class FileTokenStorage implements TokenStorageProvider {
       await fs.unlink(this.tokenFilePath);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        throw new Error('Failed to clear token data from file');
+        throw new OAuth2Error('Failed to clear token data from file');
       }
     }
   }
