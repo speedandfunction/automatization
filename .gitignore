@@ -151,5 +151,4 @@ temporal-scan.sarif
 # Ignore data directory for main worker (contains runtime/generated data)
 /workers/main/data/
 /.cursor/rules/isolation_rules/
-/.cursor/rules/isolation_rules/
 /memory-bank/
