@@ -152,4 +152,8 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
 
     await this.storage.save(tokenData);
   }
+
+  setTokenDataForTesting(tokenData: TokenData): void {
+    this.setTokenData(tokenData);
+  }
 }
