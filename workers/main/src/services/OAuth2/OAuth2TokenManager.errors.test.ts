@@ -36,7 +36,6 @@ describe('OAuth2TokenManager - Error Handling', () => {
 
   beforeEach(async () => {
     tokenManager = new OAuth2TokenManager('qbo', 'test-refresh-token');
-    // Wait for async initialization to complete
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
@@ -111,6 +110,44 @@ describe('OAuth2TokenManager - Error Handling', () => {
       expect(tokenManager.getCurrentRefreshToken()).toBe(
         'cached-refresh-token',
       );
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle negative expiry date', () => {
+      const tokenData: TokenData = {
+        access_token: 'valid-token',
+        refresh_token: 'refresh-token',
+        expires_at: -1000,
+        token_type: 'Bearer',
+      };
+
+      tokenManager.setTokenDataForTesting(tokenData);
+      expect(tokenManager.isTokenValid()).toBe(false);
+    });
+
+    it('should handle zero expiry date', () => {
+      const tokenData: TokenData = {
+        access_token: 'valid-token',
+        refresh_token: 'refresh-token',
+        expires_at: 0,
+        token_type: 'Bearer',
+      };
+
+      tokenManager.setTokenDataForTesting(tokenData);
+      expect(tokenManager.isTokenValid()).toBe(false);
+    });
+
+    it('should handle very small expiry date', () => {
+      const tokenData: TokenData = {
+        access_token: 'valid-token',
+        refresh_token: 'refresh-token',
+        expires_at: Number.MIN_SAFE_INTEGER,
+        token_type: 'Bearer',
+      };
+
+      tokenManager.setTokenDataForTesting(tokenData);
+      expect(tokenManager.isTokenValid()).toBe(false);
     });
   });
 });
