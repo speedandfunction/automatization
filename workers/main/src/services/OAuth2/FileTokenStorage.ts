@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { OAuth2Error } from '../../common/errors';
-import { TokenStorageProvider } from './IOAuth2TokenManager';
+import { TokenStorageProvider } from './types';
 import { TokenData } from './types';
 
 export class FileTokenStorage implements TokenStorageProvider {

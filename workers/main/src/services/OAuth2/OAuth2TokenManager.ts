@@ -1,15 +1,15 @@
 import { OAuth2Error } from '../../common/errors';
 import { ERROR_MESSAGES, TOKEN_CONFIG } from './constants';
 import { FileTokenStorage } from './FileTokenStorage';
+import { OAuth2TokenRefreshProvider } from './OAuth2TokenRefreshProvider';
 import {
-  IOAuth2TokenManager,
+  OAuth2TokenManagerInterface,
   TokenRefreshProvider,
   TokenStorageProvider,
-} from './IOAuth2TokenManager';
-import { OAuth2TokenRefreshProvider } from './OAuth2TokenRefreshProvider';
+} from './types';
 import { TokenData } from './types';
 
-export class OAuth2TokenManager implements IOAuth2TokenManager {
+export class OAuth2TokenManager implements OAuth2TokenManagerInterface {
   private accessToken: string | null = null;
   private tokenExpiry: Date | null = null;
   private refreshToken: string | null = null;

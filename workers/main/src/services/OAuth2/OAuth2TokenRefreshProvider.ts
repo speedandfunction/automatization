@@ -3,7 +3,7 @@ import axios from 'axios';
 import { OAuth2Error } from '../../common/errors';
 import { qboConfig } from '../../configs/qbo';
 import { TOKEN_CONFIG } from './constants';
-import { TokenRefreshProvider } from './IOAuth2TokenManager';
+import { TokenRefreshProvider } from './types';
 import { TokenData, TokenResponse } from './types';
 
 export class OAuth2TokenRefreshProvider implements TokenRefreshProvider {

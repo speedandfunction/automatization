@@ -11,3 +11,23 @@ export interface TokenData {
   expires_at: number;
   token_type: string;
 }
+
+export interface TokenStorageProvider {
+  save(tokenData: TokenData): Promise<void>;
+
+  load(): TokenData | null;
+
+  clear(): Promise<void>;
+}
+
+export interface TokenRefreshProvider {
+  refreshToken(refreshToken: string): Promise<TokenData>;
+}
+
+export interface OAuth2TokenManagerInterface {
+  getAccessToken(): Promise<string>;
+
+  getCurrentRefreshToken(): string;
+
+  isTokenValid(): boolean;
+}
