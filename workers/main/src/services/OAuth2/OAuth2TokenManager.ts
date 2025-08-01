@@ -64,7 +64,9 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
       if (tokenData) {
         this.setTokenData(tokenData);
       }
-    } catch {}
+    } catch {
+      throw new OAuth2Error(ERROR_MESSAGES.LOAD_TOKENS_FAILED);
+    }
 
     if (!this.refreshToken) {
       this.refreshToken = this.defaultRefreshToken;
@@ -118,7 +120,9 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
 
     try {
       await this.storage.clear();
-    } catch {}
+    } catch {
+      throw new OAuth2Error(ERROR_MESSAGES.CLEAR_TOKENS_FAILED);
+    }
   }
 
   private isWithinRefreshBuffer(): boolean {

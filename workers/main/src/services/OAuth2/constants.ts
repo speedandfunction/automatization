@@ -11,4 +11,6 @@ export const ERROR_MESSAGES = {
   NO_REFRESH_TOKEN: 'No refresh token available in configuration or file',
   REFRESH_FAILED: 'Failed to refresh access token',
   INVALID_TOKEN_DATA: 'Invalid token data structure',
+  LOAD_TOKENS_FAILED: 'Failed to load OAuth2 tokens',
+  CLEAR_TOKENS_FAILED: 'Failed to clear OAuth2 tokens',
 } as const;

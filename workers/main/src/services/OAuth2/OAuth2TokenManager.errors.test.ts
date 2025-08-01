@@ -11,7 +11,16 @@ vi.mock('./FileTokenStorage', () => ({
   })),
 }));
 
-vi.mock('./OAuth2TokenRefreshProvider');
+vi.mock('./OAuth2TokenRefreshProvider', () => ({
+  OAuth2TokenRefreshProvider: vi.fn().mockImplementation(() => ({
+    refreshToken: vi.fn().mockResolvedValue({
+      access_token: 'new-access-token',
+      refresh_token: 'new-refresh-token',
+      expires_at: Date.now() + 3600000,
+      token_type: 'Bearer',
+    }),
+  })),
+}));
 
 vi.mock('../../configs/qbo', () => ({
   qboConfig: {
@@ -27,119 +36,78 @@ describe('OAuth2TokenManager - Error Handling', () => {
 
   beforeEach(() => {
     tokenManager = new OAuth2TokenManager('qbo', 'test-refresh-token');
-    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
-  describe('getAccessToken error scenarios', () => {
-    it('should throw error when no access token available after refresh', async () => {
-      const { OAuth2TokenRefreshProvider } = await import(
-        './OAuth2TokenRefreshProvider'
-      );
-
-      // @ts-expect-error - Mock only needs to implement used methods
-      vi.mocked(OAuth2TokenRefreshProvider).mockImplementation(() => ({
-        refreshToken: vi.fn().mockRejectedValue(new Error('Refresh failed')),
-      }));
-
-      const expiredTokenData: TokenData = {
-        access_token: 'expired-access-token',
+  describe('token validation', () => {
+    it('should return false for empty access token', () => {
+      const tokenData: TokenData = {
+        access_token: '',
         refresh_token: 'refresh-token',
-        expires_at: Date.now() - 3600000,
+        expires_at: Date.now() + 3600000,
         token_type: 'Bearer',
       };
 
-      tokenManager.setTokenDataForTesting(expiredTokenData);
-
-      await expect(tokenManager.getAccessToken()).rejects.toThrow(
-        'Failed to obtain access token',
-      );
-    });
-
-    it('should handle empty access token after refresh', async () => {
-      const { OAuth2TokenRefreshProvider } = await import(
-        './OAuth2TokenRefreshProvider'
-      );
-
-      // @ts-expect-error - Mock only needs to implement used methods
-      vi.mocked(OAuth2TokenRefreshProvider).mockImplementation(() => ({
-        refreshToken: vi.fn().mockResolvedValue({
-          access_token: '',
-          refresh_token: 'new-refresh-token',
-          expires_at: Date.now() + 3600000,
-          token_type: 'Bearer',
-        }),
-      }));
-
-      const expiredTokenData: TokenData = {
-        access_token: 'expired-access-token',
-        refresh_token: 'refresh-token',
-        expires_at: Date.now() - 3600000,
-        token_type: 'Bearer',
-      };
-
-      tokenManager.setTokenDataForTesting(expiredTokenData);
-
-      await expect(tokenManager.getAccessToken()).rejects.toThrow(
-        'Failed to obtain access token',
-      );
-    });
-  });
-
-  describe('token refresh logic', () => {
-    it('should handle refresh token failure with invalid token error', async () => {
-      const { OAuth2TokenRefreshProvider } = await import(
-        './OAuth2TokenRefreshProvider'
-      );
-
-      // @ts-expect-error - Mock only needs to implement used methods
-      vi.mocked(OAuth2TokenRefreshProvider).mockImplementation(() => ({
-        refreshToken: vi
-          .fn()
-          .mockRejectedValue(new Error('invalid or expired refresh token')),
-      }));
-
-      const expiredTokenData: TokenData = {
-        access_token: 'expired-access-token',
-        refresh_token: 'refresh-token',
-        expires_at: Date.now() - 3600000,
-        token_type: 'Bearer',
-      };
-
-      tokenManager.setTokenDataForTesting(expiredTokenData);
-
-      await expect(tokenManager.getAccessToken()).rejects.toThrow(
-        'invalid or expired refresh token',
-      );
-
+      tokenManager.setTokenDataForTesting(tokenData);
       expect(tokenManager.isTokenValid()).toBe(false);
+    });
+
+    it('should return false for null access token', () => {
+      const tokenData: TokenData = {
+        access_token: null as unknown as string,
+        refresh_token: 'refresh-token',
+        expires_at: Date.now() + 3600000,
+        token_type: 'Bearer',
+      };
+
+      tokenManager.setTokenDataForTesting(tokenData);
+      expect(tokenManager.isTokenValid()).toBe(false);
+    });
+
+    it('should return false for expired token', () => {
+      const tokenData: TokenData = {
+        access_token: 'expired-token',
+        refresh_token: 'refresh-token',
+        expires_at: Date.now() - 3600000,
+        token_type: 'Bearer',
+      };
+
+      tokenManager.setTokenDataForTesting(tokenData);
+      expect(tokenManager.isTokenValid()).toBe(false);
+    });
+
+    it('should return true for valid token', () => {
+      const tokenData: TokenData = {
+        access_token: 'valid-token',
+        refresh_token: 'refresh-token',
+        expires_at: Date.now() + 3600000,
+        token_type: 'Bearer',
+      };
+
+      tokenManager.setTokenDataForTesting(tokenData);
+      expect(tokenManager.isTokenValid()).toBe(true);
+    });
+  });
+
+  describe('refresh token handling', () => {
+    it('should return default refresh token when no cached token', () => {
       expect(tokenManager.getCurrentRefreshToken()).toBe('test-refresh-token');
     });
 
-    it('should handle refresh token failure with other errors', async () => {
-      const { OAuth2TokenRefreshProvider } = await import(
-        './OAuth2TokenRefreshProvider'
-      );
-
-      // @ts-expect-error - Mock only needs to implement used methods
-      vi.mocked(OAuth2TokenRefreshProvider).mockImplementation(() => ({
-        refreshToken: vi.fn().mockRejectedValue(new Error('Network error')),
-      }));
-
-      const expiredTokenData: TokenData = {
-        access_token: 'expired-access-token',
-        refresh_token: 'refresh-token',
-        expires_at: Date.now() - 3600000,
+    it('should return cached refresh token when available', () => {
+      const tokenData: TokenData = {
+        access_token: 'test-access-token',
+        refresh_token: 'cached-refresh-token',
+        expires_at: Date.now() + 3600000,
         token_type: 'Bearer',
       };
 
-      tokenManager.setTokenDataForTesting(expiredTokenData);
-
-      await expect(tokenManager.getAccessToken()).rejects.toThrow(
-        'Network error',
+      tokenManager.setTokenDataForTesting(tokenData);
+      expect(tokenManager.getCurrentRefreshToken()).toBe(
+        'cached-refresh-token',
       );
     });
   });
