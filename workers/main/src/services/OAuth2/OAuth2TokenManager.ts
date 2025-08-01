@@ -46,11 +46,11 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
   }
 
   isTokenValid(): boolean {
-    if (!this.accessToken || !this.tokenExpiry) {
+    if (!this.accessToken || !this.refreshToken || !this.tokenExpiry) {
       return false;
     }
 
-    if (this.accessToken.length === 0) {
+    if (this.accessToken.length === 0 || this.refreshToken.length === 0) {
       return false;
     }
 
@@ -74,11 +74,39 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
   }
 
   private isValidTokenData(tokenData: TokenData): boolean {
-    return (
-      tokenData.access_token.length > 0 &&
-      tokenData.refresh_token.length > 0 &&
-      Number.isFinite(tokenData.expires_at)
-    );
+    if (!tokenData) {
+      return false;
+    }
+
+    if (
+      typeof tokenData.access_token !== 'string' ||
+      tokenData.access_token.length === 0
+    ) {
+      return false;
+    }
+
+    if (
+      typeof tokenData.refresh_token !== 'string' ||
+      tokenData.refresh_token.length === 0
+    ) {
+      return false;
+    }
+
+    if (
+      typeof tokenData.expires_at !== 'number' ||
+      !Number.isFinite(tokenData.expires_at) ||
+      tokenData.expires_at <= 0
+    ) {
+      return false;
+    }
+
+    const expiryDate = new Date(tokenData.expires_at);
+
+    if (isNaN(expiryDate.getTime())) {
+      return false;
+    }
+
+    return true;
   }
 
   private async refreshAccessToken(): Promise<void> {
@@ -145,6 +173,10 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
   }
 
   private setTokenData(tokenData: TokenData): void {
+    if (!this.isValidTokenData(tokenData)) {
+      throw new OAuth2Error(ERROR_MESSAGES.INVALID_TOKEN_DATA);
+    }
+
     this.accessToken = tokenData.access_token;
     this.refreshToken = tokenData.refresh_token;
     this.tokenExpiry = new Date(tokenData.expires_at);
@@ -166,6 +198,14 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
   }
 
   setTokenDataForTesting(tokenData: TokenData): void {
-    this.setTokenData(tokenData);
+    if (tokenData) {
+      this.accessToken = tokenData.access_token;
+      this.refreshToken = tokenData.refresh_token;
+      this.tokenExpiry = new Date(tokenData.expires_at);
+    } else {
+      this.accessToken = null;
+      this.refreshToken = null;
+      this.tokenExpiry = null;
+    }
   }
 }
