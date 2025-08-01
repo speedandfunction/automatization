@@ -1,5 +1,5 @@
 import { OAuth2Error } from '../../common/errors';
-import { ERROR_MESSAGES, TOKEN_CONFIG } from './constants';
+import { ERROR_CODES, ERROR_MESSAGES, TOKEN_CONFIG } from './constants';
 import { FileTokenStorage } from './FileTokenStorage';
 import { OAuth2TokenRefreshProvider } from './OAuth2TokenRefreshProvider';
 import {
@@ -23,8 +23,6 @@ export class OAuth2TokenManager implements OAuth2TokenManagerInterface {
     this.storage = new FileTokenStorage(serviceName);
     this.refreshProvider = new OAuth2TokenRefreshProvider();
     this.defaultRefreshToken = defaultRefreshToken;
-
-    this.initializeTokens();
   }
 
   private async initializeTokens(): Promise<void> {
@@ -32,8 +30,10 @@ export class OAuth2TokenManager implements OAuth2TokenManagerInterface {
   }
 
   async getAccessToken(): Promise<string> {
-    if (this.isTokenValid()) {
-      return this.accessToken!;
+    await this.initializeTokens();
+
+    if (!this.accessToken) {
+      throw new OAuth2Error(ERROR_MESSAGES.NO_ACCESS_TOKEN);
     }
 
     await this.refreshAccessToken();
@@ -65,7 +65,7 @@ export class OAuth2TokenManager implements OAuth2TokenManagerInterface {
     try {
       const tokenData = await this.storage.load();
 
-      if (tokenData && this.isValidTokenData(tokenData)) {
+      if (tokenData) {
         this.setTokenData(tokenData);
       }
     } catch {
@@ -143,8 +143,8 @@ export class OAuth2TokenManager implements OAuth2TokenManagerInterface {
       await this.saveTokens();
     } catch (error) {
       if (
-        error instanceof Error &&
-        error.message.includes('invalid or expired')
+        error instanceof OAuth2Error &&
+        error.code === ERROR_CODES.INVALID_GRANT
       ) {
         await this.clearStoredTokens();
       }

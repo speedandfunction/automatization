@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { OAuth2Error } from '../../common/errors';
 import { qboConfig } from '../../configs/qbo';
-import { TOKEN_CONFIG } from './constants';
+import { ERROR_CODES, TOKEN_CONFIG } from './constants';
 import { TokenRefreshProvider } from './types';
 import { TokenData, TokenResponse } from './types';
 
@@ -44,28 +44,33 @@ export class OAuth2TokenRefreshProvider implements TokenRefreshProvider {
       if (status === 400 && data?.error === 'invalid_grant') {
         return new OAuth2Error(
           'Refresh token is invalid or expired. Please obtain a new refresh token from QuickBooks.',
+          ERROR_CODES.INVALID_GRANT,
         );
       }
 
       if (status === 401) {
         return new OAuth2Error(
           'Invalid client credentials. Please check QBO_CLIENT_ID and QBO_CLIENT_SECRET.',
+          ERROR_CODES.INVALID_CLIENT,
         );
       }
 
       if (status === 403) {
         return new OAuth2Error(
           'Access denied. Please check your QuickBooks app permissions.',
+          ERROR_CODES.ACCESS_DENIED,
         );
       }
 
       return new OAuth2Error(
         `QBO API error (${status}): ${data?.error || error.message}`,
+        ERROR_CODES.API_ERROR,
       );
     }
 
     return new OAuth2Error(
       `Failed to refresh access token: ${error instanceof Error ? error.message : String(error)}`,
+      ERROR_CODES.NETWORK_ERROR,
     );
   }
 
