@@ -159,4 +159,18 @@ describe('OAuth2TokenManager - Basic', () => {
     tokenManager.setTokenDataForTesting(tokenData);
     expect(tokenManager.isTokenValid()).toBe(false);
   });
+
+  it('should handle token refresh when token is within buffer time', async () => {
+    const tokenData: TokenData = {
+      access_token: 'valid-token',
+      refresh_token: 'refresh-token',
+      expires_at: Date.now() + 600000,
+      token_type: 'Bearer',
+    };
+
+    tokenManager.setTokenDataForTesting(tokenData);
+    const accessToken = await tokenManager.getAccessToken();
+
+    expect(accessToken).toBe('valid-token');
+  });
 });
