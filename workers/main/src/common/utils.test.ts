@@ -5,7 +5,7 @@ vi.mock('../configs', () => ({
 }));
 
 import * as configs from '../configs';
-import { validateEnv } from './utils';
+import { formatDateToISOString, validateEnv } from './utils';
 
 type ValidationResult = {
   success: boolean;
@@ -54,5 +54,28 @@ describe('validateEnv', () => {
         'Missing or invalid environment variable: (unknown variable) (unknown)',
     );
     expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+});
+
+describe('formatDateToISOString', () => {
+  it('formats date to ISO string format (YYYY-MM-DD)', () => {
+    const testDate = new Date(Date.UTC(2024, 0, 15)); // January 15, 2024 UTC
+    const result = formatDateToISOString(testDate);
+
+    expect(result).toBe('2024-01-15');
+  });
+
+  it('handles single digit month and day with proper padding', () => {
+    const testDate = new Date(Date.UTC(2024, 2, 5)); // March 5, 2024 UTC
+    const result = formatDateToISOString(testDate);
+
+    expect(result).toBe('2024-03-05');
+  });
+
+  it('handles end of year date', () => {
+    const testDate = new Date(Date.UTC(2024, 11, 31)); // December 31, 2024 UTC
+    const result = formatDateToISOString(testDate);
+
+    expect(result).toBe('2024-12-31');
   });
 });
