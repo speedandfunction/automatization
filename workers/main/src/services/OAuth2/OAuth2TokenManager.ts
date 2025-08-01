@@ -202,6 +202,12 @@ export class OAuth2TokenManager implements OAuth2TokenManagerInterface {
   }
 
   setTokenDataForTesting(tokenData: TokenData): void {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error(
+        'setTokenDataForTesting can only be used in test environments',
+      );
+    }
+
     if (tokenData) {
       this.accessToken = tokenData.access_token;
       this.refreshToken = tokenData.refresh_token;
