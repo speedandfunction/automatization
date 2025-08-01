@@ -117,4 +117,11 @@ describe('OAuth2TokenManager - Basic', () => {
 
     expect(accessToken).toBe('new-access-token');
   });
+
+  it('should handle malformed token data gracefully', () => {
+    // Test that the manager correctly handles invalid token data
+    // by using the default refresh token and reporting token as invalid
+    expect(tokenManager.getCurrentRefreshToken()).toBe('test-refresh-token');
+    expect(tokenManager.isTokenValid()).toBe(false);
+  });
 });

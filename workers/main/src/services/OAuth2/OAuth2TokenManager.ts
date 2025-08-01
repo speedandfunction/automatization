@@ -61,7 +61,7 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
     try {
       const tokenData = this.storage.load();
 
-      if (tokenData) {
+      if (tokenData && this.isValidTokenData(tokenData)) {
         this.setTokenData(tokenData);
       }
     } catch {
@@ -71,6 +71,14 @@ export class OAuth2TokenManager implements IOAuth2TokenManager {
     if (!this.refreshToken) {
       this.refreshToken = this.defaultRefreshToken;
     }
+  }
+
+  private isValidTokenData(tokenData: TokenData): boolean {
+    return (
+      tokenData.access_token.length > 0 &&
+      tokenData.refresh_token.length > 0 &&
+      Number.isFinite(tokenData.expires_at)
+    );
   }
 
   private async refreshAccessToken(): Promise<void> {
