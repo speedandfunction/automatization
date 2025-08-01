@@ -6,7 +6,7 @@ import { TokenData } from './types';
 vi.mock('./FileTokenStorage', () => ({
   FileTokenStorage: vi.fn().mockImplementation(() => ({
     save: vi.fn().mockResolvedValue(undefined),
-    load: vi.fn().mockReturnValue(null),
+    load: vi.fn().mockResolvedValue(null),
     clear: vi.fn().mockResolvedValue(undefined),
   })),
 }));
@@ -34,8 +34,10 @@ vi.mock('../../configs/qbo', () => ({
 describe('OAuth2TokenManager - Storage & Edge Cases', () => {
   let tokenManager: OAuth2TokenManager;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     tokenManager = new OAuth2TokenManager('qbo', 'test-refresh-token');
+    // Wait for async initialization to complete
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
   afterEach(() => {

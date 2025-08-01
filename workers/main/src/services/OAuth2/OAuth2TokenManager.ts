@@ -24,7 +24,11 @@ export class OAuth2TokenManager implements OAuth2TokenManagerInterface {
     this.refreshProvider = new OAuth2TokenRefreshProvider();
     this.defaultRefreshToken = defaultRefreshToken;
 
-    this.loadTokens();
+    this.initializeTokens();
+  }
+
+  private async initializeTokens(): Promise<void> {
+    await this.loadTokens();
   }
 
   async getAccessToken(): Promise<string> {
@@ -57,9 +61,9 @@ export class OAuth2TokenManager implements OAuth2TokenManagerInterface {
     return Date.now() < this.tokenExpiry.getTime();
   }
 
-  private loadTokens(): void {
+  private async loadTokens(): Promise<void> {
     try {
-      const tokenData = this.storage.load();
+      const tokenData = await this.storage.load();
 
       if (tokenData && this.isValidTokenData(tokenData)) {
         this.setTokenData(tokenData);

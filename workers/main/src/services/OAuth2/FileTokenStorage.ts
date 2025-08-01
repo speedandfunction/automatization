@@ -1,5 +1,4 @@
 import { promises as fs } from 'fs';
-import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { OAuth2Error } from '../../common/errors';
@@ -31,9 +30,9 @@ export class FileTokenStorage implements TokenStorageProvider {
     }
   }
 
-  load(): TokenData | null {
+  async load(): Promise<TokenData | null> {
     try {
-      const data = readFileSync(this.tokenFilePath, 'utf8');
+      const data = await fs.readFile(this.tokenFilePath, 'utf8');
       const tokenData = JSON.parse(data) as TokenData;
 
       if (!this.isValidTokenData(tokenData)) {

@@ -15,7 +15,7 @@ export interface TokenData {
 export interface TokenStorageProvider {
   save(tokenData: TokenData): Promise<void>;
 
-  load(): TokenData | null;
+  load(): Promise<TokenData | null>;
 
   clear(): Promise<void>;
 }
