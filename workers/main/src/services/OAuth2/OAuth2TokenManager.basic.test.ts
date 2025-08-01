@@ -36,7 +36,6 @@ describe('OAuth2TokenManager - Basic', () => {
 
   beforeEach(async () => {
     tokenManager = new OAuth2TokenManager('qbo', 'test-refresh-token');
-    // Wait for async initialization to complete
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
@@ -121,9 +120,43 @@ describe('OAuth2TokenManager - Basic', () => {
   });
 
   it('should handle malformed token data gracefully', () => {
-    // Test that the manager correctly handles invalid token data
-    // by using the default refresh token and reporting token as invalid
     expect(tokenManager.getCurrentRefreshToken()).toBe('test-refresh-token');
+    expect(tokenManager.isTokenValid()).toBe(false);
+  });
+
+  it('should handle empty access token', () => {
+    const tokenData: TokenData = {
+      access_token: '',
+      refresh_token: 'refresh-token',
+      expires_at: Date.now() + 3600000,
+      token_type: 'Bearer',
+    };
+
+    tokenManager.setTokenDataForTesting(tokenData);
+    expect(tokenManager.isTokenValid()).toBe(false);
+  });
+
+  it('should handle empty refresh token', () => {
+    const tokenData: TokenData = {
+      access_token: 'valid-token',
+      refresh_token: '',
+      expires_at: Date.now() + 3600000,
+      token_type: 'Bearer',
+    };
+
+    tokenManager.setTokenDataForTesting(tokenData);
+    expect(tokenManager.isTokenValid()).toBe(false);
+  });
+
+  it('should handle invalid expiry date', () => {
+    const tokenData: TokenData = {
+      access_token: 'valid-token',
+      refresh_token: 'refresh-token',
+      expires_at: NaN,
+      token_type: 'Bearer',
+    };
+
+    tokenManager.setTokenDataForTesting(tokenData);
     expect(tokenManager.isTokenValid()).toBe(false);
   });
 });
