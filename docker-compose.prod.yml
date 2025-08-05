@@ -1,6 +1,7 @@
 services:
   n8n:
-    depends_on: 
+    restart: unless-stopped
+    depends_on:
       postgresql: !reset null
     environment:
       - WEBHOOK_URL=${N8N_WEBHOOK_URL:?N8N_WEBHOOK_URL is required}
@@ -19,6 +20,8 @@ services:
       - N8N_SMTP_SSL=${N8N_SMTP_SSL:-false}
       - N8N_SMTP_TLS=${N8N_SMTP_TLS:-true}
       - N8N_BLOCKED_NODES=n8n-nodes-base.executeCommand,n8n-nodes-base.ssh
+      - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
+      - N8N_BINARY_DATA_STORAGE_PATH=/data/n8n/binaryData
   postgresql: !reset null
 
   temporal:
@@ -61,10 +64,10 @@ services:
       - OAUTH2_PROXY_PROVIDER=google
       - OAUTH2_PROXY_CLIENT_ID=${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID is required}
       - OAUTH2_PROXY_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET is required}
-      
+
       # Email validation settings
       - OAUTH2_PROXY_EMAIL_DOMAINS=speedandfunction.com
-      
+
       # Required settings
       - OAUTH2_PROXY_COOKIE_DOMAINS=.temporal.speedandfunction.com
       - OAUTH2_PROXY_WHITELIST_DOMAINS=.temporal.speedandfunction.com
@@ -72,7 +75,7 @@ services:
       - OAUTH2_PROXY_UPSTREAMS=http://temporal-ui:8080
       - OAUTH2_PROXY_REDIRECT_URL=${OAUTH2_PROXY_REDIRECT_URL:-https://temporal.speedandfunction.com/oauth2/callback}
       - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET:?OAUTH2_PROXY_COOKIE_SECRET is required}
-      
+
       # Cookie settings
       - OAUTH2_PROXY_COOKIE_NAME=_oauth2_proxy
       - OAUTH2_PROXY_COOKIE_SECURE=true
@@ -80,17 +83,17 @@ services:
       - OAUTH2_PROXY_COOKIE_SAMESITE=lax
       - OAUTH2_PROXY_COOKIE_REFRESH=1h
       - OAUTH2_PROXY_COOKIE_EXPIRE=168h
-      
+
       # CSRF protection settings
       - OAUTH2_PROXY_CSRF_COOKIE_NAME=_oauth2_proxy_csrf
       - OAUTH2_PROXY_CSRF_COOKIE_SECURE=true
       - OAUTH2_PROXY_CSRF_COOKIE_DOMAIN=.temporal.speedandfunction.com
       - OAUTH2_PROXY_CSRF_COOKIE_HTTPONLY=true
       - OAUTH2_PROXY_CSRF_COOKIE_SAMESITE=lax
-      
+
       # Debug settings
       - OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR=true
-      
+
       # Logout settings
       - OAUTH2_PROXY_SIGN_OUT_URL=https://temporal.speedandfunction.com/oauth2/sign_out
     healthcheck:
