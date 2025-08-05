@@ -19,6 +19,7 @@ services:
       - N8N_SMTP_SSL=${N8N_SMTP_SSL:-false}
       - N8N_SMTP_TLS=${N8N_SMTP_TLS:-true}
       - N8N_BLOCKED_NODES=n8n-nodes-base.executeCommand,n8n-nodes-base.ssh
+      - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
   postgresql: !reset null
 
   temporal:
