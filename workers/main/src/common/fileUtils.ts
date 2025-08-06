@@ -30,3 +30,14 @@ export async function writeJsonFile<T = object>(
     throw new FileUtilsError(`Failed to write JSON file at "${filePath}"`);
   }
 }
+
+export async function deleteJsonFile(filePath: string): Promise<void> {
+  try {
+    await fs.unlink(filePath);
+  } catch (error) {
+    // Ignore ENOENT (file not found) errors as they're expected when clearing
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      throw new FileUtilsError(`Failed to delete JSON file at "${filePath}"`);
+    }
+  }
+}
