@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 export const qboConfig = {
-  apiUrl: process.env.QBO_API_URL!,
+  apiUrl: process.env.QBO_API_URL,
   bearerToken: process.env.QBO_BEARER_TOKEN,
   // OAuth2 configuration
-  clientId: process.env.QBO_CLIENT_ID!,
-  clientSecret: process.env.QBO_CLIENT_SECRET!,
-  companyId: process.env.QBO_COMPANY_ID!,
-  refreshToken: process.env.QBO_REFRESH_TOKEN!,
+  clientId: process.env.QBO_CLIENT_ID,
+  clientSecret: process.env.QBO_CLIENT_SECRET,
+  companyId: process.env.QBO_COMPANY_ID,
+  refreshToken: process.env.QBO_REFRESH_TOKEN,
   tokenHost: 'https://oauth.platform.intuit.com',
   tokenPath: '/oauth2/v1/tokens/bearer',
   tokenExpirationWindowSeconds: 300,
