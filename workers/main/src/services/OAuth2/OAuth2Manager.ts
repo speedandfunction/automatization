@@ -48,7 +48,13 @@ export class OAuth2Manager {
       await this.refreshToken();
     }
 
-    return this.accessToken.token.access_token as string;
+    const token = this.accessToken.token;
+
+    if (!token || typeof token.access_token !== 'string') {
+      throw new OAuth2Error('Invalid access token format');
+    }
+
+    return token.access_token;
   }
 
   async refreshToken(): Promise<void> {
@@ -122,15 +128,26 @@ export class OAuth2Manager {
   private async saveToken(): Promise<void> {
     if (!this.accessToken) return;
 
+    const token = this.accessToken.token;
+
+    if (!token) {
+      throw new OAuth2Error('Invalid token data');
+    }
+
     const tokenData: TokenData = {
-      access_token: this.accessToken.token.access_token as string,
+      access_token:
+        typeof token.access_token === 'string' ? token.access_token : '',
       refresh_token:
-        (this.accessToken.token.refresh_token as string) ||
-        this.oauth2Config.refreshToken,
+        (typeof token.refresh_token === 'string'
+          ? token.refresh_token
+          : null) || this.oauth2Config.refreshToken,
       expires_at:
-        (this.accessToken.token.expires_at as Date)?.getTime() ||
-        Date.now() + 3600000,
-      token_type: (this.accessToken.token.token_type as string) || 'Bearer',
+        (token.expires_at instanceof Date
+          ? token.expires_at.getTime()
+          : null) || Date.now() + 3600000,
+      token_type:
+        (typeof token.token_type === 'string' ? token.token_type : null) ||
+        'Bearer',
     };
 
     await this.storage.save(tokenData);
