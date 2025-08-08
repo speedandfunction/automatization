@@ -31,7 +31,7 @@ export function formatDateToISOString(date: Date): string {
  */
 export function generateJitter(baseDelay: number): number {
   const randomBytes = crypto.randomBytes(4);
-  const randomValue = randomBytes.readUInt32BE(0) / 0xffffffff; // Convert to 0-1 range
+  const randomValue = randomBytes.readUInt32BE(0) / 0x100000000; // Convert to [0,1) range
 
   return randomValue * 0.1 * baseDelay;
 }
