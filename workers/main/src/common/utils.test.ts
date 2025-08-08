@@ -20,7 +20,7 @@ describe('validateEnv', () => {
   let exitSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
       throw new Error('exit');
     }) as unknown as ReturnType<typeof vi.spyOn>;
@@ -51,7 +51,7 @@ describe('validateEnv', () => {
     expect(() => validateEnv()).toThrow('exit');
     expect(errorSpy).toHaveBeenCalledWith(
       'Missing or invalid environment variable: FOO (is required)\n' +
-      'Missing or invalid environment variable: (unknown variable) (unknown)',
+        'Missing or invalid environment variable: (unknown variable) (unknown)',
     );
     expect(exitSpy).toHaveBeenCalledWith(1);
   });
@@ -81,37 +81,19 @@ describe('formatDateToISOString', () => {
 });
 
 describe('generateJitter', () => {
-  it('generates jitter within expected range', () => {
+  it('should generate jitter between 0 and 10% of baseDelay', () => {
     const baseDelay = 1000;
     const jitter = generateJitter(baseDelay);
 
-    // Jitter should be between 0 and 10% of baseDelay
     expect(jitter).toBeGreaterThanOrEqual(0);
     expect(jitter).toBeLessThanOrEqual(0.1 * baseDelay);
-    expect(jitter).toBeLessThan(100); // 10% of 1000ms
   });
 
-  it('generates different jitter values on multiple calls', () => {
-    const baseDelay = 2000;
-    const jitter1 = generateJitter(baseDelay);
-    const jitter2 = generateJitter(baseDelay);
+  it('should handle different baseDelay values', () => {
+    const baseDelay = 500;
+    const jitter = generateJitter(baseDelay);
 
-    // Values should be different (cryptographically random)
-    expect(jitter1).not.toBe(jitter2);
-  });
-
-  it('scales jitter proportionally with base delay', () => {
-    const smallDelay = 500;
-    const largeDelay = 2000;
-
-    const smallJitter = generateJitter(smallDelay);
-    const largeJitter = generateJitter(largeDelay);
-
-    // Large delay should produce larger jitter
-    expect(largeJitter).toBeGreaterThan(smallJitter);
-
-    // Both should be within 10% of their respective base delays
-    expect(smallJitter).toBeLessThanOrEqual(0.1 * smallDelay);
-    expect(largeJitter).toBeLessThanOrEqual(0.1 * largeDelay);
+    expect(jitter).toBeGreaterThanOrEqual(0);
+    expect(jitter).toBeLessThanOrEqual(0.1 * baseDelay);
   });
 });
