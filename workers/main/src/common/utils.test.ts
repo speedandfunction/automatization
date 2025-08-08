@@ -5,7 +5,7 @@ vi.mock('../configs', () => ({
 }));
 
 import * as configs from '../configs';
-import { formatDateToISOString, validateEnv } from './utils';
+import { formatDateToISOString, generateJitter, validateEnv } from './utils';
 
 type ValidationResult = {
   success: boolean;
@@ -77,5 +77,23 @@ describe('formatDateToISOString', () => {
     const result = formatDateToISOString(testDate);
 
     expect(result).toBe('2024-12-31');
+  });
+});
+
+describe('generateJitter', () => {
+  it('should generate jitter between 0 and 10% of baseDelay', () => {
+    const baseDelay = 1000;
+    const jitter = generateJitter(baseDelay);
+
+    expect(jitter).toBeGreaterThanOrEqual(0);
+    expect(jitter).toBeLessThan(0.1 * baseDelay);
+  });
+
+  it('should handle different baseDelay values', () => {
+    const baseDelay = 500;
+    const jitter = generateJitter(baseDelay);
+
+    expect(jitter).toBeGreaterThanOrEqual(0);
+    expect(jitter).toBeLessThan(0.1 * baseDelay);
   });
 });
