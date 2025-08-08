@@ -2,7 +2,7 @@ import axios from 'axios';
 import axiosRetry from 'axios-retry';
 
 import { QuickBooksRepositoryError } from '../../common/errors';
-import { formatDateToISOString } from '../../common/utils';
+import { formatDateToISOString, generateJitter } from '../../common/utils';
 import { axiosConfig } from '../../configs/axios';
 import { qboConfig } from '../../configs/qbo';
 import { OAuth2Manager } from '../OAuth2';
@@ -72,7 +72,7 @@ export class QBORepository implements IQBORepository {
       if (retryAfter) return parseInt(retryAfter) * 1000;
     }
     const baseDelay = Math.pow(2, attempt) * 1000;
-    const jitter = Math.random() * 0.1 * baseDelay;
+    const jitter = generateJitter(baseDelay);
     const maxDelay = error.response?.status === 502 ? 60000 : 30000;
 
     return Math.min(baseDelay + jitter, maxDelay);
