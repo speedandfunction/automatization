@@ -69,6 +69,7 @@ export class QBORepository implements IQBORepository {
 
   private calculateRetryDelay(error: QBORetryError, attempt: number): number {
     const rateLimitDelay = this.getRateLimitDelay(error);
+
     if (rateLimitDelay > 0) return rateLimitDelay;
 
     const baseDelay = Math.pow(2, attempt) * 1000;
@@ -82,6 +83,7 @@ export class QBORepository implements IQBORepository {
     if (error.response?.status !== HTTP_STATUS.TOO_MANY_REQUESTS) return 0;
 
     const retryAfter = error.response.headers['retry-after'];
+
     return retryAfter ? parseInt(retryAfter) * 1000 : 0;
   }
 
