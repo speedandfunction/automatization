@@ -6,25 +6,16 @@ import { formatDateToISOString, generateJitter } from '../../common/utils';
 import { axiosConfig } from '../../configs/axios';
 import { qboConfig } from '../../configs/qbo';
 import { OAuth2Manager } from '../OAuth2';
-import { CustomerRevenueByRef, Invoice } from './types';
-
-interface QBORetryError {
-  response?: { status: number; headers: Record<string, string> };
-  code?: string;
-}
-
-interface DateWindow {
-  startDate: string;
-  endDate: string;
-}
-
-interface QBOQueryResponse {
-  QueryResponse: { Invoice?: Invoice[] };
-}
-
-export interface IQBORepository {
-  getEffectiveRevenue(): Promise<CustomerRevenueByRef>;
-}
+import {
+  CustomerRevenueByRef,
+  DateWindow,
+  HTTP_STATUS,
+  Invoice,
+  IQBORepository,
+  NetworkErrorCode,
+  QBOQueryResponse,
+  QBORetryError,
+} from './types';
 
 export class QBORepository implements IQBORepository {
   private readonly tokenManager: OAuth2Manager;
@@ -54,28 +45,48 @@ export class QBORepository implements IQBORepository {
   }
 
   private isRetryableError(error: QBORetryError): boolean {
-    if (error.response) {
-      const statusCode = error.response.status;
+    return (
+      this.isHttpRetryableError(error) || this.isNetworkRetryableError(error)
+    );
+  }
 
-      if (statusCode === 429 || statusCode >= 500) return true;
-    }
+  private isHttpRetryableError(error: QBORetryError): boolean {
+    if (!error.response) return false;
 
-    return ['ECONNRESET', 'ETIMEDOUT', 'ENOTFOUND', 'ECONNABORTED'].includes(
-      error.code || '',
+    const { status } = error.response;
+
+    return (
+      status === HTTP_STATUS.TOO_MANY_REQUESTS ||
+      status >= HTTP_STATUS.INTERNAL_SERVER_ERROR
+    );
+  }
+
+  private isNetworkRetryableError(error: QBORetryError): boolean {
+    return Object.values(NetworkErrorCode).includes(
+      error.code as NetworkErrorCode,
     );
   }
 
   private calculateRetryDelay(error: QBORetryError, attempt: number): number {
-    if (error.response?.status === 429) {
-      const retryAfter = error.response.headers['retry-after'];
+    const rateLimitDelay = this.getRateLimitDelay(error);
+    if (rateLimitDelay > 0) return rateLimitDelay;
 
-      if (retryAfter) return parseInt(retryAfter) * 1000;
-    }
     const baseDelay = Math.pow(2, attempt) * 1000;
     const jitter = generateJitter(baseDelay);
-    const maxDelay = error.response?.status === 502 ? 60000 : 30000;
+    const maxDelay = this.getMaxDelay(error);
 
     return Math.min(baseDelay + jitter, maxDelay);
+  }
+
+  private getRateLimitDelay(error: QBORetryError): number {
+    if (error.response?.status !== HTTP_STATUS.TOO_MANY_REQUESTS) return 0;
+
+    const retryAfter = error.response.headers['retry-after'];
+    return retryAfter ? parseInt(retryAfter) * 1000 : 0;
+  }
+
+  private getMaxDelay(error: QBORetryError): number {
+    return error.response?.status === HTTP_STATUS.BAD_GATEWAY ? 60000 : 30000;
   }
 
   private getRetryDelay(error: QBORetryError, attempt: number): number {

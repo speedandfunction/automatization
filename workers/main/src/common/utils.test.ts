@@ -86,7 +86,7 @@ describe('generateJitter', () => {
     const jitter = generateJitter(baseDelay);
 
     expect(jitter).toBeGreaterThanOrEqual(0);
-    expect(jitter).toBeLessThanOrEqual(0.1 * baseDelay);
+    expect(jitter).toBeLessThan(0.1 * baseDelay);
   });
 
   it('should handle different baseDelay values', () => {
@@ -94,6 +94,6 @@ describe('generateJitter', () => {
     const jitter = generateJitter(baseDelay);
 
     expect(jitter).toBeGreaterThanOrEqual(0);
-    expect(jitter).toBeLessThanOrEqual(0.1 * baseDelay);
+    expect(jitter).toBeLessThan(0.1 * baseDelay);
   });
 });
