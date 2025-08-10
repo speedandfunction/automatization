@@ -151,4 +151,14 @@ temporal-scan.sarif
 # Ignore data directory for main worker (contains runtime/generated data)
 /workers/main/data/
 /.cursor/rules/isolation_rules/
+
+# Memory Bank selective tracking
+# Exclude specific files from general memory-bank/ ignore
 /memory-bank/
+!/memory-bank/systemPatterns.md
+!/memory-bank/techContext.md
+!/memory-bank/productContext.md
+!/memory-bank/projectbrief.md
+!/memory-bank/progress.md
+!/memory-bank/archive/
+
