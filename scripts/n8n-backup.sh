@@ -22,7 +22,7 @@ if [ ! -d ".git" ]; then
 fi
 
 # Add and commit changes
-git add .
+git add -A
 if git diff --staged --quiet; then
     echo "No changes to commit"
 else
