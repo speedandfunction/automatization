@@ -1,5 +1,9 @@
 #!/bin/sh
-set -euo pipefail
+# Strict mode; be POSIX-compatible. Enable pipefail only if supported.
+set -eu
+if (set -o 2>/dev/null | grep -q pipefail); then
+  set -o pipefail
+fi
 
 echo "Backing up n8n workflows..."
 
