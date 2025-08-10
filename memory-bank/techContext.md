@@ -101,3 +101,42 @@ workers/main/src/
 - **Logging**: Structured logging with configurable levels
 - **Health Checks**: Service health endpoints
 - **Metrics**: Performance and usage metrics collection
+
+## Enterprise Automation Capabilities (Added 2025-08-10)
+
+### n8n Integration Enhanced
+- **Automated Workflow Backup**: Enterprise-grade Git integration for n8n workflows
+- **Version Control**: Complete workflow change tracking with Git history
+- **Cross-Platform Deployment**: POSIX-compatible automation scripts
+- **Persistent Storage**: Docker volume-based workflow persistence
+
+### Modern Git Integration
+- **Workflow Versioning**: Automated Git repository management
+- **Branch Management**: Dynamic branch detection and operations
+- **Comprehensive Change Tracking**: Full staging including file deletions
+- **Remote Synchronization**: Automated push with upstream tracking
+
+### Code Quality and Security
+- **POSIX Compliance**: Universal shell script compatibility
+- **Security Best Practices**: Docker image security with version pinning
+- **Automated Linting**: Hadolint integration for Dockerfile validation
+- **Code Review Integration**: CodeRabbit AI for quality assurance
+
+### CI/CD Pipeline Integration
+- **GitHub Actions**: Automated testing and quality gates
+- **SonarQube Integration**: Code quality metrics and compliance
+- **Security Scanning**: Automated vulnerability detection
+- **Quality Gates**: Mandatory quality checks before deployment
+
+### Enterprise Development Stack
+- **Peer Review Process**: Multi-iteration improvement workflows
+- **Documentation Standards**: Comprehensive technical documentation
+- **Archive Management**: Complete project documentation preservation
+- **Configuration Management**: External configuration for environments
+
+### Development Toolchain Enhanced
+- **Docker Security**: Pinned dependencies for reproducible builds
+- **Shell Compatibility**: POSIX-standard scripting for universal deployment
+- **Error Handling**: Enterprise-grade validation and logging
+- **Monitoring Integration**: Comprehensive status reporting and debugging
+

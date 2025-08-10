@@ -124,3 +124,65 @@ src/
 - **Service Health**: Individual service health endpoints
 - **Dependency Checks**: Verify external service availability
 - **Graceful Degradation**: Continue operation with degraded functionality
+
+## Enterprise Development Patterns (Added 2025-08-10)
+
+### Code Review and Quality Assurance Patterns
+- **Multi-Iteration Review**: Progressive improvement through peer review cycles
+- **Automated Quality Gates**: Integration of linting, security, and compliance checks
+- **CodeRabbit Integration**: AI-powered code review for consistency and best practices
+- **Quality Metrics**: SonarQube integration for code quality measurements
+
+### POSIX Compatibility Patterns
+- **Shell Compatibility**: Universal shell script patterns for cross-platform deployment
+  ```bash
+  # Conditional feature detection
+  set -eu
+  if (set -o 2>/dev/null | grep -q pipefail); then
+    set -o pipefail
+  fi
+  ```
+- **Portable Error Handling**: Cross-platform error detection and handling
+- **Environment Detection**: Runtime environment capability discovery
+
+### Modern Git Workflow Patterns
+- **Explicit Branch Management**: Clear branch creation and management
+  ```bash
+  git init -b main                    # Explicit main branch
+  git config --local user.name       # Local scope configuration
+  ```
+- **Comprehensive Staging**: Complete change capture including deletions
+  ```bash
+  git add -A                         # All changes including deletions
+  ```
+- **Dynamic Branch Operations**: Runtime branch detection and management
+  ```bash
+  CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+  git push -u origin "$CURRENT_BRANCH"
+  ```
+
+### Docker Security and Compliance Patterns
+- **Version Pinning**: Explicit package version specification
+  ```dockerfile
+  RUN apk add --no-cache git=2.47.3-r0
+  ```
+- **Hadolint Compliance**: Docker best practices enforcement
+- **Multi-stage Security**: User privilege management and minimal attack surface
+
+### Enterprise Error Handling Patterns
+- **Strict Mode with Fallbacks**: Maximum safety with graceful degradation
+- **Validation Chains**: Sequential validation with early termination
+- **Comprehensive Logging**: Enterprise-grade status reporting and debugging
+
+### CI/CD Integration Patterns
+- **Automated Quality Enforcement**: Mandatory quality gates in pipeline
+- **Security Scanning Integration**: Automated security compliance checking
+- **Documentation Validation**: Automated documentation consistency checks
+- **Branch Protection**: Quality-gated merge requirements
+
+### Code Organization Patterns for Enterprise
+- **Configuration Separation**: External configuration for different environments
+- **Feature Isolation**: Self-contained functionality with clear interfaces
+- **Documentation Co-location**: Technical documentation with implementation
+- **Archive Pattern**: Comprehensive project documentation preservation
+
