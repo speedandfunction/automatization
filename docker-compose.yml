@@ -33,6 +33,7 @@ services:
       - TZ=${TZ:-America/New_York}
     volumes:
       - n8n_data:/home/node/.n8n
+      - ./scripts:/home/node/scripts
     networks:
       - app-network
     user: node

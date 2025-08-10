@@ -3,7 +3,10 @@ FROM n8nio/n8n:1.89.2
 # Define build arguments
 ARG NODE_ENV=production
 ARG N8N_PORT=5678
-# Environment variables are now defined in docker-compose.yml
+
+# Install git for backup script
+USER root
+RUN apk add --no-cache git
 
 # Create app directory
 WORKDIR /home/node
@@ -17,4 +20,4 @@ USER node
 
 EXPOSE ${N8N_PORT}
 # The entrypoint script is already defined in the base image
-# Don't override the CMD 
+# Don't override the CMD
