@@ -6,7 +6,7 @@ ARG N8N_PORT=5678
 
 # Install git for backup script
 USER root
-RUN apk add --no-cache git
+RUN apk add --no-cache git=2.47.3-r0
 
 # Create app directory
 WORKDIR /home/node
