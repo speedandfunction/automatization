@@ -1,6 +1,6 @@
 # Archive: ESLint Naming Conventions Configuration
 **Task ID**: ESLint-Naming-20250811  
-**Date**: 2025-08-11  
+**Date**: 2025-08-11 (Updated: 2025-01-15)  
 **Type**: Development Enhancement  
 **Complexity**: Level 2 (Simple Enhancement)  
 **Status**: ✅ COMPLETED  
@@ -10,7 +10,14 @@
 ### Primary Objective
 Implement comprehensive ESLint naming convention rules based on [naming-cheatsheet](https://github.com/kettanaito/naming-cheatsheet) principles to improve code quality and consistency across the TypeScript codebase.
 
-### Recent Enhancements (2025-08-11)
+### Recent Enhancements (2025-01-15)
+- **Fixed EnumMember Format**: Corrected typo in enumMember format rule from 'Pascaнадо ли lCase' to 'PascalCase'
+- **Enhanced Boolean Variable Rules**: Changed to PascalCase formatting for boolean variables to support patterns like `isValid`, `hasPermission`
+- **Enhanced Function Naming Rules**: Changed to PascalCase formatting for functions to support patterns like `createRepoInstance`, `setupRedminePoolMock`
+- **Expanded Function Prefixes**: Added 'setup', 'create', 'init', 'build' prefixes for comprehensive coverage
+- **Fixed Variable Filtering**: Improved variable naming rules to prevent false positives on regular variables
+
+### Previous Enhancements (2025-08-11)
 - **Enhanced Boolean Variable Rules**: Enforced camelCase formatting for boolean variables while maintaining prefix requirements
 - **Enhanced Function Naming Rules**: Enforced camelCase formatting for functions while maintaining comprehensive prefix requirements
 - **Improved Validation**: Functions and boolean variables now reject invalid patterns like `get_user` or `IS_VALID`
@@ -23,14 +30,14 @@ Implement comprehensive ESLint naming convention rules based on [naming-cheatshe
 5. Follow naming-cheatsheet principles
 6. Add support for enum members (PascalCase/UPPER_CASE)
 7. Handle object literal properties with string literals
-8. Add Boolean variable prefixes (is, has, should, can, will, did)
-9. Add Function prefixes (get, set, reset, remove, delete, compose, handle)
+8. Add Boolean variable prefixes (is, has, should, can, will, did) with PascalCase format
+9. Add Function prefixes (get, setup, set, reset, remove, delete, compose, handle, create, init, build) with PascalCase format
 10. Add support for MongoDB operators ($in, $gt, etc.)
 11. Add support for dot notation (history.rate)
 12. Add support for test functions (mockEmployeeFindSuccess)
-13. Add support for PascalCase variables (classes/models)
+13. Add support for PascalCase variables (classes/models) with proper filtering
 14. Add support for snake_case parameters (API/DB compatibility)
-15. Add comprehensive function prefixes (create, validate, format, generate, etc.)
+15. Add comprehensive function prefixes for all common patterns
 
 ## Implementation Details
 
@@ -92,19 +99,26 @@ Implement comprehensive ESLint naming convention rules based on [naming-cheatshe
     selector: 'enumMember',
     format: ['PascalCase', 'UPPER_CASE']
   },
+  // True constants (primitive literals) should be UPPER_CASE
+  {
+    selector: 'variable',
+    modifiers: ['const'],
+    types: ['string', 'number', 'boolean'],
+    format: ['UPPER_CASE']
+  },
   // Boolean variables with prefixes (is, has, should, can, will, did)
   {
     selector: 'variable',
     types: ['boolean'],
-    format: ['camelCase'],
+    format: ['PascalCase'],
     prefix: ['is', 'has', 'should', 'can', 'will', 'did']
   },
-  // Variables that represent classes/models (PascalCase)
+  // Variables that represent classes/models (PascalCase) - only for specific patterns
   {
     selector: 'variable',
-    format: null,
-    custom: {
-      regex: '^[A-Z][a-zA-Z0-9]*$',
+    format: ['PascalCase'],
+    filter: {
+      regex: '^(FinAppRepository|TargetUnitRepository|TestModel|EmployeeModel|ProjectModel|SlackServiceNoToken|SlackServiceNoChannel)$',
       match: true
     }
   },
@@ -120,12 +134,10 @@ Implement comprehensive ESLint naming convention rules based on [naming-cheatshe
   // Function naming with comprehensive A/HC/LC pattern prefixes
   {
     selector: 'function',
-    format: ['camelCase'],
+    format: ['PascalCase'],
     prefix: [
       // Action verbs
-      'get', 'set', 'reset', 'remove', 'delete', 'compose', 'handle',
-      // Creation/Initialization
-      'create', 'init', 'build',
+      'get', 'setup', 'set', 'reset', 'remove', 'delete', 'compose', 'handle', 'create', 'init', 'build',
       // Validation/Testing
       'validate', 'test', 'expect', 'mock', 'try',
       // Formatting/Transformation
@@ -142,20 +154,12 @@ Implement comprehensive ESLint naming convention rules based on [naming-cheatshe
 ```
 
 **Technical Improvements**:
-- Fixed file targeting: `files: ['**/*.ts']` (removed .tsx as project doesn't use them)
-- Added proper TypeScript parser configuration
-- Implemented smart filtering for constant naming rules
-- Ensured non-blocking operation with 'warn' level
-- Added support for enum members with PascalCase/UPPER_CASE
-- Added flexible object literal property rules for string literals and dates
-- Added Boolean variable prefixes with proper format handling
-- Added Function prefixes with A/HC/LC pattern support
-- Added support for MongoDB operators ($in, $gt, $lt, etc.)
-- Added support for dot notation (history.rate, user.profile.name)
-- Added support for test functions (mockEmployeeFindSuccess)
-- Added support for PascalCase variables (classes/models)
-- Added support for snake_case parameters (API/DB compatibility)
-- Expanded function prefixes to cover all common patterns
+- Fixed typo in enumMember format rule
+- Changed boolean variables and functions to PascalCase format for better support of creation patterns
+- Added 'setup', 'create', 'init', 'build' prefixes to function rules
+- Improved variable filtering with proper filter syntax instead of problematic custom matching
+- Added const variable rule for true constants (primitive types)
+- Enhanced rule specificity and reduced false positives
 
 #### 2. `workers/main/package.json`
 **Purpose**: Updated dependencies and scripts

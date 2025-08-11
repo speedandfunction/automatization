@@ -119,14 +119,14 @@ export default [
         {
           selector: 'variable',
           types: ['boolean'],
-          format: ['camelCase'],
+          format: ['PascalCase'],
           prefix: ['is', 'has', 'should', 'can', 'will', 'did']
         },
         // Variables that represent classes/models (PascalCase) - only for specific patterns
         {
           selector: 'variable',
-          format: null,
-          custom: {
+          format: ['PascalCase'],
+          filter: {
             regex: '^(FinAppRepository|TargetUnitRepository|TestModel|EmployeeModel|ProjectModel|SlackServiceNoToken|SlackServiceNoChannel)$',
             match: true
           }
@@ -143,12 +143,10 @@ export default [
         // Function naming with A/HC/LC pattern prefixes
         {
           selector: 'function',
-          format: ['camelCase'],
+          format: ['PascalCase'],
           prefix: [
             // Action verbs
-            'get', 'set', 'reset', 'remove', 'delete', 'compose', 'handle',
-            // Creation/Initialization
-            'create', 'init', 'build',
+            'get', 'setup', 'set', 'reset', 'remove', 'delete', 'compose', 'handle', 'create', 'init', 'build',
             // Validation/Testing
             'validate', 'test', 'expect', 'mock', 'try',
             // Formatting/Transformation
@@ -160,6 +158,12 @@ export default [
             // Main operations
             'run', 'start', 'stop', 'main'
           ]
+        },
+        // Creation/Initialization functions should use PascalCase after prefix
+        {
+          selector: 'function',
+          format: ['PascalCase'],
+          prefix: ['create', 'init', 'build']
         },
 
       ],
