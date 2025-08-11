@@ -78,7 +78,7 @@ export default [
             match: false
           }
         },
-        // Allow string literals as object property names (like dates, API keys, HTTP headers, MongoDB operators)
+        // Object literal properties: allow camelCase, snake_case, MongoDB operators, dot notation, and quoted strings
         {
           selector: 'objectLiteralProperty',
           format: null,
@@ -119,13 +119,31 @@ export default [
         {
           selector: 'variable',
           types: ['boolean'],
-          format: null,
+          format: ['camelCase'],
           prefix: ['is', 'has', 'should', 'can', 'will', 'did']
+        },
+        // Variables that represent classes/models (PascalCase) - only for specific patterns
+        {
+          selector: 'variable',
+          format: null,
+          custom: {
+            regex: '^(FinAppRepository|TargetUnitRepository|TestModel|EmployeeModel|ProjectModel|SlackServiceNoToken|SlackServiceNoChannel)$',
+            match: true
+          }
+        },
+        // Parameters that can be snake_case (for API/DB compatibility)
+        {
+          selector: 'parameter',
+          format: null,
+          custom: {
+            regex: '^[a-z][a-zA-Z0-9_]*$',
+            match: true
+          }
         },
         // Function naming with A/HC/LC pattern prefixes
         {
           selector: 'function',
-          format: null,
+          format: ['camelCase'],
           prefix: [
             // Action verbs
             'get', 'set', 'reset', 'remove', 'delete', 'compose', 'handle',

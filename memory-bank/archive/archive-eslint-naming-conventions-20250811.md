@@ -10,6 +10,11 @@
 ### Primary Objective
 Implement comprehensive ESLint naming convention rules based on [naming-cheatsheet](https://github.com/kettanaito/naming-cheatsheet) principles to improve code quality and consistency across the TypeScript codebase.
 
+### Recent Enhancements (2025-08-11)
+- **Enhanced Boolean Variable Rules**: Enforced camelCase formatting for boolean variables while maintaining prefix requirements
+- **Enhanced Function Naming Rules**: Enforced camelCase formatting for functions while maintaining comprehensive prefix requirements
+- **Improved Validation**: Functions and boolean variables now reject invalid patterns like `get_user` or `IS_VALID`
+
 ### Key Requirements
 1. Prevent AI from creating interfaces with 'I' prefix
 2. Enforce camelCase for constants (updated from UPPER_CASE)
@@ -91,7 +96,7 @@ Implement comprehensive ESLint naming convention rules based on [naming-cheatshe
   {
     selector: 'variable',
     types: ['boolean'],
-    format: null,
+    format: ['camelCase'],
     prefix: ['is', 'has', 'should', 'can', 'will', 'did']
   },
   // Variables that represent classes/models (PascalCase)
@@ -115,7 +120,7 @@ Implement comprehensive ESLint naming convention rules based on [naming-cheatshe
   // Function naming with comprehensive A/HC/LC pattern prefixes
   {
     selector: 'function',
-    format: null,
+    format: ['camelCase'],
     prefix: [
       // Action verbs
       'get', 'set', 'reset', 'remove', 'delete', 'compose', 'handle',
@@ -237,7 +242,7 @@ npm run eslint -- --fix
 **Solution**:
 - Added Boolean variable rule with prefixes: `is`, `has`, `should`, `can`, `will`, `did`
 - Added Function rule with A/HC/LC pattern prefixes: `get`, `set`, `reset`, `remove`, `delete`, `compose`, `handle`
-- Used `format: null` to avoid conflicts with camelCase validation
+- Used `format: ['camelCase']` to enforce camelCase formatting while requiring prefixes
 - Follows naming-cheatsheet principles for better code readability
 
 ### Challenge 7: MongoDB Operators and Dot Notation
@@ -315,10 +320,10 @@ npm run eslint -- --fix
 - ✅ Enum members with PascalCase/UPPER_CASE pass
 - ✅ Object properties with string literals and dates pass
 - ✅ camelCase enum members get PascalCase warnings
-- ✅ Boolean variables with prefixes pass
-- ✅ Boolean variables without prefixes get warnings
-- ✅ Functions with prefixes pass
-- ✅ Functions without prefixes get warnings
+- ✅ Boolean variables with camelCase and prefixes pass (e.g., `isValid`, `hasPermission`)
+- ✅ Boolean variables without camelCase get warnings (e.g., `IS_VALID`, `HasPermission`)
+- ✅ Functions with camelCase and prefixes pass (e.g., `getUser`, `createProject`)
+- ✅ Functions without camelCase get warnings (e.g., `get_user`, `getUser_v2`)
 - ✅ MongoDB operators ($in, $gt, $lt) pass
 - ✅ Dot notation (history.rate, user.profile.name) pass
 - ✅ Test functions (mockEmployeeFindSuccess) pass
@@ -358,12 +363,12 @@ npm run eslint -- --fix
 #### 6. Boolean Variable Naming
 - **Rule**: camelCase with prefixes (is, has, should, can, will, did)
 - **Rationale**: Clear indication of boolean nature and intent
-- **Implementation**: Variable selector with boolean type constraint
+- **Implementation**: Variable selector with boolean type constraint and camelCase format enforcement
 
 #### 7. Function Naming
 - **Rule**: camelCase with comprehensive A/HC/LC pattern prefixes
 - **Rationale**: Clear indication of function purpose and action
-- **Implementation**: Function selector with expanded prefix list including:
+- **Implementation**: Function selector with camelCase format enforcement and expanded prefix list including:
   - **Action verbs**: `get`, `set`, `reset`, `remove`, `delete`, `compose`, `handle`
   - **Creation/Initialization**: `create`, `init`, `build`
   - **Validation/Testing**: `validate`, `test`, `expect`, `mock`, `try`
@@ -485,6 +490,7 @@ npm run eslint -- --fix
 **Review Status**: ✅ All CodeRabbit suggestions addressed  
 **Documentation**: ✅ Comprehensive README updates  
 **Coverage**: ✅ Comprehensive naming convention coverage including MongoDB, testing, and API patterns  
+**Recent Updates**: ✅ Enhanced camelCase enforcement for boolean variables and functions  
 
 **Next Steps**: Ready for new task assignment  
 **System Status**: All ESLint rules operational and tested  
