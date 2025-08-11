@@ -6,7 +6,7 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 export default [
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['**/*.ts'],
     settings: {
       'import/resolver': {
         typescript: {
@@ -67,12 +67,16 @@ export default [
       // Naming conventions based on naming-cheatsheet: https://github.com/kettanaito/naming-cheatsheet
       '@typescript-eslint/naming-convention': [
         'warn',
-        // Default rule for all identifiers
+        // Default rule for all identifiers (excluding const variables)
         {
           selector: 'default',
           format: ['camelCase'],
           leadingUnderscore: 'allow',
           trailingUnderscore: 'allow',
+          filter: {
+            regex: '^[A-Z_]+$',
+            match: false
+          }
         },
         // Prevent interfaces starting with 'I'
         {
@@ -92,10 +96,11 @@ export default [
         {
           selector: 'variable',
           modifiers: ['const'],
+          types: ['string', 'number', 'boolean'],
           format: ['UPPER_CASE'],
           filter: {
             regex: '^[A-Z_]+$',
-            match: true
+            match: false
           }
         }
       ],
