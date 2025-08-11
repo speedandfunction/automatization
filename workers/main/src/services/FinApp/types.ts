@@ -21,6 +21,7 @@ export interface Project {
    */
   quick_books_id?: number;
   history?: History;
+  effectiveRevenue?: number;
   [key: string]: unknown;
 }
 

@@ -3,6 +3,7 @@ import { readJsonFile, writeJsonFile } from '../../common/fileUtils';
 import { MongoPool } from '../../common/MongoPool';
 import { TargetUnit } from '../../common/types';
 import { FinAppRepository } from '../../services/FinApp';
+import { QBORepository } from '../../services/QBO';
 
 interface GetTargetUnitsResult {
   fileLink: string;
@@ -21,17 +22,27 @@ export const fetchFinancialAppData = async (
   try {
     await mongoPool.connect();
     const repo = new FinAppRepository();
+    const qboRepo = new QBORepository();
 
     const targetUnits = await readJsonFile<TargetUnit[]>(fileLink);
     const employeeIds = getUniqueIds(targetUnits, 'user_id');
     const projectIds = getUniqueIds(targetUnits, 'project_id');
 
-    const [employees, projects] = await Promise.all([
+    const [employees, projects, effectiveRevenue] = await Promise.all([
       repo.getEmployeesByRedmineIds(employeeIds),
       repo.getProjectsByRedmineIds(projectIds),
+      qboRepo.getEffectiveRevenue(),
     ]);
 
-    await writeJsonFile(filename, { employees, projects });
+    await writeJsonFile(filename, {
+      employees,
+      projects: projects.map((project) => ({
+        ...project,
+        effectiveRevenue: project.quick_books_id
+          ? effectiveRevenue[project.quick_books_id]?.totalAmount || 0
+          : 0,
+      })),
+    });
 
     return { fileLink: filename };
   } catch (err) {

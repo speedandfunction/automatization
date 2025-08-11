@@ -2,10 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { WeeklyFinancialReportRepository } from './WeeklyFinancialReportRepository';
 
-describe('WeeklyFinancialReportRepository', () => {
-  const repo = new WeeklyFinancialReportRepository();
-
-  const targetUnits = [
+const createBasicTestData = () => ({
+  targetUnits: [
     {
       group_id: 1,
       group_name: 'Group A',
@@ -56,26 +54,78 @@ describe('WeeklyFinancialReportRepository', () => {
       spent_on: '2024-06-01',
       total_hours: 10,
     },
-  ];
-  const employees = [
+  ],
+  employees: [
     { redmine_id: 100, history: { rate: { '2024-01-01': 100 } } },
     { redmine_id: 101, history: { rate: { '2024-01-01': 200 } } },
     { redmine_id: 102, history: { rate: { '2024-01-01': 300 } } },
     { redmine_id: 103, history: { rate: { '2024-01-01': 900 } } },
     { redmine_id: 104, history: { rate: { '2024-01-01': 700 } } },
-  ];
-  const projects = [
+  ],
+  projects: [
     { redmine_id: 10, history: { rate: { '2024-01-01': 500 } } },
     { redmine_id: 20, history: { rate: { '2024-01-01': 1000 } } },
     { redmine_id: 30, history: { rate: { '2024-01-01': 1500 } } },
     { redmine_id: 40, history: { rate: { '2024-01-01': 1300 } } },
-  ];
+  ],
+});
+
+const createMarginalityTestData = () => ({
+  targetUnits: [
+    {
+      group_id: 1,
+      group_name: 'Group A',
+      project_id: 10,
+      project_name: 'Project X',
+      user_id: 100,
+      username: 'Alice',
+      spent_on: '2024-06-01',
+      total_hours: 10,
+    },
+    {
+      group_id: 2,
+      group_name: 'Group B',
+      project_id: 20,
+      project_name: 'Project Y',
+      user_id: 101,
+      username: 'Bob',
+      spent_on: '2024-06-01',
+      total_hours: 10,
+    },
+    {
+      group_id: 3,
+      group_name: 'Group C',
+      project_id: 30,
+      project_name: 'Project Z',
+      user_id: 102,
+      username: 'Charlie',
+      spent_on: '2024-06-01',
+      total_hours: 10,
+    },
+  ],
+  employees: [
+    { redmine_id: 100, history: { rate: { '2024-01-01': 50 } } },
+    { redmine_id: 101, history: { rate: { '2024-01-01': 50 } } },
+    { redmine_id: 102, history: { rate: { '2024-01-01': 50 } } },
+  ],
+  projects: [
+    { redmine_id: 10, history: { rate: { '2024-01-01': 100 } } }, // 50% marginality
+    { redmine_id: 20, history: { rate: { '2024-01-01': 200 } } }, // 75% marginality
+    { redmine_id: 30, history: { rate: { '2024-01-01': 150 } } }, // 67% marginality
+  ],
+});
+
+
+
+describe('WeeklyFinancialReportRepository', () => {
+  const repo = new WeeklyFinancialReportRepository();
 
   it('generates a report with summary and details', async () => {
+    const testData = createBasicTestData();
     const { summary, details } = await repo.generateReport({
-      targetUnits,
-      employees,
-      projects,
+      targetUnits: testData.targetUnits,
+      employees: testData.employees,
+      projects: testData.projects,
     });
 
     expect(typeof summary).toBe('string');
@@ -132,5 +182,25 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(details).toContain('Notes:');
     expect(details).toContain('Legend');
     expect(summary).toContain('Weekly Financial Summary for Target Units');
+  });
+
+  it('sorts groups by effectiveMarginality in descending order', async () => {
+    const testData = createMarginalityTestData();
+    const { details } = await repo.generateReport({
+      targetUnits: testData.targetUnits,
+      employees: testData.employees,
+      projects: testData.projects,
+    });
+
+    // Проверяем, что группы отображаются в правильном порядке (по убыванию effectiveMarginality)
+    const groupBIndex = details.indexOf('Group B');
+    const groupCIndex = details.indexOf('Group C');
+    const groupAIndex = details.indexOf('Group A');
+
+    // Group B должна быть первой (75% marginality)
+    // Group C должна быть второй (67% marginality)
+    // Group A должна быть третьей (50% marginality)
+    expect(groupBIndex).toBeLessThan(groupCIndex);
+    expect(groupCIndex).toBeLessThan(groupAIndex);
   });
 });

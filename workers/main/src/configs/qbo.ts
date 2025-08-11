@@ -12,7 +12,7 @@ export const qboConfig = {
   tokenPath: '/oauth2/v1/tokens/bearer',
   tokenExpirationWindowSeconds: 300,
   effectiveRevenueMonths: parseInt(
-    process.env.QBO_EFFECTIVE_REVENUE_MONTHS || '3',
+    process.env.QBO_EFFECTIVE_REVENUE_MONTHS || '4',
   ),
 };
 
