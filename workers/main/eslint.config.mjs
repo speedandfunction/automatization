@@ -1,11 +1,12 @@
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
-import prettier from 'eslint-plugin-prettier';
 import eslintImport from 'eslint-plugin-import';
+import prettier from 'eslint-plugin-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 export default [
   {
+    files: ['**/*.ts', '**/*.tsx'],
     settings: {
       'import/resolver': {
         typescript: {
@@ -62,7 +63,43 @@ export default [
       ],
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
-      
+
+      // Naming conventions based on naming-cheatsheet: https://github.com/kettanaito/naming-cheatsheet
+      '@typescript-eslint/naming-convention': [
+        'warn',
+        // Default rule for all identifiers
+        {
+          selector: 'default',
+          format: ['camelCase'],
+          leadingUnderscore: 'allow',
+          trailingUnderscore: 'allow',
+        },
+        // Prevent interfaces starting with 'I'
+        {
+          selector: 'interface',
+          format: ['PascalCase'],
+          custom: {
+            regex: '^I[A-Z]',
+            match: false
+          }
+        },
+        // Enforce PascalCase for classes and types
+        {
+          selector: ['class', 'typeLike'],
+          format: ['PascalCase']
+        },
+        // Enforce UPPER_CASE for constants (only for true constants)
+        {
+          selector: 'variable',
+          modifiers: ['const'],
+          format: ['UPPER_CASE'],
+          filter: {
+            regex: '^[A-Z_]+$',
+            match: true
+          }
+        }
+      ],
+
       // Code complexity and size rules
       'max-depth': ['error', 4],
       'max-lines': ['error', 300],
