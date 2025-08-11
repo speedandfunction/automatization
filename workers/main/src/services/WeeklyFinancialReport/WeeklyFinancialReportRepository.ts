@@ -52,7 +52,6 @@ export class WeeklyFinancialReportRepository
       initialDetails +
       WeeklyFinancialReportFormatter.formatFooter(totalReportedHours);
 
-    // Создаем отсортированные группы для сводки
     const { highGroups, mediumGroups, lowGroups } =
       this.createSortedGroups(groupData);
 
@@ -95,35 +94,24 @@ export class WeeklyFinancialReportRepository
   }
 
   private sortGroupData(groupData: GroupData[]) {
-    // Сортируем группы сначала по уровню маржинальности (High -> Medium -> Low),
-    // затем внутри каждого уровня по убыванию effectiveMarginality
-    groupData.sort((a, b) => {
-      // Сначала сравниваем по уровню маржинальности
-      const levelComparison = this.compareMarginalityLevels(
-        a.marginality.level,
-        b.marginality.level,
-      );
-
-      if (levelComparison !== 0) {
-        return levelComparison;
-      }
-
-      // Если уровни одинаковые, сортируем по убыванию effectiveMarginality
-      return b.effectiveMarginality - a.effectiveMarginality;
-    });
-  }
-
-  private compareMarginalityLevels(
-    levelA: MarginalityLevel,
-    levelB: MarginalityLevel,
-  ): number {
     const levelOrder = {
       [MarginalityLevel.High]: 3,
       [MarginalityLevel.Medium]: 2,
       [MarginalityLevel.Low]: 1,
     };
 
-    return levelOrder[levelB] - levelOrder[levelA]; // Сортируем по убыванию (High -> Medium -> Low)
+    // Sort by marginality level (High -> Medium -> Low),
+    // then within each level by descending effectiveMarginality
+    groupData.sort((a, b) => {
+      const levelComparison =
+        levelOrder[b.marginality.level] - levelOrder[a.marginality.level];
+
+      if (levelComparison !== 0) {
+        return levelComparison;
+      }
+
+      return b.effectiveMarginality - a.effectiveMarginality;
+    });
   }
 
   private processSingleGroup(
@@ -165,7 +153,7 @@ export class WeeklyFinancialReportRepository
     const mediumGroups: string[] = [];
     const lowGroups: string[] = [];
 
-    // Группы уже отсортированы по effectiveMarginality, поэтому просто распределяем их по категориям
+    // Groups are already sorted by effectiveMarginality, so just distribute them by categories
     for (const group of groupData) {
       this.pushGroupByMarginality(group.marginality.level, group.groupName, {
         highMarginalityGroups: highGroups,
@@ -269,7 +257,6 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue += projectRate * unit.total_hours; // For now, same as total revenue
     }
 
-    // Calculate Effective Margin and Effective Marginality
     const effectiveMargin = effectiveRevenue - groupTotalCogs;
     const effectiveMarginality =
       effectiveRevenue > 0 ? (effectiveMargin / effectiveRevenue) * 100 : 0;

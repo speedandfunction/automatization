@@ -115,8 +115,6 @@ const createMarginalityTestData = () => ({
   ],
 });
 
-
-
 describe('WeeklyFinancialReportRepository', () => {
   const repo = new WeeklyFinancialReportRepository();
 
@@ -133,7 +131,6 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(summary.length).toBeGreaterThan(0);
     expect(details.length).toBeGreaterThan(0);
 
-    // Check summary content
     expect(summary).toContain('Weekly Financial Summary for Target Units');
     expect(summary).toContain('Marginality is 55% or higher');
     expect(summary).toContain('Marginality is between 45-55%');
@@ -141,13 +138,11 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(summary).toContain(
       'The specific figures will be available in the thread',
     );
-    // Group names should appear in summary
     expect(summary).toContain('Group A');
     expect(summary).toContain('Group B');
     expect(summary).toContain('Group C');
     expect(summary).toContain('Group D');
 
-    // Check details content
     expect(details).toContain('Total hours');
     expect(details).toContain('Group A');
     expect(details).toContain('Group B');
@@ -192,14 +187,14 @@ describe('WeeklyFinancialReportRepository', () => {
       projects: testData.projects,
     });
 
-    // Проверяем, что группы отображаются в правильном порядке (по убыванию effectiveMarginality)
+    // Check that groups are displayed in the correct order (by descending effectiveMarginality)
     const groupBIndex = details.indexOf('Group B');
     const groupCIndex = details.indexOf('Group C');
     const groupAIndex = details.indexOf('Group A');
 
-    // Group B должна быть первой (75% marginality)
-    // Group C должна быть второй (67% marginality)
-    // Group A должна быть третьей (50% marginality)
+    // Group B should be first (75% marginality)
+    // Group C should be second (67% marginality)
+    // Group A should be third (50% marginality)
     expect(groupBIndex).toBeLessThan(groupCIndex);
     expect(groupCIndex).toBeLessThan(groupAIndex);
   });

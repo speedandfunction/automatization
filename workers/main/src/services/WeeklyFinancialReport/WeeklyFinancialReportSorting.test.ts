@@ -70,30 +70,27 @@ describe('WeeklyFinancialReportRepository Sorting', () => {
       projects: testData.projects,
     });
 
-    // Проверяем порядок в details: High -> Medium -> Low
     const highGroupBIndex = details.indexOf('High Group B');
     const highGroupDIndex = details.indexOf('High Group D');
     const mediumGroupCIndex = details.indexOf('Medium Group C');
     const lowGroupAIndex = details.indexOf('Low Group A');
 
-    // High группы должны быть первыми
+    // High groups should be first
     expect(highGroupBIndex).toBeLessThan(mediumGroupCIndex);
     expect(highGroupDIndex).toBeLessThan(mediumGroupCIndex);
 
-    // Medium группы должны быть после High
+    // Medium groups should be after High
     expect(mediumGroupCIndex).toBeLessThan(lowGroupAIndex);
 
-    // Low группы должны быть последними
+    // Low groups should be last
     expect(lowGroupAIndex).toBeGreaterThan(highGroupBIndex);
     expect(lowGroupAIndex).toBeGreaterThan(highGroupDIndex);
     expect(lowGroupAIndex).toBeGreaterThan(mediumGroupCIndex);
 
-    // Проверяем порядок в summary
     const highGroupBIndexSummary = summary.indexOf('High Group B');
     const mediumGroupCIndexSummary = summary.indexOf('Medium Group C');
     const lowGroupAIndexSummary = summary.indexOf('Low Group A');
 
-    // Порядок должен быть одинаковым в details и summary
     expect(highGroupBIndexSummary).toBeLessThan(mediumGroupCIndexSummary);
     expect(mediumGroupCIndexSummary).toBeLessThan(lowGroupAIndexSummary);
   });
