@@ -67,15 +67,33 @@ export default [
       // Naming conventions based on naming-cheatsheet: https://github.com/kettanaito/naming-cheatsheet
       '@typescript-eslint/naming-convention': [
         'warn',
-        // Default rule for all identifiers (excluding const variables)
+        // Default rule for all identifiers (excluding string literals and SQL constants)
         {
           selector: 'default',
           format: ['camelCase'],
           leadingUnderscore: 'allow',
           trailingUnderscore: 'allow',
           filter: {
-            regex: '^[A-Z_]+$',
+            regex: '^[\'"].*[\'"]$|^[A-Z_]+$',
             match: false
+          }
+        },
+        // Allow string literals as object property names (like dates, API keys, HTTP headers, MongoDB operators)
+        {
+          selector: 'objectLiteralProperty',
+          format: null,
+          custom: {
+            regex: '^[a-zA-Z_][a-zA-Z0-9_]*$|^[\'"].*[\'"]$|^[0-9-]+$|^[A-Za-z][A-Za-z0-9-]*$|^\\$[a-zA-Z]+$|^[a-zA-Z_][a-zA-Z0-9_.]*$',
+            match: true
+          }
+        },
+        // Allow PascalCase and snake_case for API/DB compatibility
+        {
+          selector: 'typeProperty',
+          format: null,
+          custom: {
+            regex: '^[A-Z][a-zA-Z0-9]*$|^[a-z][a-zA-Z0-9_]*$',
+            match: true
           }
         },
         // Prevent interfaces starting with 'I'
@@ -92,17 +110,40 @@ export default [
           selector: ['class', 'typeLike'],
           format: ['PascalCase']
         },
-        // Enforce UPPER_CASE for constants (only for true constants)
+        // Enforce PascalCase or UPPER_CASE for enum members
+        {
+          selector: 'enumMember',
+          format: ['PascalCase', 'UPPER_CASE']
+        },
+        // Boolean variables with prefixes (is, has, should, can, will, did)
         {
           selector: 'variable',
-          modifiers: ['const'],
-          types: ['string', 'number', 'boolean'],
-          format: ['UPPER_CASE'],
-          filter: {
-            regex: '^[A-Z_]+$',
-            match: false
-          }
-        }
+          types: ['boolean'],
+          format: null,
+          prefix: ['is', 'has', 'should', 'can', 'will', 'did']
+        },
+        // Function naming with A/HC/LC pattern prefixes
+        {
+          selector: 'function',
+          format: null,
+          prefix: [
+            // Action verbs
+            'get', 'set', 'reset', 'remove', 'delete', 'compose', 'handle',
+            // Creation/Initialization
+            'create', 'init', 'build',
+            // Validation/Testing
+            'validate', 'test', 'expect', 'mock', 'try',
+            // Formatting/Transformation
+            'format', 'transform', 'convert',
+            // Generation/Processing
+            'generate', 'process', 'parse',
+            // File operations
+            'read', 'write', 'save', 'load',
+            // Main operations
+            'run', 'start', 'stop', 'main'
+          ]
+        },
+
       ],
 
       // Code complexity and size rules
