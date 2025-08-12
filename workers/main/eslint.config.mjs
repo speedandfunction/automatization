@@ -1,11 +1,12 @@
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
-import prettier from 'eslint-plugin-prettier';
 import eslintImport from 'eslint-plugin-import';
+import prettier from 'eslint-plugin-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 export default [
   {
+    files: ['**/*.ts'],
     settings: {
       'import/resolver': {
         typescript: {
@@ -62,7 +63,111 @@ export default [
       ],
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
-      
+
+      // Naming conventions based on naming-cheatsheet: https://github.com/kettanaito/naming-cheatsheet
+      '@typescript-eslint/naming-convention': [
+        'warn',
+        // Default rule for all identifiers (excluding string literals and SQL constants)
+        {
+          selector: 'default',
+          format: ['camelCase'],
+          leadingUnderscore: 'allow',
+          trailingUnderscore: 'allow',
+          filter: {
+            regex: '^[\'"].*[\'"]$|^[A-Z_]+$',
+            match: false
+          }
+        },
+        // Object literal properties: allow camelCase, snake_case, MongoDB operators, dot notation, and quoted strings
+        {
+          selector: 'objectLiteralProperty',
+          format: null,
+          custom: {
+            regex: '^[a-zA-Z_][a-zA-Z0-9_]*$|^[\'"].*[\'"]$|^[0-9-]+$|^[A-Za-z][A-Za-z0-9-]*$|^\\$[a-zA-Z]+$|^[a-zA-Z_][a-zA-Z0-9_.]*$',
+            match: true
+          }
+        },
+        // Allow PascalCase and snake_case for API/DB compatibility
+        {
+          selector: 'typeProperty',
+          format: null,
+          custom: {
+            regex: '^[A-Z][a-zA-Z0-9]*$|^[a-z][a-zA-Z0-9_]*$',
+            match: true
+          }
+        },
+        // Prevent interfaces starting with 'I'
+        {
+          selector: 'interface',
+          format: ['PascalCase'],
+          custom: {
+            regex: '^I[A-Z]',
+            match: false
+          }
+        },
+        // Enforce PascalCase for classes and types
+        {
+          selector: ['class', 'typeLike'],
+          format: ['PascalCase']
+        },
+        // Enforce PascalCase or UPPER_CASE for enum members
+        {
+          selector: 'enumMember',
+          format: ['PascalCase', 'UPPER_CASE']
+        },
+        // Boolean variables with prefixes (is, has, should, can, will, did)
+        {
+          selector: 'variable',
+          types: ['boolean'],
+          format: ['PascalCase'],
+          prefix: ['is', 'has', 'should', 'can', 'will', 'did']
+        },
+        // Variables that represent classes/models (PascalCase) - only for specific patterns
+        {
+          selector: 'variable',
+          format: ['PascalCase'],
+          filter: {
+            regex: '^(FinAppRepository|TargetUnitRepository|TestModel|EmployeeModel|ProjectModel|SlackServiceNoToken|SlackServiceNoChannel)$',
+            match: true
+          }
+        },
+        // Parameters that can be snake_case (for API/DB compatibility)
+        {
+          selector: 'parameter',
+          format: null,
+          custom: {
+            regex: '^[a-z][a-zA-Z0-9_]*$',
+            match: true
+          }
+        },
+        // Function naming with A/HC/LC pattern prefixes
+        {
+          selector: 'function',
+          format: ['PascalCase'],
+          prefix: [
+            // Action verbs
+            'get', 'setup', 'set', 'reset', 'remove', 'delete', 'compose', 'handle', 'create', 'init', 'build',
+            // Validation/Testing
+            'validate', 'test', 'expect', 'mock', 'try',
+            // Formatting/Transformation
+            'format', 'transform', 'convert',
+            // Generation/Processing
+            'generate', 'process', 'parse',
+            // File operations
+            'read', 'write', 'save', 'load',
+            // Main operations
+            'run', 'start', 'stop', 'main'
+          ]
+        },
+        // Creation/Initialization functions should use PascalCase after prefix
+        {
+          selector: 'function',
+          format: ['PascalCase'],
+          prefix: ['create', 'init', 'build']
+        },
+
+      ],
+
       // Code complexity and size rules
       'max-depth': ['error', 4],
       'max-lines': ['error', 300],
