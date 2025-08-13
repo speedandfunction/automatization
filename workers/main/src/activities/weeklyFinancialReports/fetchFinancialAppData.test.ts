@@ -5,9 +5,14 @@ import { AppError } from '../../common/errors';
 import * as fileUtils from '../../common/fileUtils';
 import * as mongoPoolModule from '../../common/MongoPool';
 import type { TargetUnit } from '../../common/types';
-import type { Employee, Project } from '../../services/FinApp';
-import type { IFinAppRepository } from '../../services/FinApp';
+import type {
+  Employee,
+  IFinAppRepository,
+  Project,
+} from '../../services/FinApp';
 import * as finAppService from '../../services/FinApp';
+import type { CustomerRevenueByRef } from '../../services/QBO';
+import * as qboService from '../../services/QBO';
 import { fetchFinancialAppData } from './fetchFinancialAppData';
 
 type MongoPoolMock = {
@@ -30,6 +35,9 @@ vi.mock('../../common/MongoPool', () => ({
 vi.mock('../../services/FinApp', () => ({
   FinAppRepository: vi.fn(),
 }));
+vi.mock('../../services/QBO', () => ({
+  QBORepository: vi.fn(),
+}));
 
 const mockTargetUnits: TargetUnit[] = [
   {
@@ -48,11 +56,20 @@ const mockEmployees: Employee[] = [
 ];
 const mockProjects: Project[] = [
   {
+    name: 'Test Project',
     redmine_id: 2,
     quick_books_id: 10,
     history: { rate: { '2024-01-01': 200 } },
   },
 ];
+
+const mockEffectiveRevenue: CustomerRevenueByRef = {
+  '10': {
+    customerName: 'Test Customer',
+    totalAmount: 5000,
+    invoiceCount: 3,
+  },
+};
 
 function createRepoInstance(
   overrides: Partial<IFinAppRepository> = {},
@@ -83,8 +100,10 @@ describe('getFinAppData', () => {
   let connect: Mock;
   let disconnect: Mock;
   let FinAppRepository: Mock;
+  let qboRepository: Mock;
   let dateSpy: ReturnType<typeof vi.spyOn>;
   let repoInstance: IFinAppRepository;
+  let qboRepoInstance: { getEffectiveRevenue: Mock };
   let mongoPoolInstance: MongoPoolMock;
 
   const fileLink = 'input.json';
@@ -100,6 +119,7 @@ describe('getFinAppData', () => {
     (repoInstance.getProjectsByRedmineIds as Mock).mockResolvedValue(
       mockProjects,
     );
+    qboRepoInstance.getEffectiveRevenue.mockResolvedValue(mockEffectiveRevenue);
   }
 
   async function expectAppError(promise: Promise<unknown>, msg: string) {
@@ -113,9 +133,15 @@ describe('getFinAppData', () => {
     readJsonFile = vi.mocked(fileUtils.readJsonFile);
     writeJsonFile = vi.mocked(fileUtils.writeJsonFile);
     FinAppRepository = vi.mocked(finAppService.FinAppRepository);
+    qboRepository = vi.mocked(qboService.QBORepository);
 
     repoInstance = createRepoInstance();
     FinAppRepository.mockImplementation(() => repoInstance);
+
+    qboRepoInstance = {
+      getEffectiveRevenue: vi.fn().mockResolvedValue(mockEffectiveRevenue),
+    };
+    qboRepository.mockImplementation(() => qboRepoInstance);
 
     connect = vi.fn().mockResolvedValue(undefined);
     disconnect = vi.fn().mockResolvedValue(undefined);
@@ -141,8 +167,16 @@ describe('getFinAppData', () => {
       expect(readJsonFile).toHaveBeenCalledWith(fileLink);
       expect(writeJsonFile).toHaveBeenCalledWith(expectedFilename, {
         employees: mockEmployees,
-        projects: mockProjects,
+        projects: [
+          {
+            ...mockProjects[0],
+            effectiveRevenue: 5000,
+          },
+        ],
+        effectiveRevenue: mockEffectiveRevenue,
       });
+      expect(qboRepository).toHaveBeenCalledTimes(1);
+      expect(qboRepoInstance.getEffectiveRevenue).toHaveBeenCalledTimes(1);
     });
 
     it('always disconnects the mongo pool', async () => {

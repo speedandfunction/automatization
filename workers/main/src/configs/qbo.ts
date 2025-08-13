@@ -11,9 +11,11 @@ export const qboConfig = {
   tokenHost: 'https://oauth.platform.intuit.com',
   tokenPath: '/oauth2/v1/tokens/bearer',
   tokenExpirationWindowSeconds: 300,
-  effectiveRevenueMonths: parseInt(
-    process.env.QBO_EFFECTIVE_REVENUE_MONTHS || '3',
-  ),
+  effectiveRevenueMonths: (() => {
+    const raw = Number(process.env.QBO_EFFECTIVE_REVENUE_MONTHS);
+
+    return Number.isFinite(raw) ? Math.trunc(raw) : 4;
+  })(),
 };
 
 export const qboSchema = z.object({

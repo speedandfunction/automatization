@@ -13,6 +13,10 @@ export interface Employee {
 
 export interface Project {
   /**
+   * Project name
+   */
+  name: string;
+  /**
    * Redmine project ID (links to the corresponding project in Redmine)
    */
   redmine_id: number;
@@ -21,6 +25,7 @@ export interface Project {
    */
   quick_books_id?: number;
   history?: History;
+  effectiveRevenue?: number;
   [key: string]: unknown;
 }
 
