@@ -100,7 +100,7 @@ describe('getFinAppData', () => {
   let connect: Mock;
   let disconnect: Mock;
   let FinAppRepository: Mock;
-  let QBORepository: Mock;
+  let qboRepository: Mock;
   let dateSpy: ReturnType<typeof vi.spyOn>;
   let repoInstance: IFinAppRepository;
   let qboRepoInstance: { getEffectiveRevenue: Mock };
@@ -133,7 +133,7 @@ describe('getFinAppData', () => {
     readJsonFile = vi.mocked(fileUtils.readJsonFile);
     writeJsonFile = vi.mocked(fileUtils.writeJsonFile);
     FinAppRepository = vi.mocked(finAppService.FinAppRepository);
-    QBORepository = vi.mocked(qboService.QBORepository);
+    qboRepository = vi.mocked(qboService.QBORepository);
 
     repoInstance = createRepoInstance();
     FinAppRepository.mockImplementation(() => repoInstance);
@@ -141,7 +141,7 @@ describe('getFinAppData', () => {
     qboRepoInstance = {
       getEffectiveRevenue: vi.fn().mockResolvedValue(mockEffectiveRevenue),
     };
-    QBORepository.mockImplementation(() => qboRepoInstance);
+    qboRepository.mockImplementation(() => qboRepoInstance);
 
     connect = vi.fn().mockResolvedValue(undefined);
     disconnect = vi.fn().mockResolvedValue(undefined);
@@ -175,6 +175,8 @@ describe('getFinAppData', () => {
         ],
         effectiveRevenue: mockEffectiveRevenue,
       });
+      expect(qboRepository).toHaveBeenCalledTimes(1);
+      expect(qboRepoInstance.getEffectiveRevenue).toHaveBeenCalledTimes(1);
     });
 
     it('always disconnects the mongo pool', async () => {
