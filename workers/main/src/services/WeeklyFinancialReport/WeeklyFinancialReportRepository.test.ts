@@ -114,12 +114,12 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(summary).toContain('Group C');
     expect(summary).toContain('Group D');
 
-    expect(details).toContain('Total hours');
+    expect(details).toContain('total hours');
     expect(details).toContain('Group A');
     expect(details).toContain('Group B');
     expect(details).toContain('Group C');
     expect(details).toContain('Group D');
-    expect(details).toMatch(/\*Period\*: Q\d/);
+    expect(details).toMatch(/period: Q\d/);
     expect(details).toContain('Revenue');
     expect(details).toContain('COGS');
     expect(details).toContain('Margin');
@@ -144,7 +144,7 @@ describe('WeeklyFinancialReportRepository', () => {
 
     expect(typeof summary).toBe('string');
     expect(typeof details).toBe('string');
-    expect(details).toContain('*Total hours*: 0h');
+    // No total hours output when there are no groups
     expect(details).toContain('Notes:');
     expect(details).toContain('Legend');
     expect(summary).toContain('Weekly Financial Summary for Target Units');

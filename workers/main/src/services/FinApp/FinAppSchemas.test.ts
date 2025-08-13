@@ -59,6 +59,7 @@ describe('FinApp Schemas', () => {
 
     it('should accept valid project', async () => {
       const doc = new ProjectModel({
+        name: 'Test Project',
         redmine_id: 456,
         quick_books_id: 789,
         history: { rate: { '2024-01-01': 200 } },
