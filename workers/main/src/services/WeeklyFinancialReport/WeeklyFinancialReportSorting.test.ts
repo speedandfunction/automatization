@@ -62,7 +62,7 @@ const createLevelTestData = () => ({
 describe('WeeklyFinancialReportRepository Sorting', () => {
   const repo = new WeeklyFinancialReportRepository();
 
-  it('sorts groups by marginality level (High -> Medium -> Low) then by effectiveMarginality', async () => {
+  it('sorts groups by marginality level (High -> Medium -> Low) then by groupName alphabetically', async () => {
     const testData = createLevelTestData();
     const { details, summary } = await repo.generateReport({
       targetUnits: testData.targetUnits,
@@ -86,6 +86,10 @@ describe('WeeklyFinancialReportRepository Sorting', () => {
     expect(lowGroupAIndex).toBeGreaterThan(highGroupBIndex);
     expect(lowGroupAIndex).toBeGreaterThan(highGroupDIndex);
     expect(lowGroupAIndex).toBeGreaterThan(mediumGroupCIndex);
+
+    // Within same marginality level, groups should be sorted alphabetically
+    // "High Group B" should come before "High Group D" alphabetically
+    expect(highGroupBIndex).toBeLessThan(highGroupDIndex);
 
     const highGroupBIndexSummary = summary.indexOf('High Group B');
     const mediumGroupCIndexSummary = summary.indexOf('Medium Group C');

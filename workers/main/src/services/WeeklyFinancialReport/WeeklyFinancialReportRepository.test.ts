@@ -63,70 +63,25 @@ const createBasicTestData = () => ({
     { redmine_id: 104, history: { rate: { '2024-01-01': 700 } } },
   ],
   projects: [
-    { redmine_id: 10, history: { rate: { '2024-01-01': 500 } } },
-    { redmine_id: 20, history: { rate: { '2024-01-01': 1000 } } },
-    { redmine_id: 30, history: { rate: { '2024-01-01': 1500 } } },
-    { redmine_id: 40, history: { rate: { '2024-01-01': 1300 } } },
-  ],
-});
-
-const createMarginalityTestData = () => ({
-  targetUnits: [
-    {
-      group_id: 1,
-      group_name: 'Group A',
-      project_id: 10,
-      project_name: 'Project X',
-      user_id: 100,
-      username: 'Alice',
-      spent_on: '2024-06-01',
-      total_hours: 10,
-    },
-    {
-      group_id: 2,
-      group_name: 'Group B',
-      project_id: 20,
-      project_name: 'Project Y',
-      user_id: 101,
-      username: 'Bob',
-      spent_on: '2024-06-01',
-      total_hours: 10,
-    },
-    {
-      group_id: 3,
-      group_name: 'Group C',
-      project_id: 30,
-      project_name: 'Project Z',
-      user_id: 102,
-      username: 'Charlie',
-      spent_on: '2024-06-01',
-      total_hours: 10,
-    },
-  ],
-  employees: [
-    { redmine_id: 100, history: { rate: { '2024-01-01': 50 } } },
-    { redmine_id: 101, history: { rate: { '2024-01-01': 50 } } },
-    { redmine_id: 102, history: { rate: { '2024-01-01': 50 } } },
-  ],
-  projects: [
-    // 10h @ $50 COGS -> $500 cost. Set effectiveRevenue to achieve target marginality:
-    // 50%: (R - 500) / R = 0.5  => R = 1000
     {
       redmine_id: 10,
-      history: { rate: { '2024-01-01': 100 } },
-      effectiveRevenue: 1000,
+      name: 'Project X',
+      history: { rate: { '2024-01-01': 500 } },
     },
-    // 75%: (R - 500) / R = 0.75 => R = 2000
     {
       redmine_id: 20,
-      history: { rate: { '2024-01-01': 200 } },
-      effectiveRevenue: 2000,
+      name: 'Project Y',
+      history: { rate: { '2024-01-01': 1000 } },
     },
-    // ~67%: (1500 - 500) / 1500 ≈ 0.667
     {
       redmine_id: 30,
-      history: { rate: { '2024-01-01': 150 } },
-      effectiveRevenue: 1500,
+      name: 'Project Z',
+      history: { rate: { '2024-01-01': 1500 } },
+    },
+    {
+      redmine_id: 40,
+      name: 'Project W',
+      history: { rate: { '2024-01-01': 1300 } },
     },
   ],
 });
@@ -195,23 +150,80 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(summary).toContain('Weekly Financial Summary for Target Units');
   });
 
-  it('sorts groups by effectiveMarginality in descending order', async () => {
-    const testData = createMarginalityTestData();
+  it('sorts groups alphabetically within the same marginality level', async () => {
+    // Create test data with groups that have the same marginality level
+    // but different names to test alphabetical sorting
+    const testData = {
+      targetUnits: [
+        {
+          group_id: 1,
+          group_name: 'Zebra Group',
+          project_id: 10,
+          project_name: 'Project X',
+          user_id: 100,
+          username: 'Alice',
+          spent_on: '2024-06-01',
+          total_hours: 10,
+        },
+        {
+          group_id: 2,
+          group_name: 'Alpha Group',
+          project_id: 20,
+          project_name: 'Project Y',
+          user_id: 101,
+          username: 'Bob',
+          spent_on: '2024-06-01',
+          total_hours: 10,
+        },
+        {
+          group_id: 3,
+          group_name: 'Beta Group',
+          project_id: 30,
+          project_name: 'Project Z',
+          user_id: 102,
+          username: 'Charlie',
+          spent_on: '2024-06-01',
+          total_hours: 10,
+        },
+      ],
+      employees: [
+        { redmine_id: 100, history: { rate: { '2024-01-01': 50 } } },
+        { redmine_id: 101, history: { rate: { '2024-01-01': 50 } } },
+        { redmine_id: 102, history: { rate: { '2024-01-01': 50 } } },
+      ],
+      projects: [
+        // All projects have same marginality level (High) with rate 200 and cogs 50*10=500
+        // (2000-500)/2000 = 75% marginality
+        {
+          redmine_id: 10,
+          name: 'Project X',
+          history: { rate: { '2024-01-01': 200 } },
+        },
+        {
+          redmine_id: 20,
+          name: 'Project Y',
+          history: { rate: { '2024-01-01': 200 } },
+        },
+        {
+          redmine_id: 30,
+          name: 'Project Z',
+          history: { rate: { '2024-01-01': 200 } },
+        },
+      ],
+    };
     const { details } = await repo.generateReport({
       targetUnits: testData.targetUnits,
       employees: testData.employees,
       projects: testData.projects,
     });
 
-    // Check that groups are displayed in the correct order (by descending effectiveMarginality)
-    const groupBIndex = details.indexOf('Group B');
-    const groupCIndex = details.indexOf('Group C');
-    const groupAIndex = details.indexOf('Group A');
+    // Since all groups have the same marginality level, they should be sorted alphabetically
+    const alphaGroupIndex = details.indexOf('Alpha Group');
+    const betaGroupIndex = details.indexOf('Beta Group');
+    const zebraGroupIndex = details.indexOf('Zebra Group');
 
-    // Group B should be first (75% marginality)
-    // Group C should be second (67% marginality)
-    // Group A should be third (50% marginality)
-    expect(groupBIndex).toBeLessThan(groupCIndex);
-    expect(groupCIndex).toBeLessThan(groupAIndex);
+    // Alpha should come first, then Beta, then Zebra (alphabetical order)
+    expect(alphaGroupIndex).toBeLessThan(betaGroupIndex);
+    expect(betaGroupIndex).toBeLessThan(zebraGroupIndex);
   });
 });

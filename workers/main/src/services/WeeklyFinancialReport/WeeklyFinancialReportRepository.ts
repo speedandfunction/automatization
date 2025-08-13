@@ -25,8 +25,7 @@ interface GroupData {
 }
 
 export class WeeklyFinancialReportRepository
-  implements IWeeklyFinancialReportRepository
-{
+  implements IWeeklyFinancialReportRepository {
   async generateReport({
     targetUnits,
     employees,
