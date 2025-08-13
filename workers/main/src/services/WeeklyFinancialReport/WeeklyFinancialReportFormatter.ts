@@ -85,9 +85,36 @@ export class WeeklyFinancialReportFormatter {
 
   private static calculateDateWindow() {
     const endDate = new Date();
-    const startDate = new Date(endDate);
 
-    startDate.setMonth(endDate.getMonth() - qboConfig.effectiveRevenueMonths);
+    const currentYear = endDate.getFullYear();
+    const currentMonth = endDate.getMonth();
+    const monthsToSubtract = qboConfig.effectiveRevenueMonths;
+
+    let targetYear = currentYear;
+    let targetMonth = currentMonth - monthsToSubtract;
+
+    while (targetMonth < 0) {
+      targetMonth += 12;
+      targetYear -= 1;
+    }
+
+    const daysInTargetMonth = new Date(
+      targetYear,
+      targetMonth + 1,
+      0,
+    ).getDate();
+
+    const clampedDay = Math.min(endDate.getDate(), daysInTargetMonth);
+
+    const startDate = new Date(
+      targetYear,
+      targetMonth,
+      clampedDay,
+      endDate.getHours(),
+      endDate.getMinutes(),
+      endDate.getSeconds(),
+      endDate.getMilliseconds(),
+    );
 
     return {
       startDate: formatDateToISOString(startDate),

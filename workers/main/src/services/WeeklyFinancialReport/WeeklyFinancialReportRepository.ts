@@ -25,7 +25,8 @@ interface GroupData {
 }
 
 export class WeeklyFinancialReportRepository
-  implements IWeeklyFinancialReportRepository {
+  implements IWeeklyFinancialReportRepository
+{
   async generateReport({
     targetUnits,
     employees,
@@ -161,7 +162,6 @@ export class WeeklyFinancialReportRepository
       });
     }
     // Preserve the order established in sortGroupData
-
 
     return { highGroups, mediumGroups, lowGroups };
   }
