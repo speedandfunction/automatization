@@ -5,7 +5,11 @@ import { AppError } from '../../common/errors';
 import * as fileUtils from '../../common/fileUtils';
 import * as mongoPoolModule from '../../common/MongoPool';
 import type { TargetUnit } from '../../common/types';
-import type { Employee, IFinAppRepository, Project } from '../../services/FinApp';
+import type {
+  Employee,
+  IFinAppRepository,
+  Project,
+} from '../../services/FinApp';
 import * as finAppService from '../../services/FinApp';
 import type { CustomerRevenueByRef } from '../../services/QBO';
 import * as qboService from '../../services/QBO';
@@ -174,7 +178,7 @@ describe('getFinAppData', () => {
 
     it('always disconnects the mongo pool', async () => {
       setupSuccessMocks();
-      await fetchFinancialAppData(fileLink).catch(() => { });
+      await fetchFinancialAppData(fileLink).catch(() => {});
       expect(() => mongoPoolInstance.disconnect()).not.toThrow();
     });
   });

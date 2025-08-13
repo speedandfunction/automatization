@@ -41,7 +41,7 @@ export const fetchFinancialAppData = async (
         ...project,
         effectiveRevenue: project.quick_books_id
           ? effectiveRevenueByCustomerRef[project.quick_books_id]
-            ?.totalAmount || 0
+              ?.totalAmount || 0
           : 0,
       })),
       effectiveRevenue: effectiveRevenueByCustomerRef,

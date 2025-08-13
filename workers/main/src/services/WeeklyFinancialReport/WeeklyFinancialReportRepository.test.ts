@@ -109,9 +109,25 @@ const createMarginalityTestData = () => ({
     { redmine_id: 102, history: { rate: { '2024-01-01': 50 } } },
   ],
   projects: [
-    { redmine_id: 10, history: { rate: { '2024-01-01': 100 } } }, // 50% marginality
-    { redmine_id: 20, history: { rate: { '2024-01-01': 200 } } }, // 75% marginality
-    { redmine_id: 30, history: { rate: { '2024-01-01': 150 } } }, // 67% marginality
+    // 10h @ $50 COGS -> $500 cost. Set effectiveRevenue to achieve target marginality:
+    // 50%: (R - 500) / R = 0.5  => R = 1000
+    {
+      redmine_id: 10,
+      history: { rate: { '2024-01-01': 100 } },
+      effectiveRevenue: 1000,
+    },
+    // 75%: (R - 500) / R = 0.75 => R = 2000
+    {
+      redmine_id: 20,
+      history: { rate: { '2024-01-01': 200 } },
+      effectiveRevenue: 2000,
+    },
+    // ~67%: (1500 - 500) / 1500 ≈ 0.667
+    {
+      redmine_id: 30,
+      history: { rate: { '2024-01-01': 150 } },
+      effectiveRevenue: 1500,
+    },
   ],
 });
 
