@@ -24,6 +24,7 @@ export const EmployeeModel = mongoose.model<Employee & Document>(
 
 // Project schema: represents a project with Redmine and QuickBooks IDs, and a history of rates
 export const projectSchema = new mongoose.Schema({
+  name: { type: String, required: true },
   redmine_id: { type: Number, required: true, index: true },
   quick_books_id: Number,
   history: historySchema,
