@@ -16,6 +16,7 @@ export interface FormatSummaryInput {
 export interface FormatDetailInput {
   groupName: string;
   currentQuarter: string;
+  groupTotalHours: number;
   groupTotalRevenue: number;
   groupTotalCogs: number;
   marginAmount: number;
@@ -32,6 +33,7 @@ export class WeeklyFinancialReportFormatter {
   static formatDetail = ({
     groupName,
     currentQuarter,
+    groupTotalHours,
     groupTotalRevenue,
     groupTotalCogs,
     marginAmount,
@@ -43,6 +45,7 @@ export class WeeklyFinancialReportFormatter {
   }: FormatDetailInput) =>
     `*${groupName}*\n` +
     `${spacer}period: ${currentQuarter}\n` +
+    `${spacer}total hours: ${groupTotalHours.toFixed(1)}\n` +
     `${spacer}revenue: ${formatCurrency(groupTotalRevenue)}\n` +
     `${spacer}COGS: ${formatCurrency(groupTotalCogs)}\n` +
     `${spacer}margin: ${formatCurrency(marginAmount)}\n` +

@@ -16,6 +16,7 @@ import { WeeklyFinancialReportFormatter } from './WeeklyFinancialReportFormatter
 
 interface GroupData {
   groupName: string;
+  groupTotalHours: number;
   groupTotalRevenue: number;
   groupTotalCogs: number;
   effectiveRevenue: number;
@@ -121,7 +122,7 @@ export class WeeklyFinancialReportRepository
     employees: Employee[],
     projects: Project[],
   ): GroupData {
-    const { groupUnits } = GroupAggregator.aggregateGroup(
+    const { groupUnits, groupTotalHours } = GroupAggregator.aggregateGroup(
       targetUnits,
       targetUnit.group_id,
     );
@@ -139,6 +140,7 @@ export class WeeklyFinancialReportRepository
 
     return {
       groupName: targetUnit.group_name,
+      groupTotalHours,
       groupTotalRevenue,
       groupTotalCogs,
       effectiveRevenue,
@@ -173,6 +175,7 @@ export class WeeklyFinancialReportRepository
       reportDetails += WeeklyFinancialReportFormatter.formatDetail({
         groupName: group.groupName,
         currentQuarter,
+        groupTotalHours: group.groupTotalHours,
         groupTotalRevenue: group.groupTotalRevenue,
         groupTotalCogs: group.groupTotalCogs,
         marginAmount: group.marginality.marginAmount,
