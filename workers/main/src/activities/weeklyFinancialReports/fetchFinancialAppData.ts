@@ -28,21 +28,23 @@ export const fetchFinancialAppData = async (
     const employeeIds = getUniqueIds(targetUnits, 'user_id');
     const projectIds = getUniqueIds(targetUnits, 'project_id');
 
-    const [employees, projects, effectiveRevenue] = await Promise.all([
-      repo.getEmployeesByRedmineIds(employeeIds),
-      repo.getProjectsByRedmineIds(projectIds),
-      qboRepo.getEffectiveRevenue(),
-    ]);
+    const [employees, projects, effectiveRevenueByCustomerRef] =
+      await Promise.all([
+        repo.getEmployeesByRedmineIds(employeeIds),
+        repo.getProjectsByRedmineIds(projectIds),
+        qboRepo.getEffectiveRevenue(),
+      ]);
 
     await writeJsonFile(filename, {
       employees,
       projects: projects.map((project) => ({
         ...project,
         effectiveRevenue: project.quick_books_id
-          ? effectiveRevenue[project.quick_books_id]?.totalAmount || 0
+          ? effectiveRevenueByCustomerRef[project.quick_books_id]
+            ?.totalAmount || 0
           : 0,
       })),
-      effectiveRevenue,
+      effectiveRevenue: effectiveRevenueByCustomerRef,
     });
 
     return { fileLink: filename };
