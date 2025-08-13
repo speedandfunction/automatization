@@ -56,8 +56,9 @@ const mockEmployees: Employee[] = [
 ];
 const mockProjects: Project[] = [
   {
+    name: 'Test Project',
     redmine_id: 2,
-    quick_books_id: '10',
+    quick_books_id: 10,
     history: { rate: { '2024-01-01': 200 } },
   },
 ];
@@ -178,7 +179,7 @@ describe('getFinAppData', () => {
 
     it('always disconnects the mongo pool', async () => {
       setupSuccessMocks();
-      await fetchFinancialAppData(fileLink).catch(() => {});
+      await fetchFinancialAppData(fileLink).catch(() => { });
       expect(() => mongoPoolInstance.disconnect()).not.toThrow();
     });
   });
