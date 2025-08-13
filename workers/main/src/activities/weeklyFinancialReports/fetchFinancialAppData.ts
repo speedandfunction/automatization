@@ -40,7 +40,7 @@ export const fetchFinancialAppData = async (
       projects: projects.map((project) => ({
         ...project,
         effectiveRevenue: project.quick_books_id
-          ? effectiveRevenueByCustomerRef[project.quick_books_id]
+          ? effectiveRevenueByCustomerRef[String(project.quick_books_id)]
               ?.totalAmount || 0
           : 0,
       })),

@@ -181,7 +181,7 @@ describe('getFinAppData', () => {
 
     it('always disconnects the mongo pool', async () => {
       setupSuccessMocks();
-      await fetchFinancialAppData(fileLink).catch(() => { });
+      await fetchFinancialAppData(fileLink).catch(() => {});
       expect(() => mongoPoolInstance.disconnect()).not.toThrow();
     });
   });
