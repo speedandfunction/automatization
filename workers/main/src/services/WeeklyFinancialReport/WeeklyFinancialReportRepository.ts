@@ -160,11 +160,8 @@ export class WeeklyFinancialReportRepository
         lowMarginalityGroups: lowGroups,
       });
     }
+    // Preserve the order established in sortGroupData
 
-    // Sort each group by groupName alphabetically
-    highGroups.sort((a, b) => a.localeCompare(b));
-    mediumGroups.sort((a, b) => a.localeCompare(b));
-    lowGroups.sort((a, b) => a.localeCompare(b));
 
     return { highGroups, mediumGroups, lowGroups };
   }
