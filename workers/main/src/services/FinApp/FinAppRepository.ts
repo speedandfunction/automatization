@@ -21,7 +21,7 @@ export class FinAppRepository implements IFinAppRepository {
     try {
       return await ProjectModel.find(
         { redmine_id: { $in: redmineIds } },
-        { 'redmine_id': 1, 'quick_books_id': 1, 'history.rate': 1 },
+        { 'name': 1, 'redmine_id': 1, 'quick_books_id': 1, 'history.rate': 1 },
       ).lean<Project[]>();
     } catch (error) {
       throw new FinAppRepositoryError(

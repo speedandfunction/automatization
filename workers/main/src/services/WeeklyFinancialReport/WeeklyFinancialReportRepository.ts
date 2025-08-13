@@ -16,7 +16,6 @@ import { WeeklyFinancialReportFormatter } from './WeeklyFinancialReportFormatter
 
 interface GroupData {
   groupName: string;
-  groupTotalHours: number;
   groupTotalRevenue: number;
   groupTotalCogs: number;
   effectiveRevenue: number;
@@ -26,8 +25,7 @@ interface GroupData {
 }
 
 export class WeeklyFinancialReportRepository
-  implements IWeeklyFinancialReportRepository
-{
+  implements IWeeklyFinancialReportRepository {
   async generateReport({
     targetUnits,
     employees,
@@ -45,12 +43,13 @@ export class WeeklyFinancialReportRepository
 
     this.sortGroupData(groupData);
 
-    const { reportDetails: initialDetails, totalReportedHours } =
-      this.formatGroupDetails(groupData, currentQuarter);
+    const { reportDetails: initialDetails } = this.formatGroupDetails(
+      groupData,
+      currentQuarter,
+    );
 
     const reportDetails =
-      initialDetails +
-      WeeklyFinancialReportFormatter.formatFooter(totalReportedHours);
+      initialDetails + WeeklyFinancialReportFormatter.formatFooter();
 
     const { highGroups, mediumGroups, lowGroups } =
       this.createSortedGroups(groupData);
@@ -101,7 +100,7 @@ export class WeeklyFinancialReportRepository
     };
 
     // Sort by marginality level (High -> Medium -> Low),
-    // then within each level by descending effectiveMarginality
+    // then within each level by groupName alphabetically
     groupData.sort((a, b) => {
       const levelComparison =
         levelOrder[b.marginality.level] - levelOrder[a.marginality.level];
@@ -110,7 +109,8 @@ export class WeeklyFinancialReportRepository
         return levelComparison;
       }
 
-      return b.effectiveMarginality - a.effectiveMarginality;
+      // Sort by groupName alphabetically within each level
+      return a.groupName.localeCompare(b.groupName);
     });
   }
 
@@ -120,7 +120,7 @@ export class WeeklyFinancialReportRepository
     employees: Employee[],
     projects: Project[],
   ): GroupData {
-    const { groupUnits, groupTotalHours } = GroupAggregator.aggregateGroup(
+    const { groupUnits } = GroupAggregator.aggregateGroup(
       targetUnits,
       targetUnit.group_id,
     );
@@ -138,7 +138,6 @@ export class WeeklyFinancialReportRepository
 
     return {
       groupName: targetUnit.group_name,
-      groupTotalHours,
       groupTotalRevenue,
       groupTotalCogs,
       effectiveRevenue,
@@ -153,7 +152,7 @@ export class WeeklyFinancialReportRepository
     const mediumGroups: string[] = [];
     const lowGroups: string[] = [];
 
-    // Groups are already sorted by effectiveMarginality, so just distribute them by categories
+    // Distribute groups by marginality level
     for (const group of groupData) {
       this.pushGroupByMarginality(group.marginality.level, group.groupName, {
         highMarginalityGroups: highGroups,
@@ -162,17 +161,20 @@ export class WeeklyFinancialReportRepository
       });
     }
 
+    // Sort each group by groupName alphabetically
+    highGroups.sort((a, b) => a.localeCompare(b));
+    mediumGroups.sort((a, b) => a.localeCompare(b));
+    lowGroups.sort((a, b) => a.localeCompare(b));
+
     return { highGroups, mediumGroups, lowGroups };
   }
 
   private formatGroupDetails(groupData: GroupData[], currentQuarter: string) {
     let reportDetails = '';
-    let totalReportedHours = 0;
 
     for (const group of groupData) {
       reportDetails += WeeklyFinancialReportFormatter.formatDetail({
         groupName: group.groupName,
-        groupTotalHours: group.groupTotalHours,
         currentQuarter,
         groupTotalRevenue: group.groupTotalRevenue,
         groupTotalCogs: group.groupTotalCogs,
@@ -183,10 +185,9 @@ export class WeeklyFinancialReportRepository
         effectiveMargin: group.effectiveMargin,
         effectiveMarginality: group.effectiveMarginality,
       });
-      totalReportedHours += group.groupTotalHours;
     }
 
-    return { reportDetails, totalReportedHours };
+    return { reportDetails };
   }
 
   private pushGroupByMarginality(
@@ -244,6 +245,7 @@ export class WeeklyFinancialReportRepository
     let groupTotalCogs = 0;
     let groupTotalRevenue = 0;
     let effectiveRevenue = 0;
+    const processedProjects = new Set<number>(); // Отслеживаем обработанные проекты
 
     for (const unit of groupUnits) {
       const employee = employees.find((e) => e.redmine_id === unit.user_id);
@@ -254,7 +256,11 @@ export class WeeklyFinancialReportRepository
 
       groupTotalCogs += employeeRate * unit.total_hours;
       groupTotalRevenue += projectRate * unit.total_hours;
-      effectiveRevenue += projectRate * unit.total_hours; // For now, same as total revenue
+
+      if (project && !processedProjects.has(project.redmine_id)) {
+        effectiveRevenue += project.effectiveRevenue || 0;
+        processedProjects.add(project.redmine_id);
+      }
     }
 
     const effectiveMargin = effectiveRevenue - groupTotalCogs;

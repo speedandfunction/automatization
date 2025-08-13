@@ -42,6 +42,7 @@ export const fetchFinancialAppData = async (
           ? effectiveRevenue[project.quick_books_id]?.totalAmount || 0
           : 0,
       })),
+      effectiveRevenue,
     });
 
     return { fileLink: filename };

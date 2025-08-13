@@ -15,7 +15,6 @@ export interface FormatSummaryInput {
 
 export interface FormatDetailInput {
   groupName: string;
-  groupTotalHours: number;
   currentQuarter: string;
   groupTotalRevenue: number;
   groupTotalCogs: number;
@@ -32,7 +31,6 @@ const spacer = ' '.repeat(4);
 export class WeeklyFinancialReportFormatter {
   static formatDetail = ({
     groupName,
-    groupTotalHours,
     currentQuarter,
     groupTotalRevenue,
     groupTotalCogs,
@@ -43,15 +41,15 @@ export class WeeklyFinancialReportFormatter {
     effectiveMargin,
     effectiveMarginality,
   }: FormatDetailInput) =>
-    `*${groupName}* (${groupTotalHours}h)\n` +
-    `${spacer}*Period*: ${currentQuarter}\n` +
-    `${spacer}*Revenue*: ${formatCurrency(groupTotalRevenue)}\n` +
-    `${spacer}*COGS*: ${formatCurrency(groupTotalCogs)}\n` +
-    `${spacer}*Margin*: ${formatCurrency(marginAmount)}\n` +
-    `${spacer}*Marginality*: ${marginalityPercent.toFixed(0)}%\n` +
-    `${spacer}*Effective Revenue*: ${formatCurrency(effectiveRevenue)}\n` +
-    `${spacer}*Effective Margin*: ${formatCurrency(effectiveMargin)}\n` +
-    `${spacer}*Effective Marginality*: ${indicator} ${effectiveMarginality.toFixed(0)}%\n\n`;
+    `*${groupName}*\n` +
+    `${spacer}period: ${currentQuarter}\n` +
+    `${spacer}revenue: ${formatCurrency(groupTotalRevenue)}\n` +
+    `${spacer}COGS: ${formatCurrency(groupTotalCogs)}\n` +
+    `${spacer}margin: ${formatCurrency(marginAmount)}\n` +
+    `${spacer}marginality: ${marginalityPercent.toFixed(0)}%\n` +
+    `${spacer}effective revenue: ${formatCurrency(effectiveRevenue)}\n` +
+    `${spacer}effective margin: ${formatCurrency(effectiveMargin)}\n` +
+    `${spacer}effective marginality: ${indicator} ${effectiveMarginality.toFixed(0)}%\n\n\n`;
 
   static formatSummary = ({
     reportTitle,
@@ -62,24 +60,24 @@ export class WeeklyFinancialReportFormatter {
     let summary = `${reportTitle}\n`;
 
     if (highGroups.length) {
-      summary += '________________________________\n';
+      summary += '\n_______________________\n\n\n';
       summary += `:arrowup: *Marginality is ${HIGH_MARGINALITY_THRESHOLD}% or higher*:\n`;
-      summary += `${spacer}${highGroups.join(`\n${spacer}`)}\n`;
+      summary += `${spacer}${spacer}${highGroups.join(`\n${spacer}${spacer}`)}\n`;
     }
 
     if (mediumGroups.length) {
-      summary += '__________________________________\n';
+      summary += '\n_______________________\n\n\n';
       summary += ` :large_yellow_circle:  *Marginality is between ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD}%*:\n`;
-      summary += `${spacer}${mediumGroups.join(`\n${spacer}`)}\n`;
+      summary += `${spacer}${spacer}${mediumGroups.join(`\n${spacer}${spacer}`)}\n`;
     }
 
     if (lowGroups.length) {
-      summary += '__________________________________\n';
+      summary += '\n_______________________\n\n\n';
       summary += `:arrowdown: *Marginality is under ${MEDIUM_MARGINALITY_THRESHOLD}%*:\n`;
-      summary += `${spacer}${lowGroups.join(`\n${spacer}`)}\n`;
+      summary += `${spacer}${spacer}${lowGroups.join(`\n${spacer}${spacer}`)}\n`;
     }
 
-    summary += ' -------------------------------------------\n';
+    summary += '\n_______________________\n\n\n';
     summary += 'The specific figures will be available in the thread';
 
     return summary;
@@ -97,12 +95,11 @@ export class WeeklyFinancialReportFormatter {
     };
   }
 
-  static formatFooter = (totalHours: number) => {
+  static formatFooter = () => {
     const { startDate, endDate } = this.calculateDateWindow();
 
     return (
-      `\n*Total hours*: ${totalHours}h\n\n` +
-      '*Notes:*\n' +
+      '\n*Notes:*\n' +
       '1. *Contract Type* is not implemented\n' +
       `2. *Effective Revenue* calculated for the last ${qboConfig.effectiveRevenueMonths} months (${startDate} - ${endDate})\n` +
       '3. *Dept Tech* hours are not implemented\n\n' +
