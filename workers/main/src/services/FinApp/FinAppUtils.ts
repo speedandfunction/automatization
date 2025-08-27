@@ -6,17 +6,18 @@ export function getContractTypeByDate(
     return undefined;
   }
 
-  const sortedDates = Object.keys(contractTypeHistory).sort(
-    (a, b) => new Date(a).getTime() - new Date(b).getTime(),
-  );
-  let lastContractType: string | undefined = undefined;
+  const targetTs = Date.parse(date);
+  if (Number.isNaN(targetTs)) return undefined;
+  
+  const sorted = Object.keys(contractTypeHistory)
+    .map((d) => ({ d, ts: Date.parse(d) }))
+    .filter(({ ts }) => !Number.isNaN(ts))
+    .sort((a, b) => a.ts - b.ts);
+  let lastContractType: string | undefined;
 
-  for (const contractDate of sortedDates) {
-    if (contractDate <= date) {
-      lastContractType = contractTypeHistory[contractDate];
-    } else {
-      break;
-    }
+  for (const { d, ts } of sorted) {
+    if (ts <= targetTs) lastContractType = contractTypeHistory[d];
+    else break;
   }
 
   return lastContractType;
