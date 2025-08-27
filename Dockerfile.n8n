@@ -12,8 +12,8 @@ RUN apk add --no-cache git=2.47.3-r0
 RUN npm install -g showdown@${SHOWDOWN_VERSION} slackify-markdown@${SLACKIFY_MARKDOWN_VERSION} && \
     npm cache clean --force
 
-# Set NODE_PATH for global module access
-ENV NODE_PATH=/usr/local/lib/node_modules
+# Configure n8n external modules allowlist
+ENV N8N_EXTERNAL_MODULES_ALLOWLIST="showdown,slackify-markdown"
 
 # Create app directory
 WORKDIR /home/node
