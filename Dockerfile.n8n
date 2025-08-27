@@ -9,8 +9,10 @@ ARG SLACKIFY_MARKDOWN_VERSION=^4.5.0
 # Install git for backup script and other packages
 USER root
 RUN apk add --no-cache git=2.47.3-r0
-RUN npm install -g showdown@${SHOWDOWN_VERSION} slackify-markdown@${SLACKIFY_MARKDOWN_VERSION} && \
-    npm cache clean --force
+RUN npm install -g --ignore-scripts --no-audit --no-fund \
+    showdown@${SHOWDOWN_VERSION} \
+    slackify-markdown@${SLACKIFY_MARKDOWN_VERSION} \
+  && npm cache clean --force
 
 # Configure n8n external modules allowlist
 ENV N8N_EXTERNAL_MODULES_ALLOWLIST="showdown,slackify-markdown"
