@@ -6,6 +6,7 @@ import { Employee, Project } from './types';
 export const historySchema = new mongoose.Schema(
   {
     rate: { type: Map, of: Number },
+    contractType: { type: Map, of: String },
   },
   { _id: false },
 );

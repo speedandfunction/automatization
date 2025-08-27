@@ -25,6 +25,7 @@ export interface FormatDetailInput {
   effectiveRevenue: number;
   effectiveMargin: number;
   effectiveMarginality: number;
+  contractType?: string;
 }
 
 const spacer = ' '.repeat(4);
@@ -42,9 +43,11 @@ export class WeeklyFinancialReportFormatter {
     effectiveRevenue,
     effectiveMargin,
     effectiveMarginality,
+    contractType,
   }: FormatDetailInput) =>
     `*${groupName}*\n` +
     `${spacer}period: ${currentQuarter}\n` +
+    `${spacer}contract type: ${contractType || 'n/a'}\n` +
     `${spacer}total hours: ${groupTotalHours.toFixed(1)}\n` +
     `${spacer}revenue: ${formatCurrency(groupTotalRevenue)}\n` +
     `${spacer}COGS: ${formatCurrency(groupTotalCogs)}\n` +
@@ -130,9 +133,8 @@ export class WeeklyFinancialReportFormatter {
 
     return (
       '\n*Notes:*\n' +
-      '1. *Contract Type* is not implemented\n' +
-      `2. *Effective Revenue* calculated for the last ${qboConfig.effectiveRevenueMonths} months (${startDate} - ${endDate})\n` +
-      '3. *Dept Tech* hours are not implemented\n\n' +
+      `1. *Effective Revenue* calculated for the last ${qboConfig.effectiveRevenueMonths} months (${startDate} - ${endDate})\n` +
+      '2. *Dept Tech* hours are not implemented\n\n' +
       `*Legend*: Marginality :arrowup: ≥${HIGH_MARGINALITY_THRESHOLD}%   :large_yellow_circle: ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD - 1}%  :arrowdown: <${MEDIUM_MARGINALITY_THRESHOLD}%`
     );
   };

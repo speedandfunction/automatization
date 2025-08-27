@@ -1,6 +1,7 @@
 import { getRateByDate } from '../../common/formatUtils';
 import type { TargetUnit } from '../../common/types';
 import type { Employee, Project } from '../FinApp';
+import { getContractTypeByDate } from '../FinApp/FinAppUtils';
 import { GroupAggregator } from './GroupAggregator';
 import {
   AggregateGroupDataInput,
@@ -23,6 +24,7 @@ interface GroupData {
   effectiveMargin: number;
   effectiveMarginality: number;
   marginality: MarginalityResult;
+  contractType?: string;
 }
 
 export class WeeklyFinancialReportRepository
@@ -132,6 +134,7 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue,
       effectiveMargin,
       effectiveMarginality,
+      contractType,
     } = this.aggregateGroupData({ groupUnits, employees, projects });
     const marginality = MarginalityCalculator.calculate(
       groupTotalRevenue,
@@ -147,6 +150,7 @@ export class WeeklyFinancialReportRepository
       effectiveMargin,
       effectiveMarginality,
       marginality,
+      contractType,
     };
   }
 
@@ -184,6 +188,7 @@ export class WeeklyFinancialReportRepository
         effectiveRevenue: group.effectiveRevenue,
         effectiveMargin: group.effectiveMargin,
         effectiveMarginality: group.effectiveMarginality,
+        contractType: group.contractType,
       });
     }
 
@@ -242,6 +247,7 @@ export class WeeklyFinancialReportRepository
     employees,
     projects,
   }: AggregateGroupDataInput) {
+    let contractType: string | undefined;
     let groupTotalCogs = 0;
     let groupTotalRevenue = 0;
     let effectiveRevenue = 0;
@@ -261,6 +267,11 @@ export class WeeklyFinancialReportRepository
         effectiveRevenue += project.effectiveRevenue || 0;
         processedProjects.add(project.redmine_id);
       }
+
+      contractType = getContractTypeByDate(
+        project?.history?.contractType,
+        date,
+      );
     }
 
     const effectiveMargin = effectiveRevenue - groupTotalCogs;
@@ -273,6 +284,7 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue,
       effectiveMargin,
       effectiveMarginality,
+      contractType,
     };
   }
 }
