@@ -10,16 +10,15 @@ ARG SLACKIFY_MARKDOWN_VERSION=^4.5.0
 USER root
 RUN apk add --no-cache git=2.47.3-r0
 
-# Create n8n data directory and install packages locally
-RUN mkdir -p /home/node/.n8n && \
-    npm install --no-audit --no-fund --ignore-scripts --prefix /home/node/.n8n \
+# Install external packages into n8n's app directory so Code nodes can require them
+RUN npm install --no-audit --no-fund --ignore-scripts --prefix /usr/local/lib/node_modules/n8n \
     showdown@${SHOWDOWN_VERSION} \
     slackify-markdown@${SLACKIFY_MARKDOWN_VERSION} && \
     npm cache clean --force && \
-    chown -R node:node /home/node/.n8n
+    chown -R node:node /usr/local/lib/node_modules/n8n
 
-# Configure n8n external modules allowlist
-ENV N8N_EXTERNAL_MODULES_ALLOWLIST="showdown,slackify-markdown"
+# Configure external modules allowlist used by Code/Function nodes
+ENV NODE_FUNCTION_ALLOW_EXTERNAL="showdown,slackify-markdown"
 
 # Create app directory
 WORKDIR /home/node
