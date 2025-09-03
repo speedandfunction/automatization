@@ -1,4 +1,4 @@
-FROM n8nio/n8n:1.89.2
+FROM n8nio/n8n:1.109.2
 
 # Define build arguments
 ARG NODE_ENV=production
@@ -9,12 +9,13 @@ ARG SLACKIFY_MARKDOWN_VERSION=^4.5.0
 # Install git for backup script and other packages + install external packages in one layer
 USER root
 RUN set -eux; \
-  apk add --no-cache git=2.47.3-r0 && \
-  npm install --no-audit --no-fund --ignore-scripts --prefix /usr/local/lib/node_modules/n8n \
+  apk add --no-cache git && \
+  npm install -g --no-audit --no-fund --ignore-scripts \
+    --legacy-peer-deps --no-workspaces \
+    --unsafe-perm \
     showdown@${SHOWDOWN_VERSION} \
     slackify-markdown@${SLACKIFY_MARKDOWN_VERSION} && \
-  npm cache clean --force && \
-  chown -R node:node /usr/local/lib/node_modules/n8n
+  npm cache clean --force
 
 # Configure external modules allowlist used by Code/Function nodes
 ENV NODE_FUNCTION_ALLOW_EXTERNAL="showdown,slackify-markdown"
