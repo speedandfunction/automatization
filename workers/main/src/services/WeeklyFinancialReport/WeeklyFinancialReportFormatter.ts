@@ -2,7 +2,10 @@ import { formatCurrency } from '../../common/formatUtils';
 import { formatDateToISOString } from '../../common/utils';
 import { qboConfig } from '../../configs/qbo';
 import {
+  HIGH_EFFECTIVE_MARGINALITY_THRESHOLD,
   HIGH_MARGINALITY_THRESHOLD,
+  LOW_EFFECTIVE_MARGINALITY_THRESHOLD,
+  MEDIUM_EFFECTIVE_MARGINALITY_THRESHOLD,
   MEDIUM_MARGINALITY_THRESHOLD,
 } from '../../configs/weeklyFinancialReport';
 
@@ -21,7 +24,7 @@ export interface FormatDetailInput {
   groupTotalCogs: number;
   marginAmount: number;
   marginalityPercent: number;
-  indicator: string;
+  effectiveMarginalityIndicator: string;
   effectiveRevenue: number;
   effectiveMargin: number;
   effectiveMarginality: number;
@@ -39,7 +42,7 @@ export class WeeklyFinancialReportFormatter {
     groupTotalCogs,
     marginAmount,
     marginalityPercent,
-    indicator,
+    effectiveMarginalityIndicator,
     effectiveRevenue,
     effectiveMargin,
     effectiveMarginality,
@@ -55,7 +58,7 @@ export class WeeklyFinancialReportFormatter {
     `${spacer}marginality: ${marginalityPercent.toFixed(0)}%\n` +
     `${spacer}effective revenue: ${formatCurrency(effectiveRevenue)}\n` +
     `${spacer}effective margin: ${formatCurrency(effectiveMargin)}\n` +
-    `${spacer}effective marginality: ${indicator} ${effectiveMarginality.toFixed(0)}%\n\n\n`;
+    `${spacer}effective marginality: ${effectiveMarginalityIndicator} ${effectiveMarginality.toFixed(0)}%\n\n\n`;
 
   static formatSummary = ({
     reportTitle,
@@ -67,7 +70,7 @@ export class WeeklyFinancialReportFormatter {
 
     if (highGroups.length) {
       summary += '\n_______________________\n\n\n';
-      summary += `:arrowup: *Marginality is ${HIGH_MARGINALITY_THRESHOLD}% or higher*:\n`;
+      summary += `:large_green_circle: *Marginality is ${HIGH_MARGINALITY_THRESHOLD}% or higher*:\n`;
       summary += `${spacer}${spacer}${highGroups.join(`\n${spacer}${spacer}`)}\n`;
     }
 
@@ -79,7 +82,7 @@ export class WeeklyFinancialReportFormatter {
 
     if (lowGroups.length) {
       summary += '\n_______________________\n\n\n';
-      summary += `:arrowdown: *Marginality is under ${MEDIUM_MARGINALITY_THRESHOLD}%*:\n`;
+      summary += `:red_circle: *Marginality is under ${MEDIUM_MARGINALITY_THRESHOLD}%*:\n`;
       summary += `${spacer}${spacer}${lowGroups.join(`\n${spacer}${spacer}`)}\n`;
     }
 
@@ -135,7 +138,12 @@ export class WeeklyFinancialReportFormatter {
       '\n*Notes:*\n' +
       `1. *Effective Revenue* calculated for the last ${qboConfig.effectiveRevenueMonths} months (${startDate} - ${endDate})\n` +
       '2. *Dept Tech* hours are not implemented\n\n' +
-      `*Legend*: Marginality :arrowup: ≥${HIGH_MARGINALITY_THRESHOLD}%   :large_yellow_circle: ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD - 1}%  :arrowdown: <${MEDIUM_MARGINALITY_THRESHOLD}%`
+      `*Legend*:\n` +
+      `Marginality: :large_green_circle: ≥${HIGH_MARGINALITY_THRESHOLD}%   :large_yellow_circle: ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD - 1}%  :red_circle: <${MEDIUM_MARGINALITY_THRESHOLD}%\n` +
+      `Effective Marginality: :large_green_circle: ≥${HIGH_EFFECTIVE_MARGINALITY_THRESHOLD}%   ` +
+      `:large_yellow_circle: ${MEDIUM_EFFECTIVE_MARGINALITY_THRESHOLD}-${HIGH_EFFECTIVE_MARGINALITY_THRESHOLD - 1}%   ` +
+      `:red_circle: ${LOW_EFFECTIVE_MARGINALITY_THRESHOLD}-${MEDIUM_EFFECTIVE_MARGINALITY_THRESHOLD}%   ` +
+      `:no_entry: <${LOW_EFFECTIVE_MARGINALITY_THRESHOLD}%`
     );
   };
 }

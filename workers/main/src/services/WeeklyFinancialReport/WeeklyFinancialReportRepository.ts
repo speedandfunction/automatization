@@ -9,6 +9,7 @@ import {
   IWeeklyFinancialReportRepository,
 } from './IWeeklyFinancialReportRepository';
 import {
+  EffectiveMarginalityCalculator,
   MarginalityCalculator,
   MarginalityLevel,
   MarginalityResult,
@@ -23,6 +24,7 @@ interface GroupData {
   effectiveRevenue: number;
   effectiveMargin: number;
   effectiveMarginality: number;
+  effectiveMarginalityIndicator: string;
   marginality: MarginalityResult;
   contractType?: string;
 }
@@ -134,6 +136,7 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue,
       effectiveMargin,
       effectiveMarginality,
+      effectiveMarginalityIndicator,
       contractType,
     } = this.aggregateGroupData({ groupUnits, employees, projects });
     const marginality = MarginalityCalculator.calculate(
@@ -149,6 +152,7 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue,
       effectiveMargin,
       effectiveMarginality,
+      effectiveMarginalityIndicator,
       marginality,
       contractType,
     };
@@ -184,10 +188,11 @@ export class WeeklyFinancialReportRepository
         groupTotalCogs: group.groupTotalCogs,
         marginAmount: group.marginality.marginAmount,
         marginalityPercent: group.marginality.marginalityPercent,
-        indicator: group.marginality.indicator,
+
         effectiveRevenue: group.effectiveRevenue,
         effectiveMargin: group.effectiveMargin,
         effectiveMarginality: group.effectiveMarginality,
+        effectiveMarginalityIndicator: group.effectiveMarginalityIndicator,
         contractType: group.contractType,
       });
     }
@@ -277,6 +282,10 @@ export class WeeklyFinancialReportRepository
     const effectiveMargin = effectiveRevenue - groupTotalCogs;
     const effectiveMarginality =
       effectiveRevenue > 0 ? (effectiveMargin / effectiveRevenue) * 100 : 0;
+    const effectiveMarginalityIndicator =
+      EffectiveMarginalityCalculator.getIndicator(
+        EffectiveMarginalityCalculator.classify(effectiveMarginality),
+      );
 
     return {
       groupTotalCogs,
@@ -284,6 +293,7 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue,
       effectiveMargin,
       effectiveMarginality,
+      effectiveMarginalityIndicator,
       contractType,
     };
   }
