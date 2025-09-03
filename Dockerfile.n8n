@@ -6,20 +6,18 @@ ARG N8N_PORT=5678
 ARG SHOWDOWN_VERSION=^2.1.0
 ARG SLACKIFY_MARKDOWN_VERSION=^4.5.0
 
-# Install git for backup script and other packages
+# Install git for backup script and other packages + install external packages in one layer
 USER root
-RUN apk add --no-cache git=2.47.3-r0
-
-# Create n8n data directory and install packages locally
-RUN mkdir -p /home/node/.n8n && \
-    npm install --no-audit --no-fund --ignore-scripts --prefix /home/node/.n8n \
+RUN set -eux; \
+  apk add --no-cache git=2.47.3-r0 && \
+  npm install --no-audit --no-fund --ignore-scripts --prefix /usr/local/lib/node_modules/n8n \
     showdown@${SHOWDOWN_VERSION} \
     slackify-markdown@${SLACKIFY_MARKDOWN_VERSION} && \
-    npm cache clean --force && \
-    chown -R node:node /home/node/.n8n
+  npm cache clean --force && \
+  chown -R node:node /usr/local/lib/node_modules/n8n
 
-# Configure n8n external modules allowlist
-ENV N8N_EXTERNAL_MODULES_ALLOWLIST="showdown,slackify-markdown"
+# Configure external modules allowlist used by Code/Function nodes
+ENV NODE_FUNCTION_ALLOW_EXTERNAL="showdown,slackify-markdown"
 
 # Create app directory
 WORKDIR /home/node
