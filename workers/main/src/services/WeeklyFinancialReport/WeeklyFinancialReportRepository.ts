@@ -256,7 +256,7 @@ export class WeeklyFinancialReportRepository
     let groupTotalCogs = 0;
     let groupTotalRevenue = 0;
     let effectiveRevenue = 0;
-    const processedProjects = new Set<number>(); // Отслеживаем обработанные проекты
+    const processedProjects = new Set<number>();
 
     for (const unit of groupUnits) {
       const employee = employees.find((e) => e.redmine_id === unit.user_id);
