@@ -126,7 +126,6 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(details).toContain('Marginality');
     expect(details).toContain('Notes:');
     expect(details).toContain('Effective Revenue');
-    expect(details).toContain('Dept Tech');
     expect(details).toContain('Legend');
     // Marginality indicators
     expect(details).toMatch(/:arrow(up|down):|:large_yellow_circle:/);

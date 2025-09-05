@@ -136,8 +136,7 @@ export class WeeklyFinancialReportFormatter {
 
     return (
       '\n*Notes:*\n' +
-      `1. *Effective Revenue* calculated for the last ${qboConfig.effectiveRevenueMonths} months (${startDate} - ${endDate})\n` +
-      '2. *Dept Tech* hours are not implemented\n\n' +
+      `1. *Effective Revenue* calculated for the last ${qboConfig.effectiveRevenueMonths} months (${startDate} - ${endDate})\n\n` +
       `*Legend*:\n` +
       `Marginality: :large_green_circle: ≥${HIGH_MARGINALITY_THRESHOLD}%   :large_yellow_circle: ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD - 1}%  :red_circle: <${MEDIUM_MARGINALITY_THRESHOLD}%\n` +
       `Effective Marginality: :large_green_circle: ≥${HIGH_EFFECTIVE_MARGINALITY_THRESHOLD}%   ` +
