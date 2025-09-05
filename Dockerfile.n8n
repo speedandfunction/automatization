@@ -9,7 +9,7 @@ ARG SLACKIFY_MARKDOWN_VERSION=^4.5.0
 # Install git for backup script and other packages + install external packages in one layer
 USER root
 RUN set -eux; \
-  apk add --no-cache git && \
+  apk add --no-cache git=2.49.1-r0 && \
   npm install -g --no-audit --no-fund --ignore-scripts \
     --legacy-peer-deps --no-workspaces \
     --unsafe-perm \
