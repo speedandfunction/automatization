@@ -6,17 +6,18 @@ import { weeklyFinancialReportsWorkflow } from './workflows';
 
 async function run() {
   const connection = await Connection.connect(temporalConfig);
-  const client = new Client({ connection });
-
-  const handle = await client.workflow.start(weeklyFinancialReportsWorkflow, {
-    ...workerConfig,
-    workflowId: 'weekly-financial-report-' + Date.now(),
-  });
-
   try {
+    const client = new Client({ connection });
+    const handle = await client.workflow.start(weeklyFinancialReportsWorkflow, {
+      taskQueue: workerConfig.taskQueue,
+      workflowId: `weekly-financial-report-${Date.now()}`,
+    });
     await handle.result();
   } catch (err) {
     console.error('Workflow failed:', err);
+    process.exitCode = 1;
+  } finally {
+    await connection.close();
   }
 }
 
