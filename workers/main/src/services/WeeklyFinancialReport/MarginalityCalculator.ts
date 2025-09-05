@@ -22,14 +22,14 @@ export enum EffectiveMarginalityLevel {
 export interface MarginalityResult {
   marginAmount: number;
   marginalityPercent: number;
-  indicator: string;
+  effectiveMarginalityIndicator: string;
   level: MarginalityLevel;
 }
 
 export interface EffectiveMarginalityResult {
   marginAmount: number;
   marginalityPercent: number;
-  indicator: string;
+  effectiveMarginalityIndicator: string;
   level: EffectiveMarginalityLevel;
 }
 
@@ -38,9 +38,14 @@ export class MarginalityCalculator {
     const marginAmount = revenue - cogs;
     const marginalityPercent = revenue > 0 ? (marginAmount / revenue) * 100 : 0;
     const level = this.classify(marginalityPercent);
-    const indicator = this.getIndicator(level);
+    const effectiveMarginalityIndicator = this.getIndicator(level);
 
-    return { marginAmount, marginalityPercent, indicator, level };
+    return {
+      marginAmount,
+      marginalityPercent,
+      effectiveMarginalityIndicator,
+      level,
+    };
   }
 
   static classify(percent: number): MarginalityLevel {
@@ -68,9 +73,14 @@ export class EffectiveMarginalityCalculator {
     const marginAmount = revenue - cogs;
     const marginalityPercent = revenue > 0 ? (marginAmount / revenue) * 100 : 0;
     const level = this.classify(marginalityPercent);
-    const indicator = this.getIndicator(level);
+    const effectiveMarginalityIndicator = this.getIndicator(level);
 
-    return { marginAmount, marginalityPercent, indicator, level };
+    return {
+      marginAmount,
+      marginalityPercent,
+      effectiveMarginalityIndicator,
+      level,
+    };
   }
 
   static classify(percent: number): EffectiveMarginalityLevel {
