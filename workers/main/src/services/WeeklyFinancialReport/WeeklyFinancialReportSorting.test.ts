@@ -52,10 +52,26 @@ const createLevelTestData = () => ({
     { redmine_id: 103, history: { rate: { '2024-01-01': 50 } } },
   ],
   projects: [
-    { redmine_id: 10, history: { rate: { '2024-01-01': 100 } } }, // 50% marginality (Low)
-    { redmine_id: 20, history: { rate: { '2024-01-01': 200 } } }, // 75% marginality (High)
-    { redmine_id: 30, history: { rate: { '2024-01-01': 150 } } }, // 67% marginality (Medium)
-    { redmine_id: 40, history: { rate: { '2024-01-01': 180 } } }, // 72% marginality (High)
+    {
+      name: 'Project X',
+      redmine_id: 10,
+      history: { rate: { '2024-01-01': 100 } },
+    }, // 50% marginality (Low)
+    {
+      name: 'Project Y',
+      redmine_id: 20,
+      history: { rate: { '2024-01-01': 200 } },
+    }, // 75% marginality (High)
+    {
+      name: 'Project Z',
+      redmine_id: 30,
+      history: { rate: { '2024-01-01': 150 } },
+    }, // 67% marginality (Medium)
+    {
+      name: 'Project W',
+      redmine_id: 40,
+      history: { rate: { '2024-01-01': 180 } },
+    }, // 72% marginality (High)
   ],
 });
 

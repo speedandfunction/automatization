@@ -11,6 +11,7 @@ export interface TargetUnit {
   total_hours: number;
   rate?: number;
   projectRate?: number;
+  effectiveMarginalityIndicator?: string;
 }
 
 export type GroupName = (typeof GroupNameEnum)[keyof typeof GroupNameEnum];
