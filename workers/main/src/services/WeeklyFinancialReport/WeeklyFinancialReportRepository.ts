@@ -1,7 +1,5 @@
-import { getRateByDate } from '../../common/formatUtils';
 import type { TargetUnit } from '../../common/types';
 import type { Employee, Project } from '../FinApp';
-import { getContractTypeByDate } from '../FinApp/FinAppUtils';
 import { GroupAggregator } from './GroupAggregator';
 import {
   AggregateGroupDataInput,
@@ -9,7 +7,6 @@ import {
   IWeeklyFinancialReportRepository,
 } from './IWeeklyFinancialReportRepository';
 import {
-  EffectiveMarginalityCalculator,
   MarginalityCalculator,
   MarginalityLevel,
   MarginalityResult,
