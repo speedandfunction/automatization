@@ -14,6 +14,7 @@ import {
   MarginalityLevel,
   MarginalityResult,
 } from './MarginalityCalculator';
+import { WeeklyFinancialReportCalculations } from './WeeklyFinancialReportCalculations';
 import { WeeklyFinancialReportFormatter } from './WeeklyFinancialReportFormatter';
 
 interface GroupData {
@@ -238,78 +239,31 @@ export class WeeklyFinancialReportRepository
     return `*Weekly Financial Summary for Target Units* (${periodStart} - ${periodEnd})`;
   }
 
-  private safeGetRate(
-    history: Employee['history'] | undefined,
-    date: string,
-  ): number {
-    if (!history || typeof history !== 'object' || !history.rate) return 0;
-
-    return getRateByDate(history.rate, date) || 0;
-  }
-
   private aggregateGroupData({
     groupUnits,
     employees,
     projects,
   }: AggregateGroupDataInput) {
-    let groupTotalCogs = 0;
-    let groupTotalRevenue = 0;
-    let effectiveRevenue = 0;
-    const processedProjects = new Set<number>();
-
-    // Track latest date per project to resolve contract type once per project
-    const latestDateByProject = new Map<number, string>();
-    const projectIdsInGroup = new Set<number>();
-
-    for (const unit of groupUnits) {
-      const employee = employees.find((e) => e.redmine_id === unit.user_id);
-      const project = projects.find((p) => p.redmine_id === unit.project_id);
-      const date = unit.spent_on;
-      const employeeRate = this.safeGetRate(employee?.history, date);
-      const projectRate = this.safeGetRate(project?.history, date);
-
-      groupTotalCogs += employeeRate * unit.total_hours;
-      groupTotalRevenue += projectRate * unit.total_hours;
-
-      if (project) {
-        projectIdsInGroup.add(project.redmine_id);
-        const prev = latestDateByProject.get(project.redmine_id);
-
-        if (!prev || Date.parse(date) > Date.parse(prev)) {
-          latestDateByProject.set(project.redmine_id, date);
-        }
-      }
-
-      if (project && !processedProjects.has(project.redmine_id)) {
-        effectiveRevenue += project.effectiveRevenue || 0;
-        processedProjects.add(project.redmine_id);
-      }
-    }
-
-    // Resolve a single contractType for the group
-    let contractType: string | undefined;
-    const contractTypes = new Set<string>();
-
-    for (const projectId of projectIdsInGroup) {
-      const project = projects.find((p) => p.redmine_id === projectId);
-      const d = latestDateByProject.get(projectId);
-
-      if (project && d) {
-        const ct = getContractTypeByDate(project.history?.contractType, d);
-
-        if (ct) contractTypes.add(ct);
-      }
-    }
-    contractType =
-      contractTypes.size <= 1 ? Array.from(contractTypes)[0] : 'Mixed';
-
-    const effectiveMargin = effectiveRevenue - groupTotalCogs;
-    const effectiveMarginality =
-      effectiveRevenue > 0 ? (effectiveMargin / effectiveRevenue) * 100 : 0;
-    const effectiveMarginalityIndicator =
-      EffectiveMarginalityCalculator.getIndicator(
-        EffectiveMarginalityCalculator.classify(effectiveMarginality),
+    const { groupTotalCogs, groupTotalRevenue, effectiveRevenue } =
+      WeeklyFinancialReportCalculations.calculateGroupTotals(
+        groupUnits,
+        employees,
+        projects,
       );
+
+    const contractType = WeeklyFinancialReportCalculations.resolveContractType(
+      groupUnits,
+      projects,
+    );
+
+    const {
+      effectiveMargin,
+      effectiveMarginality,
+      effectiveMarginalityIndicator,
+    } = WeeklyFinancialReportCalculations.calculateEffectiveMarginality(
+      effectiveRevenue,
+      groupTotalCogs,
+    );
 
     return {
       groupTotalCogs,
@@ -320,5 +274,12 @@ export class WeeklyFinancialReportRepository
       effectiveMarginalityIndicator,
       contractType,
     };
+  }
+
+  private safeGetRate(
+    history: Employee['history'] | undefined,
+    date: string,
+  ): number {
+    return WeeklyFinancialReportCalculations.safeGetRate(history, date);
   }
 }
