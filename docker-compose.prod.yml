@@ -22,10 +22,10 @@ services:
       - N8N_BLOCKED_NODES=n8n-nodes-base.executeCommand,n8n-nodes-base.ssh
       - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
       - N8N_BINARY_DATA_STORAGE_PATH=/data/n8n/binaryData
-      # Allowlist specific safe environment variables for node access
-      - N8N_ENV_ACCESS_ALLOWED=SEMBLY_USER,SEMBLY_PASS
       - SEMBLY_USER=${SEMBLY_USER:?SEMBLY_USER is required}
       - SEMBLY_PASS=${SEMBLY_PASS:?SEMBLY_PASS is required}
+    volumes:
+    - n8n_data:/data/n8n
   postgresql: !reset null
 
   temporal:
