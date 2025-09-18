@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
+    "launch": "docker-compose exec -T temporal-worker-main npx ts-node src/launchWeeklyReport.ts",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "eslint": "eslint . --ext .ts"

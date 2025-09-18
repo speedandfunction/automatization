@@ -1,5 +1,6 @@
 export interface History {
   rate: { [date: string]: number };
+  contractType?: { [date: string]: string };
 }
 
 export interface Employee {

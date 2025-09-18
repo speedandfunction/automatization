@@ -32,7 +32,13 @@ const mockTargetUnits: TargetUnit[] = [
 ];
 const mockFinancialsAppData: FinancialsAppData = {
   employees: [{ redmine_id: 3, history: { rate: { '2024-06-01': 100 } } }],
-  projects: [{ redmine_id: 2, history: { rate: { '2024-06-01': 200 } } }],
+  projects: [
+    {
+      name: 'Test Project',
+      redmine_id: 2,
+      history: { rate: { '2024-06-01': 200 } },
+    },
+  ],
 };
 
 describe('sendReportToSlack', () => {

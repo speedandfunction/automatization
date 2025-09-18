@@ -1,4 +1,3 @@
-import { getRateByDate } from '../../common/formatUtils';
 import type { TargetUnit } from '../../common/types';
 import type { Employee, Project } from '../FinApp';
 import { GroupAggregator } from './GroupAggregator';
@@ -12,6 +11,7 @@ import {
   MarginalityLevel,
   MarginalityResult,
 } from './MarginalityCalculator';
+import { WeeklyFinancialReportCalculations } from './WeeklyFinancialReportCalculations';
 import { WeeklyFinancialReportFormatter } from './WeeklyFinancialReportFormatter';
 
 interface GroupData {
@@ -22,7 +22,9 @@ interface GroupData {
   effectiveRevenue: number;
   effectiveMargin: number;
   effectiveMarginality: number;
+  effectiveMarginalityIndicator: string;
   marginality: MarginalityResult;
+  contractType?: string;
 }
 
 export class WeeklyFinancialReportRepository
@@ -132,6 +134,8 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue,
       effectiveMargin,
       effectiveMarginality,
+      effectiveMarginalityIndicator,
+      contractType,
     } = this.aggregateGroupData({ groupUnits, employees, projects });
     const marginality = MarginalityCalculator.calculate(
       groupTotalRevenue,
@@ -146,7 +150,9 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue,
       effectiveMargin,
       effectiveMarginality,
+      effectiveMarginalityIndicator,
       marginality,
+      contractType,
     };
   }
 
@@ -180,10 +186,12 @@ export class WeeklyFinancialReportRepository
         groupTotalCogs: group.groupTotalCogs,
         marginAmount: group.marginality.marginAmount,
         marginalityPercent: group.marginality.marginalityPercent,
-        indicator: group.marginality.indicator,
+
         effectiveRevenue: group.effectiveRevenue,
         effectiveMargin: group.effectiveMargin,
         effectiveMarginality: group.effectiveMarginality,
+        effectiveMarginalityIndicator: group.effectiveMarginalityIndicator,
+        contractType: group.contractType,
       });
     }
 
@@ -228,44 +236,31 @@ export class WeeklyFinancialReportRepository
     return `*Weekly Financial Summary for Target Units* (${periodStart} - ${periodEnd})`;
   }
 
-  private safeGetRate(
-    history: Employee['history'] | undefined,
-    date: string,
-  ): number {
-    if (!history || typeof history !== 'object' || !history.rate) return 0;
-
-    return getRateByDate(history.rate, date) || 0;
-  }
-
   private aggregateGroupData({
     groupUnits,
     employees,
     projects,
   }: AggregateGroupDataInput) {
-    let groupTotalCogs = 0;
-    let groupTotalRevenue = 0;
-    let effectiveRevenue = 0;
-    const processedProjects = new Set<number>(); // Отслеживаем обработанные проекты
+    const { groupTotalCogs, groupTotalRevenue, effectiveRevenue } =
+      WeeklyFinancialReportCalculations.calculateGroupTotals(
+        groupUnits,
+        employees,
+        projects,
+      );
 
-    for (const unit of groupUnits) {
-      const employee = employees.find((e) => e.redmine_id === unit.user_id);
-      const project = projects.find((p) => p.redmine_id === unit.project_id);
-      const date = unit.spent_on;
-      const employeeRate = this.safeGetRate(employee?.history, date);
-      const projectRate = this.safeGetRate(project?.history, date);
+    const contractType = WeeklyFinancialReportCalculations.resolveContractType(
+      groupUnits,
+      projects,
+    );
 
-      groupTotalCogs += employeeRate * unit.total_hours;
-      groupTotalRevenue += projectRate * unit.total_hours;
-
-      if (project && !processedProjects.has(project.redmine_id)) {
-        effectiveRevenue += project.effectiveRevenue || 0;
-        processedProjects.add(project.redmine_id);
-      }
-    }
-
-    const effectiveMargin = effectiveRevenue - groupTotalCogs;
-    const effectiveMarginality =
-      effectiveRevenue > 0 ? (effectiveMargin / effectiveRevenue) * 100 : 0;
+    const {
+      effectiveMargin,
+      effectiveMarginality,
+      effectiveMarginalityIndicator,
+    } = WeeklyFinancialReportCalculations.calculateEffectiveMarginality(
+      effectiveRevenue,
+      groupTotalCogs,
+    );
 
     return {
       groupTotalCogs,
@@ -273,6 +268,15 @@ export class WeeklyFinancialReportRepository
       effectiveRevenue,
       effectiveMargin,
       effectiveMarginality,
+      effectiveMarginalityIndicator,
+      contractType,
     };
+  }
+
+  private safeGetRate(
+    history: Employee['history'] | undefined,
+    date: string,
+  ): number {
+    return WeeklyFinancialReportCalculations.safeGetRate(history, date);
   }
 }
