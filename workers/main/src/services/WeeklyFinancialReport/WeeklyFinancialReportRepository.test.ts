@@ -114,7 +114,6 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(summary).toContain('Group C');
     expect(summary).toContain('Group D');
 
-    expect(details).toContain('total hours');
     expect(details).toContain('Group A');
     expect(details).toContain('Group B');
     expect(details).toContain('Group C');

@@ -8,5 +8,6 @@ export interface TargetUnitRow extends RowDataPacket {
   user_id: number;
   username: string;
   spent_on: string;
+  project_hours: number;
   total_hours: number;
 }

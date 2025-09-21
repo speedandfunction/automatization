@@ -21,6 +21,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     user_id,
     username,
     spent_on,
+    project_hours,
     total_hours,
   }: TargetUnitRow): TargetUnit => ({
     group_id: Number(group_id),
@@ -30,6 +31,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     user_id: Number(user_id),
     username: String(username),
     spent_on: String(spent_on),
+    project_hours: Number(project_hours),
     total_hours: Number(total_hours),
   });
 

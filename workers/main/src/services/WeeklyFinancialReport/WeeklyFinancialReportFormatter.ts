@@ -51,7 +51,6 @@ export class WeeklyFinancialReportFormatter {
     `*${groupName}*\n` +
     `${spacer}period: ${currentQuarter}\n` +
     `${spacer}contract type: ${contractType || 'n/a'}\n` +
-    `${spacer}total hours: ${groupTotalHours.toFixed(1)}\n` +
     `${spacer}revenue: ${formatCurrency(groupTotalRevenue)}\n` +
     `${spacer}COGS: ${formatCurrency(groupTotalCogs)}\n` +
     `${spacer}margin: ${formatCurrency(marginAmount)}\n` +
@@ -85,6 +84,9 @@ export class WeeklyFinancialReportFormatter {
       summary += `:red_circle: *Marginality is under ${MEDIUM_MARGINALITY_THRESHOLD}%*:\n`;
       summary += `${spacer}${spacer}${lowGroups.join(`\n${spacer}${spacer}`)}\n`;
     }
+
+    summary += `\n*Legend*:\n`;
+    summary += `Marginality: :large_green_circle: ≥${HIGH_MARGINALITY_THRESHOLD}%   :large_yellow_circle: ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD - 1}%  :red_circle: <${MEDIUM_MARGINALITY_THRESHOLD}%\n`;
 
     summary += '\n_______________________\n\n\n';
     summary += 'The specific figures will be available in the thread';
@@ -138,7 +140,6 @@ export class WeeklyFinancialReportFormatter {
       '\n*Notes:*\n' +
       `1. *Effective Revenue* calculated for the last ${qboConfig.effectiveRevenueMonths} months (${startDate} - ${endDate})\n\n` +
       `*Legend*:\n` +
-      `Marginality: :large_green_circle: ≥${HIGH_MARGINALITY_THRESHOLD}%   :large_yellow_circle: ${MEDIUM_MARGINALITY_THRESHOLD}-${HIGH_MARGINALITY_THRESHOLD - 1}%  :red_circle: <${MEDIUM_MARGINALITY_THRESHOLD}%\n` +
       `Effective Marginality: :large_green_circle: ≥${HIGH_EFFECTIVE_MARGINALITY_THRESHOLD}%   ` +
       `:large_yellow_circle: ${MEDIUM_EFFECTIVE_MARGINALITY_THRESHOLD}-${HIGH_EFFECTIVE_MARGINALITY_THRESHOLD - 1}%   ` +
       `:red_circle: ${LOW_EFFECTIVE_MARGINALITY_THRESHOLD}-${MEDIUM_EFFECTIVE_MARGINALITY_THRESHOLD}%   ` +
