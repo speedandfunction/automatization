@@ -13,6 +13,7 @@ const createBasicTestData = () => ({
       username: 'Alice',
       spent_on: '2024-06-01',
       total_hours: 8,
+      project_hours: 5,
     },
     {
       group_id: 1,
@@ -23,6 +24,7 @@ const createBasicTestData = () => ({
       username: 'Bob',
       spent_on: '2024-06-01',
       total_hours: 4,
+      project_hours: 3,
     },
     {
       group_id: 2,
@@ -33,6 +35,7 @@ const createBasicTestData = () => ({
       username: 'Charlie',
       spent_on: '2024-06-01',
       total_hours: 5,
+      project_hours: 4,
     },
     {
       group_id: 3,
@@ -42,7 +45,8 @@ const createBasicTestData = () => ({
       user_id: 103,
       username: 'David',
       spent_on: '2024-06-01',
-      total_hours: 100,
+      total_hours: 10,
+      project_hours: 8,
     },
     {
       group_id: 4,
@@ -53,35 +57,40 @@ const createBasicTestData = () => ({
       username: 'Eve',
       spent_on: '2024-06-01',
       total_hours: 10,
+      project_hours: 7,
     },
   ],
   employees: [
-    { redmine_id: 100, history: { rate: { '2024-01-01': 100 } } },
-    { redmine_id: 101, history: { rate: { '2024-01-01': 200 } } },
-    { redmine_id: 102, history: { rate: { '2024-01-01': 300 } } },
-    { redmine_id: 103, history: { rate: { '2024-01-01': 900 } } },
-    { redmine_id: 104, history: { rate: { '2024-01-01': 700 } } },
+    { redmine_id: 100, history: { rate: { '2024-01-01': 50 } } },
+    { redmine_id: 101, history: { rate: { '2024-01-01': 60 } } },
+    { redmine_id: 102, history: { rate: { '2024-01-01': 80 } } },
+    { redmine_id: 103, history: { rate: { '2024-01-01': 120 } } },
+    { redmine_id: 104, history: { rate: { '2024-01-01': 130 } } },
   ],
   projects: [
     {
       redmine_id: 10,
       name: 'Project X',
-      history: { rate: { '2024-01-01': 500 } },
+      history: { rate: { '2024-01-01': 200 } },
+      effectiveRevenue: 5000,
     },
     {
       redmine_id: 20,
       name: 'Project Y',
-      history: { rate: { '2024-01-01': 1000 } },
+      history: { rate: { '2024-01-01': 150 } },
+      effectiveRevenue: 3000,
     },
     {
       redmine_id: 30,
       name: 'Project Z',
-      history: { rate: { '2024-01-01': 1500 } },
+      history: { rate: { '2024-01-01': 140 } },
+      effectiveRevenue: 2000,
     },
     {
       redmine_id: 40,
       name: 'Project W',
-      history: { rate: { '2024-01-01': 1300 } },
+      history: { rate: { '2024-01-01': 145 } },
+      effectiveRevenue: 2500,
     },
   ],
 });
@@ -103,12 +112,6 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(details.length).toBeGreaterThan(0);
 
     expect(summary).toContain('Weekly Financial Summary for Target Units');
-    expect(summary).toContain('Marginality is 55% or higher');
-    expect(summary).toContain('Marginality is between 45-55%');
-    expect(summary).toContain('Marginality is under 45%');
-    expect(summary).toContain(
-      'The specific figures will be available in the thread',
-    );
     expect(summary).toContain('Group A');
     expect(summary).toContain('Group B');
     expect(summary).toContain('Group C');
@@ -119,15 +122,16 @@ describe('WeeklyFinancialReportRepository', () => {
     expect(details).toContain('Group C');
     expect(details).toContain('Group D');
     expect(details).toMatch(/period: Q\d/);
-    expect(details).toContain('Revenue');
+    expect(details).toContain('contract type');
+    expect(details).toContain('revenue');
     expect(details).toContain('COGS');
-    expect(details).toContain('Margin');
-    expect(details).toContain('Marginality');
+    expect(details).toContain('margin');
+    expect(details).toContain('marginality');
+    expect(details).toContain('effective revenue');
+    expect(details).toContain('effective margin');
+    expect(details).toContain('effective marginality');
     expect(details).toContain('Notes:');
-    expect(details).toContain('Effective Revenue');
     expect(details).toContain('Legend');
-    // Marginality indicators
-    expect(details).toMatch(/:arrow(up|down):|:large_yellow_circle:/);
     // Check for correct currency formatting
     expect(details).toMatch(/\$[\d,]+/);
   });
