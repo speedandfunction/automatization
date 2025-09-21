@@ -13,7 +13,6 @@ const createLevelTestData = () => ({
       username: 'Alice',
       spent_on: '2024-06-01',
       total_hours: 10,
-      project_hours: 8,
     },
     {
       group_id: 2,
@@ -24,7 +23,6 @@ const createLevelTestData = () => ({
       username: 'Bob',
       spent_on: '2024-06-01',
       total_hours: 10,
-      project_hours: 8,
     },
     {
       group_id: 3,
@@ -35,7 +33,6 @@ const createLevelTestData = () => ({
       username: 'Charlie',
       spent_on: '2024-06-01',
       total_hours: 10,
-      project_hours: 8,
     },
     {
       group_id: 4,
@@ -46,40 +43,35 @@ const createLevelTestData = () => ({
       username: 'David',
       spent_on: '2024-06-01',
       total_hours: 10,
-      project_hours: 8,
     },
   ],
   employees: [
-    { redmine_id: 100, history: { rate: { '2024-01-01': 120 } } },
-    { redmine_id: 101, history: { rate: { '2024-01-01': 40 } } },
-    { redmine_id: 102, history: { rate: { '2024-01-01': 75 } } },
-    { redmine_id: 103, history: { rate: { '2024-01-01': 45 } } },
+    { redmine_id: 100, history: { rate: { '2024-01-01': 50 } } },
+    { redmine_id: 101, history: { rate: { '2024-01-01': 50 } } },
+    { redmine_id: 102, history: { rate: { '2024-01-01': 50 } } },
+    { redmine_id: 103, history: { rate: { '2024-01-01': 50 } } },
   ],
   projects: [
     {
-      redmine_id: 10,
       name: 'Project X',
-      history: { rate: { '2024-01-01': 140 } },
-      effectiveRevenue: 1000,
-    },
+      redmine_id: 10,
+      history: { rate: { '2024-01-01': 100 } },
+    }, // 50% marginality (Low)
     {
-      redmine_id: 20,
       name: 'Project Y',
+      redmine_id: 20,
       history: { rate: { '2024-01-01': 200 } },
-      effectiveRevenue: 5000,
-    },
+    }, // 75% marginality (High)
     {
-      redmine_id: 30,
       name: 'Project Z',
+      redmine_id: 30,
       history: { rate: { '2024-01-01': 150 } },
-      effectiveRevenue: 3000,
-    },
+    }, // 67% marginality (Medium)
     {
-      redmine_id: 40,
       name: 'Project W',
-      history: { rate: { '2024-01-01': 190 } },
-      effectiveRevenue: 4500,
-    },
+      redmine_id: 40,
+      history: { rate: { '2024-01-01': 180 } },
+    }, // 72% marginality (High)
   ],
 });
 
@@ -94,13 +86,13 @@ describe('WeeklyFinancialReportRepository Sorting', () => {
       projects: testData.projects,
     });
 
-    // Check that groups appear in the expected order in both summary and details
+    // Basic sanity
     expect(typeof summary).toBe('string');
     expect(typeof details).toBe('string');
     expect(summary.length).toBeGreaterThan(0);
     expect(details.length).toBeGreaterThan(0);
 
-    // All groups should be present
+    // Verify all groups are present
     expect(summary).toContain('High Group B');
     expect(summary).toContain('High Group D');
     expect(summary).toContain('Medium Group C');
@@ -110,5 +102,57 @@ describe('WeeklyFinancialReportRepository Sorting', () => {
     expect(details).toContain('High Group D');
     expect(details).toContain('Medium Group C');
     expect(details).toContain('Low Group A');
+
+    // Verify sorting order if the groups appear in different marginality sections
+    // This is a more flexible approach that works with the actual calculation results
+    const summaryLines = summary.split('\n');
+    const detailsLines = details.split('\n');
+    
+    // Find the positions of each group in the output
+    const groupPositions = {
+      'High Group B': { summary: summaryLines.findIndex(line => line.includes('High Group B')), details: detailsLines.findIndex(line => line.includes('High Group B')) },
+      'High Group D': { summary: summaryLines.findIndex(line => line.includes('High Group D')), details: detailsLines.findIndex(line => line.includes('High Group D')) },
+      'Medium Group C': { summary: summaryLines.findIndex(line => line.includes('Medium Group C')), details: detailsLines.findIndex(line => line.includes('Medium Group C')) },
+      'Low Group A': { summary: summaryLines.findIndex(line => line.includes('Low Group A')), details: detailsLines.findIndex(line => line.includes('Low Group A')) }
+    };
+
+    // Verify that groups are ordered consistently in both summary and details
+    // High groups should come before Medium, Medium before Low
+    // Within the same level, alphabetical order (B before D)
+    const highGroups = ['High Group B', 'High Group D'];
+    const mediumGroups = ['Medium Group C'];
+    const lowGroups = ['Low Group A'];
+
+    // Check that high groups come before medium groups
+    highGroups.forEach(highGroup => {
+      mediumGroups.forEach(mediumGroup => {
+        if (groupPositions[highGroup].summary >= 0 && groupPositions[mediumGroup].summary >= 0) {
+          expect(groupPositions[highGroup].summary).toBeLessThan(groupPositions[mediumGroup].summary);
+        }
+        if (groupPositions[highGroup].details >= 0 && groupPositions[mediumGroup].details >= 0) {
+          expect(groupPositions[highGroup].details).toBeLessThan(groupPositions[mediumGroup].details);
+        }
+      });
+    });
+
+    // Check that medium groups come before low groups
+    mediumGroups.forEach(mediumGroup => {
+      lowGroups.forEach(lowGroup => {
+        if (groupPositions[mediumGroup].summary >= 0 && groupPositions[lowGroup].summary >= 0) {
+          expect(groupPositions[mediumGroup].summary).toBeLessThan(groupPositions[lowGroup].summary);
+        }
+        if (groupPositions[mediumGroup].details >= 0 && groupPositions[lowGroup].details >= 0) {
+          expect(groupPositions[mediumGroup].details).toBeLessThan(groupPositions[lowGroup].details);
+        }
+      });
+    });
+
+    // Check alphabetical order within high groups (B before D)
+    if (groupPositions['High Group B'].summary >= 0 && groupPositions['High Group D'].summary >= 0) {
+      expect(groupPositions['High Group B'].summary).toBeLessThan(groupPositions['High Group D'].summary);
+    }
+    if (groupPositions['High Group B'].details >= 0 && groupPositions['High Group D'].details >= 0) {
+      expect(groupPositions['High Group B'].details).toBeLessThan(groupPositions['High Group D'].details);
+    }
   });
 });
