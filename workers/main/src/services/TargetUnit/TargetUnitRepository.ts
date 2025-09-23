@@ -13,7 +13,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     this.pool = pool;
   }
 
-  private static mapRowToTargetUnit = ({
+  private mapRowToTargetUnit({
     group_id,
     group_name,
     project_id,
@@ -21,17 +21,31 @@ export class TargetUnitRepository implements ITargetUnitRepository {
     user_id,
     username,
     spent_on,
+    project_hours,
     total_hours,
-  }: TargetUnitRow): TargetUnit => ({
-    group_id: Number(group_id),
-    group_name: String(group_name),
-    project_id: Number(project_id),
-    project_name: String(project_name),
-    user_id: Number(user_id),
-    username: String(username),
-    spent_on: String(spent_on),
-    total_hours: Number(total_hours),
-  });
+  }: TargetUnitRow): TargetUnit {
+    // Defensive parsing for numeric values to handle NULL/string values from DB
+    const parseNumericValue = (
+      value: number | string | undefined | null,
+    ): number => {
+      if (value === null || value === undefined) return 0;
+      const parsed = parseFloat(String(value));
+
+      return isNaN(parsed) ? 0 : parsed;
+    };
+
+    return {
+      group_id: Number(group_id),
+      group_name: String(group_name),
+      project_id: Number(project_id),
+      project_name: String(project_name),
+      user_id: Number(user_id),
+      username: String(username),
+      spent_on: String(spent_on),
+      project_hours: parseNumericValue(project_hours),
+      total_hours: parseNumericValue(total_hours),
+    };
+  }
 
   async getTargetUnits(): Promise<TargetUnit[]> {
     try {
@@ -41,7 +55,7 @@ export class TargetUnitRepository implements ITargetUnitRepository {
         throw new TargetUnitRepositoryError('Query did not return an array');
       }
 
-      return rows.map(TargetUnitRepository.mapRowToTargetUnit);
+      return rows.map((row) => this.mapRowToTargetUnit(row));
     } catch (error) {
       throw new TargetUnitRepositoryError(
         `TargetUnitRepository.getTargetUnits failed: ${(error as Error).message}`,

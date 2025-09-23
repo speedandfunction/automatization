@@ -32,6 +32,7 @@ describe('TargetUnitRepository', () => {
         username: 'User',
         spent_on: '2024-06-01',
         total_hours: 8,
+        project_hours: 5,
         constructor: { name: 'RowDataPacket' },
       } as TargetUnitRow,
     ];
@@ -49,6 +50,7 @@ describe('TargetUnitRepository', () => {
         username: 'User',
         spent_on: '2024-06-01',
         total_hours: 8,
+        project_hours: 5,
       },
     ]);
   });
