@@ -32,7 +32,7 @@ export class WeeklyFinancialReportCalculations {
       const projectRate = this.safeGetRate(project?.history, date);
 
       groupTotalCogs += employeeRate * unit.total_hours;
-      groupTotalRevenue += projectRate * unit.project_hours;
+      groupTotalRevenue += projectRate * (unit.project_hours || 0);
 
       if (project && !processedProjects.has(project.redmine_id)) {
         effectiveRevenue += project.effectiveRevenue || 0;
