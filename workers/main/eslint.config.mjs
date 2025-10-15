@@ -10,7 +10,7 @@ export default [
     settings: {
       'import/resolver': {
         typescript: {
-          extensions: [".ts"]
+          extensions: ['.ts'],
         },
       },
     },
@@ -34,7 +34,7 @@ export default [
       'eslint.config.mjs',
       'coverage',
       'coverage/*',
-      'coverage/**/*'
+      'coverage/**/*',
     ],
     rules: {
       ...tseslint.configs.recommended.rules,
@@ -42,7 +42,10 @@ export default [
       ...prettier.configs.recommended.rules,
 
       'prettier/prettier': 'error',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/require-await': 'off',
       'no-console': ['warn', { allow: ['error'] }],
       'no-debugger': 'warn',
@@ -75,17 +78,18 @@ export default [
           trailingUnderscore: 'allow',
           filter: {
             regex: '^[\'"].*[\'"]$|^[A-Z_]+$',
-            match: false
-          }
+            match: false,
+          },
         },
         // Object literal properties: allow camelCase, snake_case, MongoDB operators, dot notation, and quoted strings
         {
           selector: 'objectLiteralProperty',
           format: null,
           custom: {
-            regex: '^[a-zA-Z_][a-zA-Z0-9_]*$|^[\'"].*[\'"]$|^[0-9-]+$|^[A-Za-z][A-Za-z0-9-]*$|^\\$[a-zA-Z]+$|^[a-zA-Z_][a-zA-Z0-9_.]*$',
-            match: true
-          }
+            regex:
+              '^[a-zA-Z_][a-zA-Z0-9_]*$|^[\'"].*[\'"]$|^[0-9-]+$|^[A-Za-z][A-Za-z0-9-]*$|^\\$[a-zA-Z]+$|^[a-zA-Z_][a-zA-Z0-9_.]*$',
+            match: true,
+          },
         },
         // Allow PascalCase and snake_case for API/DB compatibility
         {
@@ -93,8 +97,8 @@ export default [
           format: null,
           custom: {
             regex: '^[A-Z][a-zA-Z0-9]*$|^[a-z][a-zA-Z0-9_]*$',
-            match: true
-          }
+            match: true,
+          },
         },
         // Prevent interfaces starting with 'I'
         {
@@ -102,34 +106,35 @@ export default [
           format: ['PascalCase'],
           custom: {
             regex: '^I[A-Z]',
-            match: false
-          }
+            match: false,
+          },
         },
         // Enforce PascalCase for classes and types
         {
           selector: ['class', 'typeLike'],
-          format: ['PascalCase']
+          format: ['PascalCase'],
         },
         // Enforce PascalCase or UPPER_CASE for enum members
         {
           selector: 'enumMember',
-          format: ['PascalCase', 'UPPER_CASE']
+          format: ['PascalCase', 'UPPER_CASE'],
         },
         // Boolean variables with prefixes (is, has, should, can, will, did)
         {
           selector: 'variable',
           types: ['boolean'],
           format: ['PascalCase'],
-          prefix: ['is', 'has', 'should', 'can', 'will', 'did']
+          prefix: ['is', 'has', 'should', 'can', 'will', 'did'],
         },
         // Variables that represent classes/models (PascalCase) - only for specific patterns
         {
           selector: 'variable',
           format: ['PascalCase'],
           filter: {
-            regex: '^(FinAppRepository|TargetUnitRepository|TestModel|EmployeeModel|ProjectModel|SlackServiceNoToken|SlackServiceNoChannel)$',
-            match: true
-          }
+            regex:
+              '^(FinAppRepository|TargetUnitRepository|TestModel|EmployeeModel|ProjectModel|SlackServiceNoToken|SlackServiceNoChannel)$',
+            match: true,
+          },
         },
         // Parameters that can be snake_case (for API/DB compatibility)
         {
@@ -137,8 +142,8 @@ export default [
           format: null,
           custom: {
             regex: '^[a-z][a-zA-Z0-9_]*$',
-            match: true
-          }
+            match: true,
+          },
         },
         // Function naming with A/HC/LC pattern prefixes
         {
@@ -146,26 +151,49 @@ export default [
           format: ['PascalCase'],
           prefix: [
             // Action verbs
-            'get', 'setup', 'set', 'reset', 'remove', 'delete', 'compose', 'handle', 'create', 'init', 'build',
+            'get',
+            'setup',
+            'set',
+            'reset',
+            'remove',
+            'delete',
+            'compose',
+            'handle',
+            'create',
+            'init',
+            'build',
             // Validation/Testing
-            'validate', 'test', 'expect', 'mock', 'try',
+            'validate',
+            'test',
+            'expect',
+            'mock',
+            'try',
             // Formatting/Transformation
-            'format', 'transform', 'convert',
+            'format',
+            'transform',
+            'convert',
             // Generation/Processing
-            'generate', 'process', 'parse',
+            'generate',
+            'process',
+            'parse',
             // File operations
-            'read', 'write', 'save', 'load',
+            'read',
+            'write',
+            'save',
+            'load',
             // Main operations
-            'run', 'start', 'stop', 'main'
-          ]
+            'run',
+            'start',
+            'stop',
+            'main',
+          ],
         },
         // Creation/Initialization functions should use PascalCase after prefix
         {
           selector: 'function',
           format: ['PascalCase'],
-          prefix: ['create', 'init', 'build']
+          prefix: ['create', 'init', 'build'],
         },
-
       ],
 
       // Code complexity and size rules
@@ -176,6 +204,7 @@ export default [
       'max-params': ['error', 5],
       'max-statements': ['error', 50],
       'complexity': ['error', 15],
+      'max-classes-per-file': ['error', 1],
     },
   },
   // Override for test files to allow more nested callbacks and longer functions

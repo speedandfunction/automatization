@@ -2,7 +2,7 @@ import { getRateByDate } from '../../common/formatUtils';
 import type { TargetUnit } from '../../common/types';
 import type { Employee, Project } from '../FinApp';
 import { getContractTypeByDate } from '../FinApp/FinAppUtils';
-import { EffectiveMarginalityCalculator } from './MarginalityCalculator';
+import { EffectiveMarginalityCalculator } from './EffectiveMarginalityCalculator';
 
 export class WeeklyFinancialReportCalculations {
   static safeGetRate(
