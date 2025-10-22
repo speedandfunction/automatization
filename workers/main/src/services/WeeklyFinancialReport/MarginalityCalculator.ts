@@ -12,7 +12,7 @@ export enum MarginalityLevel {
 export interface MarginalityResult {
   marginAmount: number;
   marginalityPercent: number;
-  indicator: string;
+  effectiveMarginalityIndicator: string;
   level: MarginalityLevel;
 }
 
@@ -21,9 +21,14 @@ export class MarginalityCalculator {
     const marginAmount = revenue - cogs;
     const marginalityPercent = revenue > 0 ? (marginAmount / revenue) * 100 : 0;
     const level = this.classify(marginalityPercent);
-    const indicator = this.getIndicator(level);
+    const effectiveMarginalityIndicator = this.getIndicator(level);
 
-    return { marginAmount, marginalityPercent, indicator, level };
+    return {
+      marginAmount,
+      marginalityPercent,
+      effectiveMarginalityIndicator,
+      level,
+    };
   }
 
   static classify(percent: number): MarginalityLevel {

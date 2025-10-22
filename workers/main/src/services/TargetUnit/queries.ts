@@ -32,7 +32,7 @@ const COMMON_WHERE = `
       AND cv.customized_type = 'Principal'
       AND cv.custom_field_id = ${REPORT_FILTER_FIELD_ID}
       AND cv.value IN (${groupNamesList})
-      AND te.spent_on BETWEEN DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 7 DAY)
+      AND te.spent_on BETWEEN DATE_ADD(MAKEDATE(YEAR(CURDATE()), 1), INTERVAL (QUARTER(CURDATE()) - 1) * 3 MONTH)
                           AND DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) + 1 DAY)
 `;
 

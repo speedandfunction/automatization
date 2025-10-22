@@ -8,9 +8,11 @@ export interface TargetUnit {
   user_id: number;
   username: string;
   spent_on: string;
+  project_hours?: number;
   total_hours: number;
   rate?: number;
   projectRate?: number;
+  effectiveMarginalityIndicator?: string;
 }
 
 export type GroupName = (typeof GroupNameEnum)[keyof typeof GroupNameEnum];

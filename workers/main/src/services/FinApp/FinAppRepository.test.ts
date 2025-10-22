@@ -100,7 +100,7 @@ describe('FinAppRepository', () => {
       expect(result).toEqual(mockEmployees);
       expect(vi.mocked(EmployeeModel).find).toHaveBeenCalledWith(
         { redmine_id: { $in: [1] } },
-        { 'redmine_id': 1, 'history.rate': 1 },
+        { 'redmine_id': 1, 'history.rate': 1, 'history.contractType': 1 },
       );
     });
 
@@ -120,7 +120,13 @@ describe('FinAppRepository', () => {
       expect(result).toEqual(mockProjects);
       expect(vi.mocked(ProjectModel).find).toHaveBeenCalledWith(
         { redmine_id: { $in: [550] } },
-        { 'name': 1, 'redmine_id': 1, 'quick_books_id': 1, 'history.rate': 1 },
+        {
+          'name': 1,
+          'redmine_id': 1,
+          'quick_books_id': 1,
+          'history.rate': 1,
+          'history.contractType': 1,
+        },
       );
     });
 

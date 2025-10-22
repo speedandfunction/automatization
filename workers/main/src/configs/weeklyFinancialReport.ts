@@ -11,3 +11,7 @@ export const REPORT_FILTER_FIELD_ID = 253;
 
 // ID of the custom field in Redmine used to link issue to Billable project
 export const RELATED_PROJECT_FIELD_ID = 20;
+
+export const HIGH_EFFECTIVE_MARGINALITY_THRESHOLD = 45;
+export const MEDIUM_EFFECTIVE_MARGINALITY_THRESHOLD = 25;
+export const LOW_EFFECTIVE_MARGINALITY_THRESHOLD = 15;
