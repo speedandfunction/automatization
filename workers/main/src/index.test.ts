@@ -6,6 +6,8 @@ describe('handleRunError', () => {
   let processExitSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
+    vi.useFakeTimers();
+
     // Mock process.exit to prevent actual process termination during tests
     processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
       throw new Error('process.exit called');
@@ -14,6 +16,8 @@ describe('handleRunError', () => {
 
   afterEach(() => {
     processExitSpy.mockRestore();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it('should log the error', () => {
