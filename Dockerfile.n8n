@@ -20,7 +20,7 @@ RUN set -eux; \
   npm cache clean --force
 
 # Configure external modules allowlist used by Code/Function nodes
-ENV NODE_FUNCTION_ALLOW_EXTERNAL="showdown,slackify-markdown"
+ENV NODE_FUNCTION_ALLOW_EXTERNAL="showdown,slackify-markdown,pdf-lib"
 
 # Create app directory
 WORKDIR /home/node
