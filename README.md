@@ -54,18 +54,26 @@ Then edit the `.env` file to set your specific configuration values.
 
 ### Starting the services
 
-You can start the services in two ways, depending on your environment:
+You can start the services in different ways, depending on your environment:
 
-#### 1. Development
+#### 1. Local Development
+
+Use `docker-compose.local.yml` for local development overrides:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+```
+
+#### 2. Development (Default)
 
 ```bash
 docker compose up -d
 ```
 
-#### 2. Production
+#### 3. Production
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 ### Building custom images
@@ -91,6 +99,7 @@ docker compose ps
 ```
 
 You should see containers for:
+
 - n8n
 - temporal
 - temporal-ui
@@ -106,6 +115,7 @@ scripts/check_services.sh
 ```
 
 This will check:
+
 - n8n health endpoint
 - Temporal UI web interface
 - OpenSearch API
@@ -113,6 +123,7 @@ This will check:
 - PostgreSQL database connection
 
 Example output:
+
 ```text
 Checking service availability...
 Checking n8n at http://localhost:5678/healthz... ACCESSIBLE ✅ (HTTP 200)
@@ -158,11 +169,15 @@ docker compose down -v
 
 Data for all services is persisted using Docker volumes. The storage location depends on the environment:
 
+- **Local Development (using `docker-compose.local.yml`)**: Local-specific overrides and configurations. Must be explicitly specified with `-f` flag. This file is not automatically loaded.
+
 - **Development (default, using `docker-compose.yml`)**: Docker uses anonymous volumes for each service. These are managed by Docker and are not bound to any directory in your project. Data persists as long as the volume exists, but is not directly accessible from the project folder.
 
 - **Production (using `docker-compose.prod.yml`)**: Volumes are explicitly bound to host directories under `/data/` for persistent storage and easier backup/restore.
 
 > **Note:**
+>
+> - `docker-compose.local.yml` is only used when explicitly specified with `-f` flag
 > - Removing volumes with `docker compose down -v` will delete all persisted data.
 
 ## Service Ports
@@ -178,6 +193,7 @@ Data for all services is persisted using Docker volumes. The storage location de
 If you encounter any issues:
 
 1. Check container logs:
+
    ```bash
    docker logs temporal
    docker logs automatization-n8n-1
@@ -192,16 +208,19 @@ If you encounter any issues:
 To use GitHub-related functions with Cursor's Model Context Protocol (MCP), you need to configure a GitHub Personal Access Token:
 
 1. Create the secrets directory if it doesn't exist:
+
    ```bash
    mkdir -p ~/.cursor/mcp
    ```
 
 2. Copy or edit the `.env` file in this directory:
+
    ```bash
    cp mcp.env.example ~/.cursor/mcp/.env
    ```
 
 3. Update your GitHub Personal Access Token to the `~/.cursor/mcp/.env`:
+
    ```
    GITHUB_PERSONAL_ACCESS_TOKEN=your_token_here
    ```
@@ -211,6 +230,7 @@ To use GitHub-related functions with Cursor's Model Context Protocol (MCP), you 
 To get access to a GitHub Personal Access Token:
 Ask @killev
 or
+
 1. Go to GitHub Settings > Developer settings > Personal access tokens
 2. Generate a new token with appropriate permissions (repo, workflow, etc.)
 3. Copy the token and add it to the `.env` file as shown above
