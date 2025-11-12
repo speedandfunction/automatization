@@ -20,7 +20,7 @@ on:
     types:
       - created
 concurrency:
-  group: claude-review-${{ github.event.pull_request.number || github.event.issue.number || inputs.pr_number || github.ref }}
+  group: claude-review-${{ github.event.pull_request.number || github.event.issue.number || inputs.pr_number || github.run_id }}
   cancel-in-progress: true
 
 permissions:
