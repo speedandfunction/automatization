@@ -46,6 +46,10 @@ jobs:
         github.event_name == 'workflow_dispatch'
       )
     runs-on: self-hosted
+    env:
+      COMMENT_PREFIX: '<img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg" alt="Claude" width="20" height="20">   Claude\n\n'
+      CLAUDE_COST_SUMMARY_MARKER: '<!-- claude-cost-summary -->'
+      CLAUDE_SETUP_REMINDER_MARKER: '<!-- claude-review-setup-reminder -->'
     steps:
       - name: Post Claude onboarding note
         if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
@@ -53,10 +57,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const COMMENT_PREFIX = '<img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg" alt="Claude" width="20" height="20">   Claude\n\n';
-            const bodyLines = [
-              `${COMMENT_PREFIX}`,
-              '<!-- claude-review onboarding -->',
+            const commentPrefix = process.env.COMMENT_PREFIX || '';
+            const onboardingBody = [
+              `${commentPrefix}<!-- claude-review onboarding -->`,
               '',
               '> [!NOTE] To trigger a Claude review, invoke the `@claude review` command.',
               '',
@@ -66,7 +69,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: bodyLines.join('\n')
+              body: onboardingBody
             });
 
       - name: Determine Claude trigger
@@ -76,7 +79,7 @@ jobs:
 
           case "$EVENT_NAME" in
             issue_comment)
-              if printf '%s' "$COMMENT_BODY" | grep -iqE '@claude\s+review\b'; then
+              if printf '%s' "$COMMENT_BODY" | grep -qiE '@claude[[:space:]]+review'; then
                 if [ "$AUTHOR_ASSOCIATION" = "OWNER" ] || [ "$AUTHOR_ASSOCIATION" = "MEMBER" ] || [ "$AUTHOR_ASSOCIATION" = "COLLABORATOR" ]; then
                   if [ "$HAS_PR_OBJECT" = "true" ]; then
                     echo "✓ Trusted user requested @claude review on PR comment"
@@ -92,7 +95,7 @@ jobs:
               fi
               ;;
             pull_request_review_comment)
-              if printf '%s' "$COMMENT_BODY" | grep -iqE '@claude\s+review\b'; then
+              if printf '%s' "$COMMENT_BODY" | grep -qiE '@claude[[:space:]]+review'; then
                 if [ "$AUTHOR_ASSOCIATION" = "OWNER" ] || [ "$AUTHOR_ASSOCIATION" = "MEMBER" ] || [ "$AUTHOR_ASSOCIATION" = "COLLABORATOR" ]; then
                   echo "✓ Trusted user requested @claude review on PR review comment"
                   should_run=true
@@ -103,9 +106,13 @@ jobs:
                 echo "✗ PR review comment does not contain '@claude review'"
               fi
               ;;
-          pull_request)
-            echo "✓ Pull request event triggered"
-            should_run=true
+            pull_request)
+            if [ "$IS_FORK" = "true" ]; then
+              echo "✗ Pull request originates from a fork; skipping self-hosted run"
+            else
+              echo "✓ Pull request event triggered"
+              should_run=true
+            fi
             ;;
             workflow_dispatch)
               echo "✓ Manual workflow dispatch triggered"
@@ -122,7 +129,8 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           COMMENT_BODY: ${{ github.event.comment.body || '' }}
           HAS_PR_OBJECT: ${{ github.event.issue.pull_request != null || github.event.pull_request != null }}
-          AUTHOR_ASSOCIATION: ${{ github.event.comment.author_association || github.event.pull_request.user.type }}
+          AUTHOR_ASSOCIATION: ${{ github.event.comment.author_association || (github.event.pull_request && github.event.pull_request.author_association) || 'UNKNOWN' }}
+          IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork && 'true' || 'false' }}
 
       - name: Detect Claude API key
         if: ${{ steps.trigger.outputs.should_run == 'true' }}
@@ -220,9 +228,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const marker = '<!-- claude-review-setup-reminder -->';
+            const marker = process.env.CLAUDE_SETUP_REMINDER_MARKER || '<!-- claude-review-setup-reminder -->';
             const docUrl = process.env.CLAUDE_REVIEW_DOC_URL || 'https://wiki.gluzdov.com/doc/claude-review-workflow-setup-Dbg0WdgMsk';
-            const COMMENT_PREFIX = '<img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg" alt="Claude" width="20" height="20">   Claude\n\n';
+            const commentPrefix = process.env.COMMENT_PREFIX || '';
             const prNumber = Number('${{ steps.pr_context.outputs.pr_number || '' }}');
             if (!prNumber) {
               core.info('PR number unavailable; skipping reminder comment.');
@@ -238,7 +246,7 @@ jobs:
             const existing = comments.find(comment => comment.body && comment.body.includes(marker));
 
             if (!existing) {
-              const body = `${COMMENT_PREFIX}${marker}
+              const body = `${commentPrefix}${marker}
 
               ### Claude Review Setup Required
 
@@ -339,7 +347,7 @@ jobs:
 
             const executionLog = JSON.parse(fs.readFileSync(executionFile, 'utf8'));
 
-            const COMMENT_PREFIX = '<img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg" alt="Claude" width="20" height="20">   Claude\n\n';
+            const commentPrefix = process.env.COMMENT_PREFIX || '';
             let totalCost = null;
             const considerCost = (candidate) => {
               if (!candidate || typeof candidate !== 'object') {
@@ -425,7 +433,7 @@ jobs:
                   path: comment.path,
                   line: comment.line,
                   side: 'RIGHT',
-                  body: `${COMMENT_PREFIX}${body}`
+                  body: `${commentPrefix}${body}`
                 };
               })
               .filter(Boolean);
@@ -445,7 +453,7 @@ jobs:
               if (costLine) {
                 bodySegments.push('', `*${costLine}*`);
               }
-              reviewBody = `${COMMENT_PREFIX}${bodySegments.join('\n')}`;
+              reviewBody = `${commentPrefix}${bodySegments.join('\n')}`;
             }
 
             let headSha = process.env.HEAD_SHA || '';
@@ -496,7 +504,7 @@ jobs:
               ])
               .write();
 
-            const marker = '<!-- claude-cost-summary -->';
+            const marker = process.env.CLAUDE_COST_SUMMARY_MARKER || '<!-- claude-cost-summary -->';
             const stickyLines = [
               marker,
               '### Claude Code Cost Summary',
@@ -505,7 +513,7 @@ jobs:
               `- Estimated cost: $${(totalCost || 0).toFixed(5)}`,
               ''
             ];
-            const stickyBody = `${COMMENT_PREFIX}${stickyLines.join('\n')}`;
+            const stickyBody = `${commentPrefix}${stickyLines.join('\n')}`;
 
             const existingComments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
