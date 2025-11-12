@@ -76,24 +76,29 @@ jobs:
 
           case "$EVENT_NAME" in
             issue_comment)
-              # Check if comment contains @claude review
               if printf '%s' "$COMMENT_BODY" | grep -iqE '@claude\s+review\b'; then
-                # Verify this is actually a PR comment by checking if pull_request object exists
-                if [ "$HAS_PR_OBJECT" = "true" ]; then
-                  echo "✓ Detected @claude review command in PR comment"
-                  should_run=true
+                if [ "$AUTHOR_ASSOCIATION" = "OWNER" ] || [ "$AUTHOR_ASSOCIATION" = "MEMBER" ] || [ "$AUTHOR_ASSOCIATION" = "COLLABORATOR" ]; then
+                  if [ "$HAS_PR_OBJECT" = "true" ]; then
+                    echo "✓ Trusted user requested @claude review on PR comment"
+                    should_run=true
+                  else
+                    echo "✗ Comment is on an issue, not a PR. Skipping."
+                  fi
                 else
-                  echo "✗ Comment is on an issue, not a PR. Skipping."
+                  echo "✗ Comment author association '$AUTHOR_ASSOCIATION' not permitted"
                 fi
               else
                 echo "✗ Comment does not contain '@claude review'"
               fi
               ;;
             pull_request_review_comment)
-              # For PR review comments, always check for @claude review
               if printf '%s' "$COMMENT_BODY" | grep -iqE '@claude\s+review\b'; then
-                echo "✓ Detected @claude review command in PR review comment"
-                should_run=true
+                if [ "$AUTHOR_ASSOCIATION" = "OWNER" ] || [ "$AUTHOR_ASSOCIATION" = "MEMBER" ] || [ "$AUTHOR_ASSOCIATION" = "COLLABORATOR" ]; then
+                  echo "✓ Trusted user requested @claude review on PR review comment"
+                  should_run=true
+                else
+                  echo "✗ Review author association '$AUTHOR_ASSOCIATION' not permitted"
+                fi
               else
                 echo "✗ PR review comment does not contain '@claude review'"
               fi
@@ -113,6 +118,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           COMMENT_BODY: ${{ github.event.comment.body || '' }}
           HAS_PR_OBJECT: ${{ github.event.issue.pull_request != null || github.event.pull_request != null }}
+          AUTHOR_ASSOCIATION: ${{ github.event.comment.author_association || github.event.pull_request.user.type }}
 
       - name: Detect Claude API key
         if: ${{ steps.trigger.outputs.should_run == 'true' }}
