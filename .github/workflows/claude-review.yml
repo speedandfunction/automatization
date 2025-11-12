@@ -47,7 +47,7 @@ jobs:
       )
     runs-on: self-hosted
     env:
-      COMMENT_PREFIX: '<img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg" alt="Claude" width="20" height="20">   Claude\n\n'
+      COMMENT_PREFIX: '<img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg" alt="Claude" width="20" height="20">   Claude'
       CLAUDE_COST_SUMMARY_MARKER: '<!-- claude-cost-summary -->'
       CLAUDE_SETUP_REMINDER_MARKER: '<!-- claude-review-setup-reminder -->'
     steps:
