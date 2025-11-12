@@ -103,6 +103,10 @@ jobs:
                 echo "✗ PR review comment does not contain '@claude review'"
               fi
               ;;
+          pull_request)
+            echo "✓ Pull request event triggered"
+            should_run=true
+            ;;
             workflow_dispatch)
               echo "✓ Manual workflow dispatch triggered"
               should_run=true
