@@ -28,6 +28,9 @@ permissions:
   pull-requests: write
   actions: read
 
+env:
+  CLAUDE_REVIEW_DOC_URL: ${{ vars.CLAUDE_REVIEW_DOC_URL || format('https://github.com/%s/blob/main/README.md#claude-review-setup', github.repository) }}
+
 jobs:
   claude-review:
     name: Claude Code Analysis
@@ -215,7 +218,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const marker = '<!-- claude-review-setup-reminder -->';
-            const docUrl = 'https://wiki.gluzdov.com/doc/claude-review-workflow-setup-Dbg0WdgMsk';
+            const docUrl = process.env.CLAUDE_REVIEW_DOC_URL || '';
             const prNumber = Number('${{ steps.pr_context.outputs.pr_number || '' }}');
             if (!prNumber) {
               core.info('PR number unavailable; skipping reminder comment.');
