@@ -262,7 +262,7 @@ jobs:
         if: ${{ steps.trigger.outputs.should_run == 'true' && steps.claude_token.outputs.available == 'true' }}
         id: claude_review
         continue-on-error: true
-        uses: anthropics/claude-code-base-action@beta
+        uses: anthropics/claude-code-base-action@e8132bc5e637a42c27763fc757faa37e1ee43b34
         env:
           ANTHROPIC_MODEL: claude-3-5-sonnet-latest
         with:
