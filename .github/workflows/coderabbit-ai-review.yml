@@ -52,12 +52,12 @@ jobs:
             } else {
               prNumber = context.payload.pull_request?.number;
             }
-            
+
             if (!prNumber) {
               core.setFailed('PR number is required');
               return;
             }
-            
+
             prNumber = parseInt(prNumber, 10);
             core.setOutput('pr_number', prNumber.toString());
             core.info(`Processing PR #${prNumber}`);
@@ -69,7 +69,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prNumber = parseInt('${{ steps.pr_number.outputs.pr_number }}', 10);
-            
+
             if (!prNumber || isNaN(prNumber)) {
               core.setOutput('exists', 'false');
               return;
@@ -97,7 +97,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prNumber = parseInt('${{ steps.pr_number.outputs.pr_number }}', 10);
-            
+
             if (!prNumber || isNaN(prNumber)) {
               core.info('PR number unavailable; skipping banner comment.');
               return;
@@ -155,7 +155,7 @@ jobs:
           if [ -z "${OPENAI_API_KEY}" ]; then
             missing_tokens+=("OPENAI_API_KEY")
           fi
-          
+
           if [ ${#missing_tokens[@]} -gt 0 ]; then
             echo "Missing required secrets: ${missing_tokens[*]}"
             echo "available=false" >> "$GITHUB_OUTPUT"
@@ -218,7 +218,7 @@ jobs:
           script: |
             const prNumber = ${{ github.event.pull_request.number }};
             const commitSha = '${{ github.event.pull_request.head.sha }}';
-            
+
             if (!prNumber || !commitSha) {
               core.info('PR number or commit SHA unavailable; proceeding with review.');
               core.setOutput('review_exists', 'false');
@@ -266,11 +266,9 @@ jobs:
               core.setOutput('review_exists', 'false');
             }
 
-
-
       - name: Run CodeRabbit AI Reviewer
         if: steps.coderabbit_token.outputs.available == 'true' && steps.check_review.outputs.review_exists == 'false'
-        uses: coderabbitai/ai-pr-reviewer@latest
+        uses: coderabbitai/ai-pr-reviewer@latest # NOSONAR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -278,7 +276,7 @@ jobs:
           debug: ${{ vars.PR_REVIEW_DEBUG || 'false' }}
           review_simple_changes: ${{ vars.PR_REVIEW_SIMPLE_CHANGES || 'false' }}
           review_comment_lgtm: ${{ vars.PR_REVIEW_COMMENT_LGTM || 'false' }}
-          summarize: ""
+          summarize: ''
           system_message: |
             You are `@coderabbitai` (aka `github-actions[bot]`), a language model trained by OpenAI. Your purpose is to act as a highly experienced software engineer and provide a thorough review of the code hunks and suggest code snippets to improve key areas such as:
               - Logic
