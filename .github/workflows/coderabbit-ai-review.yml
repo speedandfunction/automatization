@@ -1,0 +1,346 @@
+name: CodeRabbit Review
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: write
+  actions: write
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to add banner to'
+        required: true
+        type: string
+      action:
+        description: 'Action to perform'
+        required: false
+        type: choice
+        options:
+          - banner
+          - review
+        default: 'banner'
+
+concurrency:
+  group: >-
+    ${{ github.repository }}-${{ github.event.pull_request.number || github.event.inputs.pr_number || github.head_ref || github.sha }}-${{ github.workflow }}-coderabbit-review
+  cancel-in-progress: true
+
+jobs:
+  banner:
+    name: Add CodeRabbit Review Banner
+    runs-on: self-hosted
+    if: >-
+      (github.event_name == 'pull_request' && github.event.action == 'opened') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.action == 'banner' || github.event.inputs.action == ''))
+    env:
+      COMMENT_PREFIX: '<img src="https://avatars.githubusercontent.com/in/347564?s=41" alt="CodeRabbit" width="20" height="20">   CodeRabbit'
+      BANNER_MARKER: '<!-- coderabbit-review-banner -->'
+    steps:
+      - name: Get PR number
+        id: pr_number
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let prNumber;
+            if (context.eventName === 'workflow_dispatch') {
+              prNumber = context.payload.inputs.pr_number;
+            } else {
+              prNumber = context.payload.pull_request?.number;
+            }
+            
+            if (!prNumber) {
+              core.setFailed('PR number is required');
+              return;
+            }
+            
+            prNumber = parseInt(prNumber, 10);
+            core.setOutput('pr_number', prNumber.toString());
+            core.info(`Processing PR #${prNumber}`);
+
+      - name: Check for existing banner
+        id: check_banner
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = parseInt('${{ steps.pr_number.outputs.pr_number }}', 10);
+            
+            if (!prNumber || isNaN(prNumber)) {
+              core.setOutput('exists', 'false');
+              return;
+            }
+
+            const marker = process.env.BANNER_MARKER || '<!-- coderabbit-review-banner -->';
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              per_page: 100
+            });
+
+            const bannerExists = comments.some(comment => 
+              comment.body?.includes(marker)
+            );
+
+            core.setOutput('exists', bannerExists ? 'true' : 'false');
+            core.info(`Banner exists: ${bannerExists}`);
+
+      - name: Add review banner
+        if: ${{ steps.check_banner.outputs.exists == 'false' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = parseInt('${{ steps.pr_number.outputs.pr_number }}', 10);
+            
+            if (!prNumber || isNaN(prNumber)) {
+              core.info('PR number unavailable; skipping banner comment.');
+              return;
+            }
+
+            const marker = process.env.BANNER_MARKER || '<!-- coderabbit-review-banner -->';
+            const prefix = process.env.COMMENT_PREFIX || '';
+
+            const body = `${prefix}${marker}
+
+            ### 🤖 CodeRabbit AI Review Available
+
+            To request a code review from CodeRabbit AI, add \`[coderabbit-ai-review]\` to your PR title.
+
+            CodeRabbit will analyze your code and provide feedback on:
+            - Logic and correctness
+            - Security issues
+            - Performance optimizations
+            - Code quality and best practices
+            - Error handling
+            - Maintainability
+
+            **Note:** Reviews are only performed when \`[coderabbit-ai-review]\` is present in the PR title.
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body
+            });
+
+            core.info(`Banner added to PR #${prNumber}`);
+
+  review:
+    name: CodeRabbit AI Review
+    runs-on: self-hosted
+    if: >-
+      github.event_name == 'pull_request' &&
+      contains(github.event.pull_request.title, '[coderabbit-ai-review]')
+    env:
+      COMMENT_PREFIX: '<img src="https://avatars.githubusercontent.com/in/347564?s=41" alt="CodeRabbit" width="20" height="20">   CodeRabbit'
+      CODERABBIT_SETUP_REMINDER_MARKER: '<!-- coderabbit-review-setup-reminder -->'
+    steps:
+      - name: Detect CodeRabbit token
+        id: coderabbit_token
+        env:
+          CODERABBIT_TOKEN: ${{ secrets.CODERABBIT_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          missing_tokens=()
+          if [ -z "${CODERABBIT_TOKEN}" ]; then
+            missing_tokens+=("CODERABBIT_TOKEN")
+          fi
+          if [ -z "${OPENAI_API_KEY}" ]; then
+            missing_tokens+=("OPENAI_API_KEY")
+          fi
+          
+          if [ ${#missing_tokens[@]} -gt 0 ]; then
+            echo "Missing required secrets: ${missing_tokens[*]}"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Notify missing CodeRabbit token
+        if: steps.coderabbit_token.outputs.available == 'false'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = ${{ github.event.pull_request.number }};
+            if (!prNumber || isNaN(prNumber)) {
+              core.info('PR number unavailable; skipping reminder comment.');
+              return;
+            }
+
+            const marker = process.env.CODERABBIT_SETUP_REMINDER_MARKER || '<!-- coderabbit-review-setup-reminder -->';
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              per_page: 100
+            });
+
+            if (comments.some(comment => comment.body?.includes(marker))) {
+              return;
+            }
+
+            const body = `${process.env.COMMENT_PREFIX || ''}${marker}
+
+            ### CodeRabbit Review Setup Required
+
+            The CodeRabbit review workflow is disabled because required secrets are not configured: \`CODERABBIT_TOKEN\` and/or \`OPENAI_API_KEY\`.
+
+            Please follow the setup guide: ${process.env.CODERABBIT_REVIEW_DOC_URL || 'https://wiki.gluzdov.com/doc/coderabbit-review-workflow-setup-6CqNB5aHtY'}
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body
+            });
+
+      - name: Checkout repository
+        if: steps.coderabbit_token.outputs.available == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if review already exists for commit SHA
+        if: steps.coderabbit_token.outputs.available == 'true'
+        id: check_review
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = ${{ github.event.pull_request.number }};
+            const commitSha = '${{ github.event.pull_request.head.sha }}';
+            
+            if (!prNumber || !commitSha) {
+              core.info('PR number or commit SHA unavailable; proceeding with review.');
+              core.setOutput('review_exists', 'false');
+              return;
+            }
+
+            // Get all review comments for this PR
+            const reviewComments = await github.paginate(github.rest.pulls.listReviewComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
+            // Check if any review comment contains a marker for this commit SHA
+            const marker = `<!-- coderabbit-review-commit:${commitSha} -->`;
+            const hasReviewForCommit = reviewComments.some(comment => 
+              comment.body?.includes(marker) ||
+              (comment.user?.login === 'github-actions[bot]' && 
+               comment.body?.includes('CodeRabbit') &&
+               comment.created_at && 
+               new Date(comment.created_at) > new Date(Date.now() - 3600000))
+            );
+
+            // Also check regular PR comments for the marker
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              per_page: 100
+            });
+
+            const hasCommentMarker = comments.some(comment => 
+              comment.body?.includes(marker) ||
+              (comment.user?.login === 'github-actions[bot]' && 
+               comment.body?.includes('CodeRabbit') &&
+               comment.body?.includes(commitSha.substring(0, 7)))
+            );
+
+            if (hasReviewForCommit || hasCommentMarker) {
+              core.info(`Review already exists for commit ${commitSha.substring(0, 7)}. Skipping.`);
+              core.setOutput('review_exists', 'true');
+            } else {
+              core.info(`No review found for commit ${commitSha.substring(0, 7)}. Proceeding with review.`);
+              core.setOutput('review_exists', 'false');
+            }
+
+
+
+      - name: Run CodeRabbit AI Reviewer
+        if: steps.coderabbit_token.outputs.available == 'true' && steps.check_review.outputs.review_exists == 'false'
+        uses: coderabbitai/ai-pr-reviewer@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          debug: ${{ vars.PR_REVIEW_DEBUG || 'false' }}
+          review_simple_changes: ${{ vars.PR_REVIEW_SIMPLE_CHANGES || 'false' }}
+          review_comment_lgtm: ${{ vars.PR_REVIEW_COMMENT_LGTM || 'false' }}
+          summarize: ""
+          system_message: |
+            You are `@coderabbitai` (aka `github-actions[bot]`), a language model trained by OpenAI. Your purpose is to act as a highly experienced software engineer and provide a thorough review of the code hunks and suggest code snippets to improve key areas such as:
+              - Logic
+              - Security
+              - Performance
+              - Data races
+              - Consistency
+              - Error handling
+              - Maintainability
+              - Modularity
+              - Complexity
+              - Optimization
+              - Best practices: DRY, SOLID, KISS
+
+            Do not comment on minor code style issues, missing comments/documentation. Identify and resolve significant concerns to improve overall code quality while deliberately disregarding minor issues.
+
+            CRITICAL: Only comment on actual problems, bugs, security issues, or code quality issues. Do NOT comment on things that are correct or well-implemented. Skip praise, confirmations, or positive feedback. Focus exclusively on issues that need to be fixed. If there are no issues, do not create any comments.
+
+            CRITICAL: DO NOT create summary comments, high-level summaries, file summaries, or any general comments. ONLY create inline review comments on specific lines of code with actual problems. Never create issue comments or PR comments - only inline code review comments.
+
+            MANDATORY FORMAT FOR EACH INLINE COMMENT:
+            Every inline review comment MUST follow this exact structure:
+
+            **[CATEGORY_EMOJI] [CATEGORY]: [Brief issue title]**
+
+            [Detailed description of the problem, including context and potential impact]
+
+            **Current Code:**
+            ```[language]
+            [Show the exact problematic code snippet here]
+            ```
+
+            **Suggestion:**
+            ```[language]
+            [Show the improved code here]
+            ```
+
+            **Why this matters:** [Explain the impact, risk, or benefit of this change]
+
+            CATEGORY_EMOJI and CATEGORY should be one of:
+            - 🔍 BUG - Logic errors, incorrect behavior, missing edge cases
+            - 🔒 SECURITY - Security vulnerabilities, unsafe practices, data exposure
+            - ⚡ PERFORMANCE - Performance bottlenecks, inefficient algorithms, resource waste
+            - 🏗️ ARCHITECTURE - Design issues, coupling problems, architectural concerns
+            - 🧹 CODE_QUALITY - Maintainability issues, code smells, technical debt
+            - 📝 BEST_PRACTICE - Violations of best practices, conventions, patterns
+
+            Example format:
+            **🔍 BUG: Missing null check could cause runtime error**
+
+            The code filters data without checking if the array is null or undefined, which could cause a runtime error if data is null.
+
+            **Current Code:**
+            ```typescript
+            const result = data.filter(x => x.value > 0);
+            ```
+
+            **Suggestion:**
+            ```typescript
+            const result = data?.filter(x => x?.value > 0) ?? [];
+            ```
+
+            **Why this matters:** Without null checks, the application will crash if data is null or undefined, leading to poor user experience and potential data loss.
+
+            IMPORTANT: Entire response must be in the language with ISO code: en-US
