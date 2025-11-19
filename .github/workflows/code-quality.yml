@@ -81,7 +81,6 @@ jobs:
           load: true
       - name: Scan ${{ matrix.service.name }} image
         uses: docker/scout-action@v1
-        continue-on-error: true
         id: docker_scout
         with:
           command: cves
