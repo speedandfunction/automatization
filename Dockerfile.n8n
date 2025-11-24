@@ -5,6 +5,7 @@ ARG NODE_ENV=production
 ARG N8N_PORT=5678
 ARG SHOWDOWN_VERSION=^2.1.0
 ARG SLACKIFY_MARKDOWN_VERSION=^4.5.0
+ARG TIKTOKEN_VERSION=^1.0.21
 
 # Install git for backup script and other packages + install external packages in one layer
 USER root
@@ -14,11 +15,12 @@ RUN set -eux; \
     --legacy-peer-deps --no-workspaces \
     --unsafe-perm \
     showdown@${SHOWDOWN_VERSION} \
-    slackify-markdown@${SLACKIFY_MARKDOWN_VERSION} && \
+    slackify-markdown@${SLACKIFY_MARKDOWN_VERSION} \
+    tiktoken@${TIKTOKEN_VERSION} && \
   npm cache clean --force
 
 # Configure external modules allowlist used by Code/Function nodes
-ENV NODE_FUNCTION_ALLOW_EXTERNAL="showdown,slackify-markdown"
+ENV NODE_FUNCTION_ALLOW_EXTERNAL="showdown,slackify-markdown,tiktoken"
 
 # Create app directory
 WORKDIR /home/node
