@@ -1,7 +1,9 @@
+import { Client, Connection } from '@temporalio/client';
 import { DefaultLogger, NativeConnection, Worker } from '@temporalio/worker';
 
 import * as activities from './activities';
 import { validateEnv } from './common/utils';
+import { setupWeeklyReportSchedule } from './configs/schedules';
 import { temporalConfig } from './configs/temporal';
 import { workerConfig } from './configs/worker';
 
@@ -25,6 +27,22 @@ export async function createWorker(connection: NativeConnection) {
 }
 
 export async function run(): Promise<void> {
+  // Setup weekly report schedule before starting worker
+  const clientConnection = await Connection.connect(temporalConfig);
+
+  try {
+    const client = new Client({ connection: clientConnection });
+
+    await setupWeeklyReportSchedule(client);
+  } catch (err) {
+    logger.error(
+      `Failed to setup schedule: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  } finally {
+    await clientConnection.close();
+  }
+
+  // Create and run worker
   const connection = await createConnection();
 
   try {
