@@ -1,13 +1,14 @@
 import { Client, Connection } from '@temporalio/client';
-import { DefaultLogger, NativeConnection, Worker } from '@temporalio/worker';
+import { NativeConnection, Worker } from '@temporalio/worker';
 
 import * as activities from './activities';
 import { validateEnv } from './common/utils';
 import { setupWeeklyReportSchedule } from './configs/schedules';
 import { temporalConfig } from './configs/temporal';
 import { workerConfig } from './configs/worker';
+import { logger } from './logger';
 
-export const logger = new DefaultLogger('ERROR');
+export { logger };
 
 validateEnv();
 

@@ -1,6 +1,6 @@
 import { Client } from '@temporalio/client';
 
-import { logger } from '../index';
+import { logger } from '../logger';
 import { weeklyFinancialReportsWorkflow } from '../workflows';
 import { workerConfig } from './worker';
 
