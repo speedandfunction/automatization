@@ -17,7 +17,7 @@ export const temporalSchema = z.object({
 
 /**
  * Schedule Configuration Documentation
- * 
+ *
  * Weekly Financial Report Schedule:
  * - Schedule ID: 'weekly-financial-report-schedule'
  * - Cron Expression: '0 13 * * 2' (Every Tuesday at 1 PM)
@@ -26,7 +26,7 @@ export const temporalSchema = z.object({
  * - Task Queue: 'main-queue'
  * - Overlap Policy: SKIP (prevents concurrent runs)
  * - Catchup Window: 1 day (runs missed schedules within 24 hours)
- * 
+ *
  * The schedule is automatically created/verified when the worker starts.
  * See src/configs/schedules.ts for implementation details.
  */
