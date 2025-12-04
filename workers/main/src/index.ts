@@ -8,8 +8,6 @@ import { temporalConfig } from './configs/temporal';
 import { workerConfig } from './configs/worker';
 import { logger } from './logger';
 
-export { logger };
-
 validateEnv();
 
 export async function createConnection() {
