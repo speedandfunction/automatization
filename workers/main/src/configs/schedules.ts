@@ -38,18 +38,10 @@ async function validateScheduleExists(client: Client): Promise<boolean> {
 }
 
 /**
- * Sets up the weekly financial report schedule
- * Schedule runs every Tuesday at 1 PM America/New_York time (EST/EDT)
- * @param client - Temporal client instance
+ * Creates schedule with race condition protection
  */
-export async function setupWeeklyReportSchedule(client: Client): Promise<void> {
+async function createScheduleWithRaceProtection(client: Client): Promise<void> {
   try {
-    const isScheduleExists = await validateScheduleExists(client);
-
-    if (isScheduleExists) {
-      return;
-    }
-
     await client.schedule.create({
       scheduleId: SCHEDULE_ID,
       spec: {
@@ -71,6 +63,40 @@ export async function setupWeeklyReportSchedule(client: Client): Promise<void> {
     logger.info(
       `Successfully created schedule ${SCHEDULE_ID} for weekly financial reports`,
     );
+  } catch (createError) {
+    // Handle race condition: schedule was created by another worker
+    const isAlreadyExists =
+      (createError as { code?: number }).code === 6 ||
+      (createError instanceof Error &&
+        (createError.message.toLowerCase().includes('already exists') ||
+          createError.message.toLowerCase().includes('already running')));
+
+    if (isAlreadyExists) {
+      logger.info(
+        `Schedule ${SCHEDULE_ID} already exists (created by another worker), treating as success`,
+      );
+
+      return;
+    }
+
+    throw createError;
+  }
+}
+
+/**
+ * Sets up the weekly financial report schedule
+ * Schedule runs every Tuesday at 1 PM America/New_York time (EST/EDT)
+ * @param client - Temporal client instance
+ */
+export async function setupWeeklyReportSchedule(client: Client): Promise<void> {
+  try {
+    const isScheduleExists = await validateScheduleExists(client);
+
+    if (isScheduleExists) {
+      return;
+    }
+
+    await createScheduleWithRaceProtection(client);
   } catch (error) {
     logger.error(
       `Failed to setup schedule ${SCHEDULE_ID}: ${error instanceof Error ? error.message : String(error)}`,
