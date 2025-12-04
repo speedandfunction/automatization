@@ -22,8 +22,13 @@ export async function setupWeeklyReportSchedule(client: Client): Promise<void> {
 
       return;
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
       // Schedule doesn't exist, create it
-      logger.info(`Creating schedule ${SCHEDULE_ID}`);
+      logger.info(
+        `Creating schedule ${SCHEDULE_ID} with error: ${errorMessage}`,
+      );
     }
 
     await client.schedule.create({
