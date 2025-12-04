@@ -1,7 +1,6 @@
 import { Client } from '@temporalio/client';
 
 import { logger } from '../logger';
-import { weeklyFinancialReportsWorkflow } from '../workflows';
 import { workerConfig } from './worker';
 
 const SCHEDULE_ID = 'weekly-financial-report-schedule';
@@ -39,7 +38,7 @@ export async function setupWeeklyReportSchedule(client: Client): Promise<void> {
       },
       action: {
         type: 'startWorkflow',
-        workflowType: weeklyFinancialReportsWorkflow,
+        workflowType: 'weeklyFinancialReportsWorkflow',
         taskQueue: workerConfig.taskQueue,
         workflowId: `weekly-financial-report-scheduled`,
       },
