@@ -27,7 +27,7 @@ export async function setupWeeklyReportSchedule(client: Client): Promise<void> {
 
       // Schedule doesn't exist, create it
       logger.info(
-        `Creating schedule ${SCHEDULE_ID} with error: ${errorMessage}`,
+        `Schedule ${SCHEDULE_ID} not found, creating schedule. Reason: ${errorMessage}`,
       );
     }
 
