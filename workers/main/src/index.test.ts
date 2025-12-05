@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { handleRunError, logger } from './index';
+import { handleRunError } from './index';
+import { logger } from './logger';
 
 describe('handleRunError', () => {
   let processExitSpy: ReturnType<typeof vi.spyOn>;
