@@ -35,8 +35,8 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v6
         with:
           args: >
-            -Dsonar.organization: automatization-bot
-            -Dsonar.verbose: true
+            -Dsonar.organization=automatization-bot
+            -Dsonar.verbose=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
