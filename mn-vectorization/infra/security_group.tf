@@ -26,12 +26,15 @@ resource "aws_security_group_rule" "mcp_vpc_ingress" {
 # --- Egress rules ---
 
 # HTTPS egress (Bedrock, Qdrant, S3, DynamoDB, Secrets Manager, Sentry)
+# NOTE: 0.0.0.0/0 is intentional — external SaaS APIs (Anthropic, Cohere,
+# Qdrant Cloud, Sentry) have rotating IPs; CIDR allowlist is impractical.
+# Production: add VPC endpoints for AWS services to reduce egress scope.
 resource "aws_security_group_rule" "mcp_https_egress" {
   type              = "egress"
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:aws-vpc-no-public-egress-sgr
   security_group_id = aws_security_group.mcp.id
   description       = "HTTPS egress for AWS services and external APIs"
 }

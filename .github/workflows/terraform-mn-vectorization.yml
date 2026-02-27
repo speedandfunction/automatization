@@ -35,6 +35,8 @@ jobs:
         with:
           terraform_version: "~1.5"
 
+      # NOTE: Using static keys for POC. OIDC migration deferred until
+      # Nomad provisions IAM OIDC identity provider + role in AWS.
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -45,6 +47,8 @@ jobs:
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
+      # NOTE: Hardcoded to dev — only environment deployed for POC.
+      # Multi-env support will be added when staging/prod VPCs are provisioned.
       - name: Terraform Init
         run: |
           terraform init \
