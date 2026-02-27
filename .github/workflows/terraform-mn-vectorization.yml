@@ -57,8 +57,15 @@ jobs:
 
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
-        run: terraform plan -var-file=environments/dev.tfvars -no-color -input=false
-        continue-on-error: true
+        run: |
+          set +e
+          terraform plan -var-file=environments/dev.tfvars -no-color -input=false -detailed-exitcode
+          ec=$?
+          if [ "$ec" -eq 1 ]; then
+            echo "::error::Terraform plan failed"
+            exit 1
+          fi
+          exit 0
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
