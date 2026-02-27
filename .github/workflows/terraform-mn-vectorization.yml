@@ -12,10 +12,10 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 env:
   TF_WORKING_DIR: mn-vectorization/infra
+  TF_ENV: dev
   AWS_REGION: us-east-1
 
 jobs:
@@ -47,13 +47,11 @@ jobs:
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
-      # NOTE: Hardcoded to dev — only environment deployed for POC.
-      # Multi-env support will be added when staging/prod VPCs are provisioned.
       - name: Terraform Init
         run: |
           terraform init \
             -backend-config="bucket=sf-terraform-state" \
-            -backend-config="key=mn-vectorization/dev/terraform.tfstate" \
+            -backend-config="key=mn-vectorization/${{ env.TF_ENV }}/terraform.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
       - name: Terraform Validate
@@ -63,7 +61,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           set +e
-          terraform plan -var-file=environments/dev.tfvars -no-color -input=false -detailed-exitcode
+          terraform plan -var-file=environments/${{ env.TF_ENV }}.tfvars -no-color -input=false -detailed-exitcode
           ec=$?
           if [ "$ec" -eq 1 ]; then
             echo "::error::Terraform plan failed"
@@ -73,4 +71,4 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -var-file=environments/dev.tfvars -auto-approve -input=false
+        run: terraform apply -var-file=environments/${{ env.TF_ENV }}.tfvars -auto-approve -input=false
