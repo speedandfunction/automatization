@@ -1,6 +1,6 @@
-environment    = "prod"
-aws_region     = "us-east-1"
-billing_tag    = "mn-vectorization"
+environment = "prod"
+aws_region  = "us-east-1"
+billing_tag = "mn-vectorization"
 
 # Existing infrastructure — replace with actual IDs
 vpc_id          = "vpc-XXXXXXXXXXXXXXXXX"

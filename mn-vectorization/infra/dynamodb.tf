@@ -5,7 +5,7 @@
 
 resource "aws_dynamodb_table" "main" {
   for_each     = local.dynamodb_tables
-  name         = "${local.name_prefix}-${each.key}"
+  name         = "${local.name_prefix}_${each.key}_ddb"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = each.value.hash_key
 
@@ -22,5 +22,9 @@ resource "aws_dynamodb_table" "main" {
     }
   }
 
-  tags = { Name = "${local.name_prefix}-${each.key}" }
+  point_in_time_recovery {
+    enabled = var.environment == "prod"
+  }
+
+  tags = { Name = "${local.name_prefix}_${each.key}_ddb" }
 }

@@ -4,7 +4,7 @@
 
 variable "project_name" {
   type        = string
-  default     = "mn-vectorization"
+  default     = "mn_vectorization"
   description = "Project name used in resource naming"
 }
 
@@ -119,6 +119,10 @@ variable "kms_key_arn" {
   type        = string
   default     = ""
   description = "KMS key ARN for S3 encryption (required if is_kms_enabled = true)"
+  validation {
+    condition     = var.kms_key_arn == "" || can(regex("^arn:aws:kms:", var.kms_key_arn))
+    error_message = "Must be a valid KMS key ARN or empty string."
+  }
 }
 
 # -----------------------------------------------------

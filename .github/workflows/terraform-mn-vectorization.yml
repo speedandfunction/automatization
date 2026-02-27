@@ -1,0 +1,65 @@
+name: "Terraform — MN Vectorization"
+
+on:
+  pull_request:
+    paths:
+      - "mn-vectorization/infra/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "mn-vectorization/infra/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  TF_WORKING_DIR: mn-vectorization/infra
+  AWS_REGION: us-east-1
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.5"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.MN_VECTORIZATION_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.MN_VECTORIZATION_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=sf-terraform-state" \
+            -backend-config="key=mn-vectorization/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}"
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -var-file=environments/dev.tfvars -no-color -input=false
+        continue-on-error: true
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -var-file=environments/dev.tfvars -auto-approve -input=false

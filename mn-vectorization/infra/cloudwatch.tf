@@ -16,7 +16,7 @@ resource "aws_cloudwatch_log_group" "main" {
 # Alarm 1: Indexing failures (custom metric from Temporal worker)
 resource "aws_cloudwatch_metric_alarm" "indexing_failures" {
   count               = var.is_alarm_enabled ? 1 : 0
-  alarm_name          = "${local.name_prefix}-indexing-failures"
+  alarm_name          = "${local.name_prefix}_indexing_failures_alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   metric_name         = "IndexingFailures"
@@ -29,13 +29,13 @@ resource "aws_cloudwatch_metric_alarm" "indexing_failures" {
 
   alarm_actions = var.alarm_sns_topic_arn != "" ? [var.alarm_sns_topic_arn] : []
 
-  tags = { Name = "${local.name_prefix}-indexing-failures" }
+  tags = { Name = "${local.name_prefix}_indexing_failures_alarm" }
 }
 
 # Alarm 2: Query latency p99 (custom metric from MCP server)
 resource "aws_cloudwatch_metric_alarm" "query_latency_p99" {
   count               = var.is_alarm_enabled ? 1 : 0
-  alarm_name          = "${local.name_prefix}-query-latency-p99"
+  alarm_name          = "${local.name_prefix}_query_latency_p99_alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 2
   metric_name         = "QueryLatencyP99"
@@ -48,13 +48,13 @@ resource "aws_cloudwatch_metric_alarm" "query_latency_p99" {
 
   alarm_actions = var.alarm_sns_topic_arn != "" ? [var.alarm_sns_topic_arn] : []
 
-  tags = { Name = "${local.name_prefix}-query-latency-p99" }
+  tags = { Name = "${local.name_prefix}_query_latency_p99_alarm" }
 }
 
 # Alarm 3: DynamoDB throttling (per table)
 resource "aws_cloudwatch_metric_alarm" "dynamodb_throttling" {
   for_each            = var.is_alarm_enabled ? local.dynamodb_tables : {}
-  alarm_name          = "${local.name_prefix}-${each.key}-throttling"
+  alarm_name          = "${local.name_prefix}_${each.key}_throttling_alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   metric_name         = "ThrottledRequests"
@@ -71,5 +71,5 @@ resource "aws_cloudwatch_metric_alarm" "dynamodb_throttling" {
 
   alarm_actions = var.alarm_sns_topic_arn != "" ? [var.alarm_sns_topic_arn] : []
 
-  tags = { Name = "${local.name_prefix}-${each.key}-throttling" }
+  tags = { Name = "${local.name_prefix}_${each.key}_throttling_alarm" }
 }

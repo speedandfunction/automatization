@@ -5,8 +5,8 @@
 # -----------------------------------------------------
 
 resource "aws_s3_bucket" "artifacts" {
-  bucket = "${local.name_prefix}-bk"
-  tags   = { Name = "${local.name_prefix}-bk" }
+  bucket = "${local.name_prefix_s3}-bk"
+  tags   = { Name = "${local.name_prefix_s3}-bk" }
 }
 
 resource "aws_s3_bucket_versioning" "artifacts" {
@@ -37,19 +37,28 @@ resource "aws_s3_bucket_public_access_block" "artifacts" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "artifacts" {
-  count  = var.embeddings_expiry_days > 0 ? 1 : 0
   bucket = aws_s3_bucket.artifacts.id
 
   rule {
-    id     = "expire-embeddings"
+    id     = "abort-incomplete-multipart"
     status = "Enabled"
-
-    filter {
-      prefix = "embeddings/"
+    filter {}
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
     }
+  }
 
-    expiration {
-      days = var.embeddings_expiry_days
+  dynamic "rule" {
+    for_each = var.embeddings_expiry_days > 0 ? [1] : []
+    content {
+      id     = "expire-embeddings"
+      status = "Enabled"
+      filter {
+        prefix = "embeddings/"
+      }
+      expiration {
+        days = var.embeddings_expiry_days
+      }
     }
   }
 }

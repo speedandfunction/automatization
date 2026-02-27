@@ -1,13 +1,13 @@
 # -----------------------------------------------------
 # MCP Server security group
-# Attached to the existing EC2 instance
+# Created for the existing EC2 instance (manual attachment required)
 # -----------------------------------------------------
 
 resource "aws_security_group" "mcp" {
-  name        = "${local.name_prefix}-mcp-sg"
+  name        = "${local.name_prefix}_mcp_sg"
   description = "MCP server traffic for MN Vectorization"
   vpc_id      = data.aws_vpc.existing.id
-  tags        = { Name = "${local.name_prefix}-mcp-sg" }
+  tags        = { Name = "${local.name_prefix}_mcp_sg" }
 }
 
 # --- Ingress rules ---

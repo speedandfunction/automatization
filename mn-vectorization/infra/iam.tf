@@ -3,7 +3,7 @@
 # -----------------------------------------------------
 
 resource "aws_iam_role" "worker" {
-  name = "${local.name_prefix}-worker-role"
+  name = "${local.name_prefix}_worker_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -14,11 +14,11 @@ resource "aws_iam_role" "worker" {
     }]
   })
 
-  tags = { Name = "${local.name_prefix}-worker-role" }
+  tags = { Name = "${local.name_prefix}_worker_role" }
 }
 
 resource "aws_iam_instance_profile" "worker" {
-  name = "${local.name_prefix}-worker-profile"
+  name = "${local.name_prefix}_worker_profile"
   role = aws_iam_role.worker.name
 }
 
@@ -68,16 +68,16 @@ resource "aws_iam_role_policy" "dynamodb_access" {
       Resource = [
         for t in aws_dynamodb_table.main : t.arn
       ]
-    },
-    {
-      Effect = "Allow"
-      Action = [
-        "dynamodb:Query",
-        "dynamodb:Scan"
-      ]
-      Resource = [
-        for t in aws_dynamodb_table.main : "${t.arn}/index/*"
-      ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ]
+        Resource = [
+          for t in aws_dynamodb_table.main : "${t.arn}/index/*"
+        ]
     }]
   })
 }
@@ -100,11 +100,11 @@ resource "aws_iam_role_policy" "bedrock_access" {
         "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/anthropic.*",
         "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/cohere.*"
       ]
-    },
-    {
-      Effect   = "Allow"
-      Action   = ["bedrock:ApplyGuardrail"]
-      Resource = "arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:guardrail/*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["bedrock:ApplyGuardrail"]
+        Resource = "arn:aws:bedrock:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:guardrail/*"
     }]
   })
 }
@@ -171,4 +171,11 @@ resource "aws_iam_role_policy" "kms_access" {
       Resource = [var.kms_key_arn]
     }]
   })
+
+  lifecycle {
+    precondition {
+      condition     = var.kms_key_arn != ""
+      error_message = "kms_key_arn must be set when is_kms_enabled = true"
+    }
+  }
 }

@@ -1,5 +1,6 @@
 locals {
-  name_prefix = "${var.project_name}-${var.environment}"
+  name_prefix    = "${var.project_name}_${var.environment}"
+  name_prefix_s3 = "${replace(var.project_name, "_", "-")}-${var.environment}"
 
   # DynamoDB tables — iterated via for_each
   dynamodb_tables = {
@@ -16,19 +17,19 @@ locals {
   # Secrets Manager entries — iterated via for_each
   secrets = {
     anthropic_api_key = {
-      name  = "mn-vectorization/${var.environment}/anthropic-api-key"
+      name  = "${var.project_name}/${var.environment}/anthropic-api-key"
       value = var.anthropic_api_key
     }
     cohere_api_key = {
-      name  = "mn-vectorization/${var.environment}/cohere-api-key"
+      name  = "${var.project_name}/${var.environment}/cohere-api-key"
       value = var.cohere_api_key
     }
     qdrant_api_key = {
-      name  = "mn-vectorization/${var.environment}/qdrant-api-key"
+      name  = "${var.project_name}/${var.environment}/qdrant-api-key"
       value = var.qdrant_api_key
     }
     qdrant_url = {
-      name  = "mn-vectorization/${var.environment}/qdrant-url"
+      name  = "${var.project_name}/${var.environment}/qdrant-url"
       value = var.qdrant_url
     }
   }

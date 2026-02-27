@@ -3,6 +3,13 @@
 # Values are bootstrapped via TF_VAR_ env vars or
 # set out-of-band via aws secretsmanager put-secret-value
 # -----------------------------------------------------
+#
+# NOTE: Secret values are bootstrapped via TF_VAR_ env vars with placeholder
+# defaults ("CHANGE_ME"). The initial secret_string passes through Terraform
+# state ONCE during creation. After bootstrap, replace values out-of-band:
+#   aws secretsmanager put-secret-value --secret-id <name> --secret-string <value>
+# The lifecycle { ignore_changes = [secret_string] } block ensures Terraform
+# won't overwrite manually-set values on subsequent applies.
 
 resource "aws_secretsmanager_secret" "main" {
   for_each                = local.secrets
