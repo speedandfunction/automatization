@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eo pipefail
 
 # =============================================================================
 # CPB Production Database Setup
@@ -26,14 +26,30 @@ CPB_DB="${POSTGRES_DB_CPB:-cpb_bot}"
 CPB_USER="${POSTGRES_USER_CPB:-cpb_app}"
 CPB_PASS="${POSTGRES_PASSWORD_CPB:?POSTGRES_PASSWORD_CPB is required}"
 
-# Escape single quotes for SQL safety (prevents SQL injection via password)
+# Validate PostgreSQL identifiers (prevent SQL injection via crafted names)
+validate_pg_identifier() {
+    local value="$1" name="$2"
+    if [[ -z "$value" ]]; then
+        echo "ERROR: ${name} cannot be empty" >&2; exit 1
+    fi
+    if [[ ${#value} -gt 63 ]]; then
+        echo "ERROR: ${name} exceeds PostgreSQL's 63-char identifier limit" >&2; exit 1
+    fi
+    if [[ ! "$value" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+        echo "ERROR: ${name} contains invalid characters (must match ^[a-zA-Z_][a-zA-Z0-9_]*$)" >&2; exit 1
+    fi
+}
+validate_pg_identifier "$CPB_USER" "POSTGRES_USER_CPB"
+validate_pg_identifier "$CPB_DB" "POSTGRES_DB_CPB"
+
+# Escape single quotes in password for SQL string literal safety
 CPB_PASS_SQL="${CPB_PASS//\'/\'\'}"
 
 echo "Setting up CPB database on ${PGHOST}:${PGPORT}..."
 echo "  Database: ${CPB_DB}"
 echo "  User: ${CPB_USER}"
 
-psql -h "$PGHOST" -p "$PGPORT" -U postgres <<-EOSQL
+psql -v ON_ERROR_STOP=1 -h "$PGHOST" -p "$PGPORT" -U postgres <<-EOSQL
 -- Create role if it doesn't exist
 DO \$\$
 BEGIN
