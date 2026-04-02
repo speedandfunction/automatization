@@ -40,6 +40,7 @@ validate_pg_identifier() {
     if [[ ! "$value" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
         echo "ERROR: ${name} contains invalid characters (must match ^[a-zA-Z_][a-zA-Z0-9_]*$)" >&2; exit 1
     fi
+    return 0
 }
 validate_pg_identifier "$CPB_USER" "POSTGRES_USER_CPB"
 validate_pg_identifier "$CPB_DB" "POSTGRES_DB_CPB"
