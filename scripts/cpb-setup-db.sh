@@ -15,13 +15,15 @@ set -eo pipefail
 #   POSTGRES_PASSWORD_CPB — Password for the cpb_app user
 #
 # Optional env vars:
-#   CPB_POSTGRES_PORT    — PostgreSQL port (default: 5432)
-#   POSTGRES_DB_CPB      — Database name (default: cpb_bot)
-#   POSTGRES_USER_CPB    — Username (default: cpb_app)
+#   CPB_POSTGRES_PORT       — PostgreSQL port (default: 5432)
+#   CPB_POSTGRES_ADMIN_USER — Admin user for psql connection (default: postgres)
+#   POSTGRES_DB_CPB         — Database name (default: cpb_bot)
+#   POSTGRES_USER_CPB       — Username (default: cpb_app)
 # =============================================================================
 
 PGHOST="${CPB_POSTGRES_HOST:?CPB_POSTGRES_HOST is required}"
 PGPORT="${CPB_POSTGRES_PORT:-5432}"
+PGADMIN_USER="${CPB_POSTGRES_ADMIN_USER:-postgres}"
 CPB_DB="${POSTGRES_DB_CPB:-cpb_bot}"
 CPB_USER="${POSTGRES_USER_CPB:-cpb_app}"
 CPB_PASS="${POSTGRES_PASSWORD_CPB:?POSTGRES_PASSWORD_CPB is required}"
@@ -43,13 +45,13 @@ validate_pg_identifier "$CPB_USER" "POSTGRES_USER_CPB"
 validate_pg_identifier "$CPB_DB" "POSTGRES_DB_CPB"
 
 # Escape single quotes in password for SQL string literal safety
-CPB_PASS_SQL="${CPB_PASS//\'/\'\'}"
+CPB_PASS_SQL="${CPB_PASS//\'/''}"
 
 echo "Setting up CPB database on ${PGHOST}:${PGPORT}..."
 echo "  Database: ${CPB_DB}"
 echo "  User: ${CPB_USER}"
 
-psql -v ON_ERROR_STOP=1 -h "$PGHOST" -p "$PGPORT" -U postgres <<-EOSQL
+psql -v ON_ERROR_STOP=1 -h "$PGHOST" -p "$PGPORT" -U "$PGADMIN_USER" <<-EOSQL
 -- Create role if it doesn't exist
 DO \$\$
 BEGIN
