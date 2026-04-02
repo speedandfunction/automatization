@@ -1,6 +1,29 @@
 #!/bin/bash
 set -e
 
+# Validate PostgreSQL identifiers (prevent SQL injection via crafted names)
+validate_pg_identifier() {
+    local value="$1" name="$2"
+    if [[ -z "$value" ]]; then
+        echo "ERROR: ${name} cannot be empty" >&2; exit 1
+    fi
+    if [[ ${#value} -gt 63 ]]; then
+        echo "ERROR: ${name} exceeds PostgreSQL's 63-char identifier limit" >&2; exit 1
+    fi
+    if [[ ! "$value" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+        echo "ERROR: ${name} contains invalid characters (must match ^[a-zA-Z_][a-zA-Z0-9_]*$)" >&2; exit 1
+    fi
+    return 0
+}
+
+validate_pg_identifier "$POSTGRES_USER_N8N" "POSTGRES_USER_N8N"
+validate_pg_identifier "$POSTGRES_DB_N8N" "POSTGRES_DB_N8N"
+validate_pg_identifier "$POSTGRES_USER_TEMPORAL" "POSTGRES_USER_TEMPORAL"
+validate_pg_identifier "$POSTGRES_DB_TEMPORAL" "POSTGRES_DB_TEMPORAL"
+validate_pg_identifier "$POSTGRES_DB_TEMPORAL_VISIBILITY" "POSTGRES_DB_TEMPORAL_VISIBILITY"
+validate_pg_identifier "$POSTGRES_USER_CPB" "POSTGRES_USER_CPB"
+validate_pg_identifier "$POSTGRES_DB_CPB" "POSTGRES_DB_CPB"
+
 # Escape single quotes in passwords for SQL safety
 ESCAPED_POSTGRES_PASSWORD_N8N="${POSTGRES_PASSWORD_N8N//\'/''}"
 ESCAPED_POSTGRES_PASSWORD_TEMPORAL="${POSTGRES_PASSWORD_TEMPORAL//\'/''}"
