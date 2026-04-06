@@ -85,10 +85,11 @@ EOSQL
 # but we attempt it for forward-compatibility with PG15+ where it IS required.
 # temporal cannot grant on public schema in PG14 (owned by postgres), so we
 # handle the error gracefully.
-SCHEMA_GRANT_ERR=$(PGPASSWORD="${TEMPORAL_PASS}" psql -v ON_ERROR_STOP=1 \
+if SCHEMA_GRANT_ERR=$(PGPASSWORD="${TEMPORAL_PASS}" psql -v ON_ERROR_STOP=1 \
     -h "$PGHOST" -p "$PGPORT" -U "$TEMPORAL_USER" -d "$CPB_DB" \
-    -c "GRANT ALL ON SCHEMA public TO \"${N8N_USER}\";" 2>&1) && \
-    echo "  Schema grant on public: OK" || {
+    -c "GRANT ALL ON SCHEMA public TO \"${N8N_USER}\";" 2>&1); then
+    echo "  Schema grant on public: OK"
+else
     if echo "$SCHEMA_GRANT_ERR" | grep -qi "permission denied\|must be owner"; then
         echo "  Schema grant on public: skipped (not needed on PG14 — PUBLIC has CREATE by default)"
         echo "  NOTE: After upgrading to PG15+, re-run this script or grant manually:"
@@ -98,7 +99,7 @@ SCHEMA_GRANT_ERR=$(PGPASSWORD="${TEMPORAL_PASS}" psql -v ON_ERROR_STOP=1 \
         echo "  $SCHEMA_GRANT_ERR" >&2
         exit 1
     fi
-}
+fi
 
 echo ""
 echo "CPB database setup complete."
