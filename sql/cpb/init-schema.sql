@@ -102,7 +102,7 @@ CREATE TRIGGER trg_opt_in_responses_updated_at
 -- ---------------------------------------------------------------------------
 -- Table: pairings
 -- One row per pair per cycle. Canonical ordering enforced: person_a_id < person_b_id.
--- Repeats allowed (no UNIQUE on pair columns).
+-- Same pair may recur across cycles (repeats tracked via is_repeat flag).
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS pairings (
     id                  SERIAL PRIMARY KEY,
@@ -119,7 +119,8 @@ CREATE TABLE IF NOT EXISTS pairings (
     person_a_dm_channel VARCHAR(20),
     person_b_dm_channel VARCHAR(20),
     created_at          TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
-    CHECK (person_a_id < person_b_id)                      -- ordering invariant
+    CHECK (person_a_id < person_b_id),                     -- ordering invariant
+    UNIQUE (cycle_id, person_a_id, person_b_id)            -- one pair per cycle
 );
 
 CREATE INDEX IF NOT EXISTS idx_pairings_cycle
@@ -159,23 +160,13 @@ CREATE TABLE IF NOT EXISTS interactions (
     cycle_id          INTEGER       NOT NULL REFERENCES cycles(id),
     slack_user_id     VARCHAR(20)   NOT NULL,
     pairing_id        INTEGER       REFERENCES pairings(id),  -- NULL for opt-in (no pairing yet)
-    touchpoint        VARCHAR(20)   NOT NULL
-                      CHECK (touchpoint IN (
-                          'opt_in',
-                          'checkin',
-                          'survey'
-                      )),
-    action            VARCHAR(30)   NOT NULL
-                      CHECK (action IN (
-                          'definitely_yes',
-                          'dont_mind',
-                          'skip',
-                          'checkin_yes',
-                          'checkin_no',
-                          'satisfied',
-                          'unsatisfied',
-                          'didnt_happen'
-                      )),
+    touchpoint        VARCHAR(20)   NOT NULL,
+    action            VARCHAR(30)   NOT NULL,
+    CONSTRAINT interactions_touchpoint_action_valid CHECK (
+        (touchpoint = 'opt_in'   AND action IN ('definitely_yes', 'dont_mind', 'skip'))
+     OR (touchpoint = 'checkin'  AND action IN ('checkin_yes', 'checkin_no'))
+     OR (touchpoint = 'survey'   AND action IN ('satisfied', 'unsatisfied', 'didnt_happen'))
+    ),
     raw_payload       JSONB,
     created_at        TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );

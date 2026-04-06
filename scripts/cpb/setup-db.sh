@@ -106,8 +106,9 @@ TABLE_COUNT=$(PGPASSWORD="${CPB_PASS}" psql -v ON_ERROR_STOP=1 -t -A \
 if [[ "$TABLE_COUNT" -eq 6 ]]; then
     echo "  All 6 tables verified: OK"
 else
-    echo "WARNING: Expected 6 tables, found ${TABLE_COUNT}" >&2
+    echo "ERROR: Expected 6 tables, found ${TABLE_COUNT}" >&2
     echo "  Run with -v for psql debug output to investigate" >&2
+    exit 1
 fi
 
 echo ""

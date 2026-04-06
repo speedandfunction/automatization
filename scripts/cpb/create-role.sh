@@ -131,6 +131,33 @@ END
 EOSQL
 echo "  Ownership: OK"
 
+# --- Step 3b: Reassign object ownership within database (idempotent) ---------
+# ALTER DATABASE OWNER only transfers the database-level ownership. Objects
+# inside (tables, sequences, functions, triggers) keep their original owner.
+# On migration from old setup (temporal/n8n owned objects), reassign them all.
+echo "  Reassigning objects within '${CPB_DB}'..."
+PGPASSWORD="${MASTER_PASS}" psql -v ON_ERROR_STOP=1 \
+    -h "$PGHOST" -p "$PGPORT" -U "$MASTER_USER" -d "$CPB_DB" <<-EOSQL
+DO \$\$
+DECLARE
+    role_name TEXT;
+BEGIN
+    FOR role_name IN
+        SELECT DISTINCT r.rolname
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        JOIN pg_roles r ON r.oid = c.relowner
+        WHERE n.nspname = 'public'
+          AND r.rolname NOT IN ('${CPB_USER}', '${MASTER_USER}')
+    LOOP
+        EXECUTE format('REASSIGN OWNED BY %I TO %I', role_name, '${CPB_USER}');
+        RAISE NOTICE 'Reassigned objects from % to ${CPB_USER}', role_name;
+    END LOOP;
+END
+\$\$;
+EOSQL
+echo "  Object ownership: OK"
+
 # --- Step 4: Grant database-level privileges (idempotent) --------------------
 echo "Step 4: Granting database privileges..."
 PGPASSWORD="${MASTER_PASS}" psql -v ON_ERROR_STOP=1 \
