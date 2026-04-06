@@ -183,11 +183,11 @@ CREATE INDEX IF NOT EXISTS idx_interactions_pairing
 
 -- ---------------------------------------------------------------------------
 -- Table: admin_reports
--- Tracks report generation and delivery to Slack admin channel.
+-- One report per cycle. Tracks generation and delivery to Slack admin channel.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS admin_reports (
     id                SERIAL PRIMARY KEY,
-    cycle_id          INTEGER       NOT NULL REFERENCES cycles(id),
+    cycle_id          INTEGER       NOT NULL UNIQUE REFERENCES cycles(id),
     report_data       JSONB         NOT NULL,
     sent_to_slack     BOOLEAN       NOT NULL DEFAULT false,
     slack_channel_id  VARCHAR(20),
