@@ -6,7 +6,7 @@
 -- Purpose:     Complete schema for the CPB Slack bot that randomly pairs
 --              employees for monthly virtual coffee 1-on-1 meetings.
 --
--- Usage:       psql -h <host> -U cpb_app -d cpb_bot -f cpb-init-schema.sql
+-- Usage:       psql -h <host> -U cpb_app -d cpb_bot -f init-schema.sql
 --
 -- Notes:
 --   - All CREATE TABLE / CREATE INDEX use IF NOT EXISTS for idempotent re-runs

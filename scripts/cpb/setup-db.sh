@@ -23,7 +23,7 @@ set -eo pipefail
 #
 # Usage:
 #   CPB_POSTGRES_HOST="<host>" POSTGRES_PASSWORD_TEMPORAL="<pw>" \
-#     POSTGRES_USER_N8N="n8n" ./scripts/cpb-setup-db.sh
+#     POSTGRES_USER_N8N="n8n" ./scripts/cpb/setup-db.sh
 #
 # Required env vars:
 #   CPB_POSTGRES_HOST          — PostgreSQL server hostname or IP
