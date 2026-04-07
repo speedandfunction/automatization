@@ -34,7 +34,8 @@ $$ LANGUAGE plpgsql;
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS cycles (
     id                SERIAL PRIMARY KEY,
-    year_month        VARCHAR(7)    NOT NULL UNIQUE,       -- e.g. '2026-03'
+    year_month        VARCHAR(7)    NOT NULL UNIQUE         -- e.g. '2026-03'
+                      CHECK (year_month ~ '^\d{4}-(0[1-9]|1[0-2])$'),
     opt_in_send_at    TIMESTAMPTZ   NOT NULL,
     pairing_send_at   TIMESTAMPTZ   NOT NULL,
     checkin_send_at   TIMESTAMPTZ   NOT NULL,
