@@ -75,10 +75,11 @@ echo ""
 
 # --- Step 1: Verify connectivity ---------------------------------------------
 echo "Step 1: Verifying database connection..."
-if ! PGPASSWORD="${CPB_PASS}" psql -v ON_ERROR_STOP=1 \
+if ! CONN_ERR=$(PGPASSWORD="${CPB_PASS}" psql -v ON_ERROR_STOP=1 \
     -h "$PGHOST" -p "$PGPORT" -U "$CPB_USER" -d "$CPB_DB" \
-    -c "SELECT 1;" > /dev/null 2>&1; then
+    -c "SELECT 1;" 2>&1 >/dev/null); then
     echo "ERROR: Cannot connect to ${CPB_DB} as ${CPB_USER}" >&2
+    echo "  psql: ${CONN_ERR}" >&2
     echo "  Have you run create-role.sh first?" >&2
     exit 1
 fi
