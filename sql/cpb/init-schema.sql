@@ -89,9 +89,6 @@ CREATE TABLE IF NOT EXISTS opt_in_responses (
     UNIQUE (cycle_id, slack_user_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_opt_in_responses_cycle
-    ON opt_in_responses(cycle_id);
-
 DROP TRIGGER IF EXISTS trg_opt_in_responses_updated_at ON opt_in_responses;
 CREATE TRIGGER trg_opt_in_responses_updated_at
     BEFORE UPDATE ON opt_in_responses
@@ -119,15 +116,19 @@ CREATE TABLE IF NOT EXISTS pairings (
     person_a_dm_channel VARCHAR(20),
     person_b_dm_channel VARCHAR(20),
     created_at          TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
     CHECK (person_a_id < person_b_id),                     -- ordering invariant
     UNIQUE (cycle_id, person_a_id, person_b_id)            -- one pair per cycle
 );
 
-CREATE INDEX IF NOT EXISTS idx_pairings_cycle
-    ON pairings(cycle_id);
-
 CREATE INDEX IF NOT EXISTS idx_pairings_pair
     ON pairings(person_a_id, person_b_id);
+
+DROP TRIGGER IF EXISTS trg_pairings_updated_at ON pairings;
+CREATE TRIGGER trg_pairings_updated_at
+    BEFORE UPDATE ON pairings
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 
 -- ---------------------------------------------------------------------------
@@ -196,9 +197,6 @@ CREATE TABLE IF NOT EXISTS admin_reports (
     created_at        TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
     updated_at        TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );
-
-CREATE INDEX IF NOT EXISTS idx_admin_reports_cycle
-    ON admin_reports(cycle_id);
 
 DROP TRIGGER IF EXISTS trg_admin_reports_updated_at ON admin_reports;
 CREATE TRIGGER trg_admin_reports_updated_at
